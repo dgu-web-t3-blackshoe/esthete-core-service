@@ -118,8 +118,8 @@ controller:
     appResyncPeriod: \"60\"
 """
                     def sha = sh(script: """
-curl -s -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r 'sha'
-""", returnStatus: true).trim()
+                    curl -s -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r 'sha'
+                    """, returnStatus: true).trim()
 
                     def response = sh(script: """
 curl -X PUT -H 'Authorization: token ${githubToken}' \\
