@@ -117,6 +117,10 @@ public class PhotoServiceImpl implements PhotoService{
         PhotoUrl photoUrl = photo.getPhotoUrl();
 
         PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = PhotoDto.GetPhotoUrlResponse.builder()
+                .title(photo.getTitle())
+                .description(photo.getDescription())
+                .detail(photo.getDetail())
+                .isPublic(Boolean.toString(photo.isPublic()))
                 .cloudfrontUrl(photoUrl.getCloudfrontUrl())
                 .build();
 

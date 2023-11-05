@@ -43,7 +43,6 @@ public class PhotoDto {
 
         @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
         private String isPublic;
-        PhotoUrl photoUrl;
     }
 
     @Data
@@ -59,6 +58,11 @@ public class PhotoDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class GetPhotoUrlResponse{
         private String cloudfrontUrl;
-    }
+        private String title;
+        private String description;
+        private String detail;
+        private String isPublic;
+        private String createdAt;
 
+    }
 }
