@@ -3,9 +3,7 @@ springfox:
     swagger-ui:
       enabled: true
       base-url: core
-    swagger:
-      v2:
-        path: /core
+
 #profile
 spring:
   profiles:
