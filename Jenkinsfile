@@ -93,10 +93,10 @@ pipeline {
 
                     def githubRepo = 'dgu-web-t3-blackshoe/esthete-gitops'
 
-                    def filePath = 'esthete-charts/esthete-user-chart/values.yaml'
+                    def filePath = 'esthete-charts/esthete-core-chart/values.yaml'
 
                     def newContents = """
-# Default values for esthete-user-chart.
+# Default values for esthete-core-chart.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -105,7 +105,7 @@ pipeline {
 replicaCount: 1
 
 image:
-  repository: lsb8375/esthete-user-service
+  repository: lsb8375/esthete-core-service
   tag: ${env.IMAGE_TAG}
 
 containerPort: 8080
