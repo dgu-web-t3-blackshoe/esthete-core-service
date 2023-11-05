@@ -139,12 +139,10 @@ curl -X PUT \\
 -H "Authorization: Bearer ${githubToken}" \\
 -H "X-GitHub-Api-Version: 2022-11-28" \\
 https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
-
--d \\
-'{
-  "message": "Chore: Update values.yaml by Jenkins",
-  "content": "$base64Contents",
-  "sha": "$sha"
+-d '{\\
+  "message": "Chore: Update values.yaml by Jenkins",\\
+  "content": "$base64Contents",\\
+  "sha": "$sha"\\
 }'\\
 """, returnStatus: true)
 
