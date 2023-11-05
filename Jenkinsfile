@@ -123,13 +123,12 @@ controller:
                     """, returnStatus: true)
 
                     def response = sh(script: """
-curl -X PUT -H 'Authorization: token ${githubToken}' \\
+curl -X PUT -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
 -d '{
-  "message": "Update values.yaml",
+  "message": "Chore: Update values.yaml by Jenkins",
   "content": "\$(echo -n '${newContents}' | base64 -w0)",
   "sha": "$sha",
 }' \\
-https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment
 """, returnStatus: true)
 
                     if (response == 0) {
