@@ -6,6 +6,7 @@ pipeline {
         IMAGE_NAME = 'lsb8375/esthete-core-service'
         DOCKERHUB_CREDENTIALS = credentials('dockerhub_jenkins')
         JOB_NAME = 'esthete-core-service'
+        GITHUB_TOKEN = credentials('ghp_write_repo')
     }
 
     stages {
@@ -88,8 +89,7 @@ pipeline {
         stage('Update values.yaml on GitHub') {
             steps {
                 script {
-                    def githubToken = credentials('ghp_write_repo')
-                    echo "githubToken: ${githubToken}"
+                    def githubToken = env.GITHUB_TOKEN
 
                     def githubRepo = 'dgu-web-t3-blackshoe/esthete-gitops'
 
