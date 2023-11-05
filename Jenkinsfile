@@ -129,7 +129,7 @@ curl -X PUT -H 'Authorization: token ${githubToken}' \\
   "content": "\$(echo -n '${newContents}' | base64 -w0)",
   "sha": "$sha",
 }' \\
-'https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment'
+https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment
 """, returnStatus: true)
 
                     if (response == 0) {
