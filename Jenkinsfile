@@ -106,7 +106,7 @@ replicaCount: 1
 
 image:
   repository: lsb8375/esthete-user-service
-  tag: \${env.IMAGE_TAG}
+  tag: ${env.IMAGE_TAG}
 
 containerPort: 8080
 
@@ -118,10 +118,17 @@ controller:
   args:
     appResyncPeriod: \"60\"
 """
+                    def test = sh(script: """
+                    curl -X GET \\
+-H "Accept: application/vnd.github+json" \\
+-H "X-GitHub-Api-Version: 2022-11-28" \\
+-H 'Authorization: Bearer ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment""", returnStatus: true)
+
                     def sha = sh(script: """
                     curl -s -X GET \\
 -H "Accept: application/vnd.github+json" \\
--H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
+-H "X-GitHub-Api-Version: 2022-11-28" \\
+-H 'Authorization: Bearer ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
 
                     // newContents를 파일에 저장
@@ -138,10 +145,11 @@ curl -X PUT \\
 -H "Accept: application/vnd.github+json" \\
 -H "Authorization: Bearer ${githubToken}" \\
 -H "X-GitHub-Api-Version: 2022-11-28" \\
-https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
+https://api.github.com/repos/${githubRepo}/contents/${filePath} \\
 -d '{\\
   "message": "Chore: Update values.yaml by Jenkins",\\
-  "content": "$base64Contents",\\
+  "content": "${base64Contents}",\\
+  "branch": "test",\\
   "sha": "$sha"\\
 }'\\
 """, returnStatus: true)
