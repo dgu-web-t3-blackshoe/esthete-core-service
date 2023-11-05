@@ -124,13 +124,15 @@ controller:
 -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
 
+                    def content = newContents.bytes.encodeBase64().toString()
+
                     def response = sh(script: """
 curl -X PUT \\
 -H "Accept: application/vnd.github+json" \\
 -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
 -d '{
   "message": "Chore: Update values.yaml by Jenkins",
-  "content": "\"\$(echo -n '${newContents}' | base64 -w0)\"",
+  "content": "${content}",
   "sha": "$sha"
 }' \\
 """, returnStatus: true)
