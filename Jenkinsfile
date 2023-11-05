@@ -124,7 +124,14 @@ controller:
 -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
 
-                    def content = newContents.bytes.encodeBase64().toString()
+                    // newContents를 파일에 저장
+                    def newContentsFile = writeFile file: "temp-new-contents.yaml", text: newContents
+
+                    // 파일을 base64로 인코딩
+                    def base64Contents = sh(script: "cat temp-new-contents.yaml | base64", returnStdout: true)
+
+                    // 파일 삭제
+                    sh "rm temp-new-contents.yaml"
 
                     def response = sh(script: """
 curl -X PUT \\
@@ -132,7 +139,7 @@ curl -X PUT \\
 -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
 -d '{
   "message": "Chore: Update values.yaml by Jenkins",
-  "content": "${content}",
+  "content": "$base64Contents",
   "sha": "$sha"
 }' \\
 """, returnStatus: true)
