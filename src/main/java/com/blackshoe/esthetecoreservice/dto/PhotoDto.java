@@ -54,5 +54,11 @@ public class PhotoDto {
         private String createdAt;
     }
 
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class GetPhotoUrlResponse{
+        private String cloudfrontUrl;
+    }
 
 }

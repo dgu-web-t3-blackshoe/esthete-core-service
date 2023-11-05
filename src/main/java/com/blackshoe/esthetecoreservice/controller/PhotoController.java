@@ -46,4 +46,15 @@ public class PhotoController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
+
+    @GetMapping({"/{photo_id}/url"})
+    public ResponseEntity<ResponseDto> getPhotoUrl(@PathVariable(name = "photo_id") UUID photoId) {
+        final PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = photoService.getPhotoUrl(photoId);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(getPhotoUrlResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

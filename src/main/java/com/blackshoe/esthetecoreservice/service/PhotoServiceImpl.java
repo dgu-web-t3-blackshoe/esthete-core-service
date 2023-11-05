@@ -108,4 +108,18 @@ public class PhotoServiceImpl implements PhotoService{
 
         return photoDto;
     }
+
+    @Override
+    @Transactional
+    public PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId) {
+        Photo photo = photoRepository.findByPhotoId(photoId);
+
+        PhotoUrl photoUrl = photo.getPhotoUrl();
+
+        PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = PhotoDto.GetPhotoUrlResponse.builder()
+                .cloudfrontUrl(photoUrl.getCloudfrontUrl())
+                .build();
+
+        return getPhotoUrlResponse;
+    }
 }
