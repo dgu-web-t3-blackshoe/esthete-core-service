@@ -127,7 +127,6 @@ curl -X PUT -H 'Authorization: token ${githubToken}' \\
   "message": "Update values.yaml",
   "content": "\$(echo -n '${newContents}' | base64 -w0)",
   "sha": "$sha",
-  "branch": "main"
 }' \\
 'https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment'
 """, returnStatus: true)
