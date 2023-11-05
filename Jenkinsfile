@@ -136,12 +136,16 @@ controller:
                     def response = sh(script: """
 curl -X PUT \\
 -H "Accept: application/vnd.github+json" \\
--H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
--d '{
+-H "Authorization: Bearer ${githubToken}" \\
+-H "X-GitHub-Api-Version: 2022-11-28" \\
+https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
+
+-d \\
+'{
   "message": "Chore: Update values.yaml by Jenkins",
   "content": "$base64Contents",
   "sha": "$sha"
-}' \\
+}'\\
 """, returnStatus: true)
 
                     if (response == 0) {
