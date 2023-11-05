@@ -129,11 +129,8 @@ curl -X PUT \\
 -H "Accept: application/vnd.github+json" \\
 -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
 -d '{
-  "owner": "bin-pro",
-  "repo": "esthete-gitops",
-  "path": "esthete-charts/esthete-user-chart/values.yaml",
   "message": "Chore: Update values.yaml by Jenkins",
-  "content": "\$(echo -n '${newContents}' | base64 -w0)",
+  "content": "\"\$(echo -n '${newContents}' | base64 -w0)\"",
   "sha": "$sha"
 }' \\
 """, returnStatus: true)
