@@ -89,6 +89,7 @@ pipeline {
             steps {
                 script {
                     def githubToken = credentials('ghp_write_repo')
+                    echo "githubToken: ${githubToken}"
 
                     def githubRepo = 'dgu-web-t3-blackshoe/esthete-gitops'
 
