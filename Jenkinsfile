@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // 환경 변수 설정
-        IMAGE_NAME = 'lsb8375/esthete-core-service'
+        IMAGE_NAME = 'lsb8375/esthete-core'
         DOCKERHUB_CREDENTIALS = credentials('dockerhub_jenkins')
         JOB_NAME = 'esthete-core-service'
         GITHUB_TOKEN = credentials('ghp_write_repo')
@@ -41,6 +41,7 @@ pipeline {
                         writeFile file: "../${JOB_NAME}-image-tag.txt", text: "1.0"
                         lastImageTag = "1.0"
                     }
+
                     lastImageVersion = lastImageTag.tokenize('.')
                     def majorVersion = lastImageVersion[0] as int
                     def minorVersion = lastImageVersion[1] as int
@@ -105,7 +106,7 @@ pipeline {
 replicaCount: 1
 
 image:
-  repository: lsb8375/esthete-core-service
+  repository: lsb8375/esthete-core
   tag: ${env.IMAGE_TAG}
 
 containerPort: 8080
