@@ -89,8 +89,11 @@ pipeline {
             steps {
                 script {
                     def githubToken = credentials('ghp_write_repo')
+
                     def githubRepo = 'dgu-web-t3-blackshoe/esthete-gitops'
+
                     def filePath = 'esthete-charts/esthete-user-chart/values.yaml'
+
                     def newContents = """
 # Default values for esthete-user-chart.
 # This is a YAML-formatted file.
@@ -115,7 +118,7 @@ controller:
     appResyncPeriod: \"60\"
 """
                     def sha = sh(script: """
-curl -s -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath} | jq -r '.sha'
+curl -s -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
 """, returnStatus: true).trim()
 
                     def response = sh(script: """
@@ -126,7 +129,7 @@ curl -X PUT -H 'Authorization: token ${githubToken}' \\
   "sha": "$sha",
   "branch": "main"
 }' \\
-https://api.github.com/repos/${githubRepo}/contents/${filePath}
+https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment
 """, returnStatus: true)
 
                     if (response == 0) {
