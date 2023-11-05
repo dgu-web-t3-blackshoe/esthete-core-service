@@ -114,11 +114,18 @@ controller:
   args:
     appResyncPeriod: \"60\"
 """
-                    def newContentsBase64 = newContents.bytes.encodeBase64().toString()
+                    def sha = sh(script: """
+curl -s -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath} | jq -r '.sha'
+""", returnStatus: true).trim()
 
                     def response = sh(script: """
 curl -X PUT -H 'Authorization: token ${githubToken}' \\
--d '{"message":"Update values.yaml", "content":"${newContentsBase64}"}' \\
+-d '{
+  "message": "Update values.yaml",
+  "content": "\$(echo -n '${newContents}' | base64 -w0)",
+  "sha": "$sha",
+  "branch": "main"
+}' \\
 https://api.github.com/repos/${githubRepo}/contents/${filePath}
 """, returnStatus: true)
 
