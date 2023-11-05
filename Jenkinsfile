@@ -119,15 +119,22 @@ controller:
     appResyncPeriod: \"60\"
 """
                     def sha = sh(script: """
-                    curl -s -X GET -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
+                    curl -s -X GET \\
+-H "Accept: application/vnd.github+json" \\
+-H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
 
                     def response = sh(script: """
-curl -X PUT -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
+curl -X PUT \\
+-H "Accept: application/vnd.github+json" \\
+-H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment \\
 -d '{
+  "owner": "bin-pro",
+  "repo": "esthete-gitops",
+  "path": "esthete-charts/esthete-user-chart/values.yaml",
   "message": "Chore: Update values.yaml by Jenkins",
   "content": "\$(echo -n '${newContents}' | base64 -w0)",
-  "sha": "$sha",
+  "sha": "$sha"
 }' \\
 """, returnStatus: true)
 
