@@ -125,6 +125,7 @@ controller:
 -H 'Authorization: Bearer ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
 
+                    println("sha: ${sha}")
 
                     // newContents를 파일에 저장
                     def newContentsFile = writeFile file: "temp-new-contents.yaml", text: newContents
@@ -132,6 +133,7 @@ controller:
                     // 파일을 base64로 인코딩
                     def base64Contents = sh(script: "cat temp-new-contents.yaml | base64", returnStdout: true)
 
+                    println("base64Contents: ${base64Contents}")
                     // 파일 삭제
                     sh "rm temp-new-contents.yaml"
 
