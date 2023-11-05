@@ -118,18 +118,13 @@ controller:
   args:
     appResyncPeriod: \"60\"
 """
-                    def test = sh(script: """
-                    curl -X GET \\
--H "Accept: application/vnd.github+json" \\
--H "X-GitHub-Api-Version: 2022-11-28" \\
--H 'Authorization: Bearer ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment""", returnStatus: true)
-
                     def sha = sh(script: """
                     curl -s -X GET \\
 -H "Accept: application/vnd.github+json" \\
 -H "X-GitHub-Api-Version: 2022-11-28" \\
 -H 'Authorization: Bearer ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
                     """, returnStatus: true)
+
 
                     // newContents를 파일에 저장
                     def newContentsFile = writeFile file: "temp-new-contents.yaml", text: newContents
@@ -141,17 +136,7 @@ controller:
                     sh "rm temp-new-contents.yaml"
 
                     def response = sh(script: """
-curl -X PUT \\
--H "Accept: application/vnd.github+json" \\
--H "Authorization: Bearer ${githubToken}" \\
--H "X-GitHub-Api-Version: 2022-11-28" \\
-https://api.github.com/repos/${githubRepo}/contents/${filePath} \\
--d '{\\
-  "message": "Chore: Update values.yaml by Jenkins",\\
-  "content": "${base64Contents}",\\
-  "branch": "test",\\
-  "sha": "$sha"\\
-}'\\
+curl -X PUT -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${githubToken}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${githubRepo}/contents/${filePath} -d '{"message": "Chore: Update values.yaml by Jenkins","content": "${base64Contents}","branch": "test","sha": "$sha"}'
 """, returnStatus: true)
 
                     if (response == 0) {
