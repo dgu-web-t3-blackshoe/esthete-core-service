@@ -84,5 +84,52 @@ pipeline {
                 }
             }
         }
+
+        stage('Update values.yaml on GitHub') {
+            steps {
+                script {
+                    def githubToken = credentials('ghp_write_repo')
+                    def githubRepo = 'dgu-web-t3-blackshoe/esthete-gitops'
+                    def filePath = 'esthete-charts/esthete-user-chart/values.yaml'
+                    def newContents = """
+# Default values for esthete-user-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# esthete-deployment-chart/values.yaml
+
+replicaCount: 1
+
+image:
+  repository: lsb8375/esthete-user-service
+  tag: \${env.IMAGE_TAG}
+
+containerPort: 8080
+
+ingress:
+  enabled: true
+
+controller:
+  ## Argo controller commandline flags
+  args:
+    appResyncPeriod: \"60\"
+"""
+                    def newContentsBase64 = newContents.bytes.encodeBase64().toString()
+
+                    def response = sh(script: """
+curl -X PUT -H 'Authorization: token ${githubToken}' \\
+-d '{"message":"Update values.yaml", "content":"${newContentsBase64}"}' \\
+https://api.github.com/repos/${githubRepo}/contents/${filePath}
+""", returnStatus: true)
+
+                    if (response == 0) {
+                        currentBuild.result = 'SUCCESS'
+                    } else {
+                        currentBuild.result = 'FAILURE'
+                        error("GitHub의 values.yaml를 업데이트하지 못했습니다.")
+                    }
+                }
+            }
+        }
     }
 }
