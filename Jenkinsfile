@@ -120,7 +120,7 @@ controller:
 """
                     def sha = sh(script: """
                     curl -s -X GET -H 'Authorization: token ${githubToken}' https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=deployment | jq -r '.sha'
-                    """, returnStatus: true).trim()
+                    """, returnStatus: true)
 
                     def response = sh(script: """
 curl -X PUT -H 'Authorization: token ${githubToken}' \\
