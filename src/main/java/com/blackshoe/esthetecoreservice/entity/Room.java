@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +37,13 @@ public class Room {
 
     @Column(name = "thumbnail", nullable = false, length = 100)
     private String thumbnail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exhibition_id", foreignKey = @ForeignKey(name = "room_fk_exhibition_id"))
+    private Exhibition exhibition;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomPhoto> roomPhotos;
 
     @CreatedDate
     private LocalDateTime createdAt;
