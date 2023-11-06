@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +17,6 @@ import java.util.UUID;
 @Table(name = "rooms")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Room {
@@ -53,5 +53,22 @@ public class Room {
         if (roomId == null) {
             roomId = UUID.randomUUID();
         }
+    }
+
+    @Builder
+    public Room(String title, String description, String thumbnail, Exhibition exhibition) {
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.exhibition = exhibition;
+        this.roomPhotos = new ArrayList<>();
+    }
+
+    public void setExhibition(Exhibition exhibition) {
+        this.exhibition = exhibition;
+    }
+
+    public void addRoomPhoto(RoomPhoto roomPhoto) {
+        this.roomPhotos.add(roomPhoto);
     }
 }

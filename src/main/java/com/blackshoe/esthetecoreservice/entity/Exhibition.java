@@ -16,8 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "exhibitions")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter @Builder
-@AllArgsConstructor
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 public class Exhibition {
 
@@ -42,12 +41,24 @@ public class Exhibition {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Room> rooms = new ArrayList<>();
+    private List<Room> rooms;
+
+    @Builder
+    public Exhibition(String title, String description, String thumbnail) {
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.rooms = new ArrayList<>();
+    }
 
     @PrePersist
     public void setExhibitionId() {
         if (exhibitionId == null) {
             exhibitionId = UUID.randomUUID();
         }
+    }
+
+    public void addRoom(Room room) {
+        rooms.add(room);
     }
 }
