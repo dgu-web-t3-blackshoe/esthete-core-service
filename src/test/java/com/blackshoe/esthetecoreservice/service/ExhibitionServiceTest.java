@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,5 +58,21 @@ public class ExhibitionServiceTest {
         verify(exhibitionRepository, times(1)).save(any(Exhibition.class));
         assertThat(exhibitionCreateResponse.getExhibitionId()).isEqualTo(exhibitionId);
         assertThat(exhibitionCreateResponse.getCreatedAt()).isEqualTo(createdAt);
+    }
+
+    @Test
+    public void deleteExhibition_whenSuccess_returnsExhibitionDeleteResponse() {
+        // given
+        when(exhibitionRepository.findByExhibitionId(any(UUID.class))).thenReturn(Optional.of(exhibition));
+        when(exhibition.getExhibitionId()).thenReturn(exhibitionId);
+
+        // when
+        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = exhibitionService.deleteExhibition(exhibitionId);
+
+        // then
+        verify(exhibitionRepository, times(1)).findByExhibitionId(any(UUID.class));
+        verify(exhibitionRepository, times(1)).delete(any(Exhibition.class));
+        assertThat(exhibitionDeleteResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionDeleteResponse.getDeletedAt()).isNotNull();
     }
 }

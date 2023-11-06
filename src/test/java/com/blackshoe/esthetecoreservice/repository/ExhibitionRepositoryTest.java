@@ -93,4 +93,22 @@ public class ExhibitionRepositoryTest {
         assertThat(exhibitionRepository.findById(savedExhibition.getId())).isEmpty();
         assertThat(roomRepository.findById(savedRoom.getId())).isEmpty();
     }
+
+    @Test
+    public void findByExhibitionId_onSuccess_returnsExhibition() {
+        // given
+        final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
+
+        // when
+        final Exhibition foundExhibition = exhibitionRepository.findByExhibitionId(savedExhibition.getExhibitionId()).get();
+
+        // then
+        assertThat(foundExhibition).isNotNull();
+        assertThat(foundExhibition.getId()).isEqualTo(savedExhibition.getId());
+        assertThat(foundExhibition.getExhibitionId()).isEqualTo(savedExhibition.getExhibitionId());
+        assertThat(foundExhibition.getCreatedAt()).isEqualTo(savedExhibition.getCreatedAt());
+        assertThat(foundExhibition.getTitle()).isEqualTo(savedExhibition.getTitle());
+        assertThat(foundExhibition.getDescription()).isEqualTo(savedExhibition.getDescription());
+        assertThat(foundExhibition.getThumbnail()).isEqualTo(savedExhibition.getThumbnail());
+    }
 }
