@@ -20,8 +20,6 @@ public class PhotoUrl {
     @Column(name = "photo_url_id")
     private long id;
 
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)", name = "photo_url_uuid")
     private UUID photoUrlId;
 
@@ -44,5 +42,12 @@ public class PhotoUrl {
                 .s3Url(uploadedPhotoUrlDto.getS3Url())
                 .cloudfrontUrl(uploadedPhotoUrlDto.getCloudfrontUrl())
                 .build();
+    }
+
+    @PrePersist
+    public void setPhotoUrlId() {
+        if (photoUrlId == null) {
+            photoUrlId = UUID.randomUUID();
+        }
     }
 }

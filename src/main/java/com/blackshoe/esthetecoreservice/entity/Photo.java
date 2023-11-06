@@ -23,10 +23,8 @@ public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "photo_id")
-    private long id;
+    private Long id;
 
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
@@ -51,10 +49,20 @@ public class Photo {
 
     @ColumnDefault("0")
     @Column(name = "view_count")
-    private long viewCount;
+    private Long viewCount;
 
     @CreatedDate
     @Column(name = "created_at", length = 20)
     private LocalDateTime createdAt;
 
+    public void setPhotoUrl(PhotoUrl photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    @PrePersist
+    public void setPhotoId() {
+        if (photoId == null) {
+            photoId = UUID.randomUUID();
+        }
+    }
 }
