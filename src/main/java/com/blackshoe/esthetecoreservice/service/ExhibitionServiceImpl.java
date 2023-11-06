@@ -29,8 +29,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
 
         final ExhibitionDto.CreateResponse exhibitionCreateResponse = ExhibitionDto.CreateResponse.builder()
-                .exhibitionId(savedExhibition.getExhibitionId())
-                .createdAt(savedExhibition.getCreatedAt())
+                .exhibitionId(savedExhibition.getExhibitionId().toString())
+                .createdAt(savedExhibition.getCreatedAt().toString())
                 .build();
 
         return exhibitionCreateResponse;
