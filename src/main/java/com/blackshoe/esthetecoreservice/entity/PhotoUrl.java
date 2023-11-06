@@ -1,18 +1,23 @@
 package com.blackshoe.esthetecoreservice.entity;
 
 import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Table(name = "photo_urls")
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class PhotoUrl {
 
     @Id
@@ -28,14 +33,6 @@ public class PhotoUrl {
 
     @Column(name = "cloudfront_url")
     private String cloudfrontUrl;
-
-    @Builder
-    public PhotoUrl(long id, UUID photoUrlId, String s3Url, String cloudfrontUrl) {
-        this.id = id;
-        this.photoUrlId = photoUrlId;
-        this.s3Url = s3Url;
-        this.cloudfrontUrl = cloudfrontUrl;
-    }
 
     public static PhotoUrl convertPhotoUrlDtoToEntity(PhotoUrlDto uploadedPhotoUrlDto) {
         return PhotoUrl.builder()
