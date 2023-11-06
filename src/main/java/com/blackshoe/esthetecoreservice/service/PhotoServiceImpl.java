@@ -89,8 +89,6 @@ public class PhotoServiceImpl implements PhotoService{
                 .photoUrl(uploadedPhotoUrl)
                 .title(photoUploadRequest.getTitle())
                 .description(photoUploadRequest.getDescription())
-                .detail(photoUploadRequest.getDetail())
-                .isPublic(Boolean.valueOf(photoUploadRequest.getIsPublic()))
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -119,8 +117,6 @@ public class PhotoServiceImpl implements PhotoService{
         PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = PhotoDto.GetPhotoUrlResponse.builder()
                 .title(photo.getTitle())
                 .description(photo.getDescription())
-                .detail(photo.getDetail())
-                .isPublic(Boolean.toString(photo.isPublic()))
                 .cloudfrontUrl(photoUrl.getCloudfrontUrl())
                 .build();
 
