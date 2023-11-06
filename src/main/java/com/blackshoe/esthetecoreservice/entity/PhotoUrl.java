@@ -23,7 +23,7 @@ public class PhotoUrl {
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)", name = "photo_url_uuid")
-    private UUID uuid;
+    private UUID photoUrlId;
 
     @Column(name = "s3_url")
     private String s3Url;
@@ -32,9 +32,9 @@ public class PhotoUrl {
     private String cloudfrontUrl;
 
     @Builder
-    public PhotoUrl(long id, UUID uuid, String s3Url, String cloudfrontUrl) {
+    public PhotoUrl(long id, UUID photoUrlId, String s3Url, String cloudfrontUrl) {
         this.id = id;
-        this.uuid = uuid;
+        this.photoUrlId = photoUrlId;
         this.s3Url = s3Url;
         this.cloudfrontUrl = cloudfrontUrl;
     }
