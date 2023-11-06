@@ -1,6 +1,9 @@
 package com.blackshoe.esthetecoreservice.repository;
 
+import com.blackshoe.esthetecoreservice.entity.Photo;
+import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
 import com.blackshoe.esthetecoreservice.entity.Room;
+import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,6 +20,29 @@ public class RoomRepositoryTest {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private RoomPhotoRepository roomPhotoRepository;
+
+    @Autowired
+    private PhotoRepository photoRepository;
+
+    private final Room room = Room.builder()
+            .title("title")
+            .description("description")
+            .thumbnail("thumbnail")
+            .build();
+
+    private final PhotoUrl photoUrl = PhotoUrl.builder()
+            .cloudfrontUrl("cloudfrontUrl")
+            .s3Url("s3Url")
+            .build();
+
+    private final Photo photo = Photo.builder()
+            .title("title")
+            .description("description")
+            .time("time")
+            .build();
+
     @Test
     public void assert_isNotNull() {
         assertThat(roomRepository).isNotNull();
@@ -25,11 +51,6 @@ public class RoomRepositoryTest {
     @Test
     public void save_returns_savedRoom() {
         // given
-        final Room room = Room.builder()
-                .title("title")
-                .description("description")
-                .thumbnail("thumbnail")
-                .build();
 
         // when
         final Room savedRoom = roomRepository.save(room);
@@ -42,5 +63,50 @@ public class RoomRepositoryTest {
         assertThat(savedRoom.getTitle()).isEqualTo(room.getTitle());
         assertThat(savedRoom.getDescription()).isEqualTo(room.getDescription());
         assertThat(savedRoom.getThumbnail()).isEqualTo(room.getThumbnail());
+    }
+
+    @Test
+    public void addRoomPhoto_returns_addedRoomPhoto() {
+        // given
+        final Room savedRoom = roomRepository.save(room);
+
+        photo.setPhotoUrl(photoUrl);
+        final Photo savedPhoto = photoRepository.save(photo);
+
+        final RoomPhoto roomPhoto = RoomPhoto.builder()
+                .room(savedRoom)
+                .photo(savedPhoto)
+                .build();
+
+        final RoomPhoto savedRoomPhoto =  roomPhotoRepository.save(roomPhoto);
+
+        // when
+        savedRoom.addRoomPhoto(savedRoomPhoto);
+    }
+
+    @Test
+    public void deleteRoom_onSuccess_alsoDeleteRoomPhoto() {
+        // given
+        final Room savedRoom = roomRepository.save(room);
+
+        photo.setPhotoUrl(photoUrl);
+        final Photo savedPhoto = photoRepository.save(photo);
+
+        final RoomPhoto roomPhoto = RoomPhoto.builder()
+                .room(savedRoom)
+                .photo(savedPhoto)
+                .build();
+
+        final RoomPhoto savedRoomPhoto =  roomPhotoRepository.save(roomPhoto);
+
+        savedRoom.addRoomPhoto(savedRoomPhoto);
+
+        // when
+        roomRepository.delete(savedRoom);
+
+        // then
+        assertThat(roomRepository.findById(savedRoom.getId())).isEmpty();
+        assertThat(roomPhotoRepository.findById(savedRoomPhoto.getId())).isEmpty();
+        assertThat(photoRepository.findById(savedPhoto.getId())).isNotEmpty();
     }
 }

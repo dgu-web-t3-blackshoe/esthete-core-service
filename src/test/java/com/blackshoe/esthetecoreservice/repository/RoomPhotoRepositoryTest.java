@@ -35,7 +35,6 @@ public class RoomPhotoRepositoryTest {
             .title("title")
             .description("description")
             .time("time")
-            .photoUrl(photoUrl)
             .build();
 
     private final Room room = Room.builder()
