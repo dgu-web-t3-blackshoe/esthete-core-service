@@ -7,13 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
-public class ExceptionHandler {
-    @org.springframework.web.bind.annotation.ExceptionHandler(BindException.class)
+public class GlobalExceptionHandler {
+    @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorDto> handleBindException(BindException e) {
 
         final String errors = e.getBindingResult().getAllErrors().stream()
@@ -27,5 +28,17 @@ public class ExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
+    }
+
+    @ExceptionHandler(ExhibitionException.class)
+    public ResponseEntity<ErrorDto> handleExhibitionException(ExhibitionException e) {
+
+        log.error("ExhibitionException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getMessage())
+                .build();
+
+        return ResponseEntity.status(e.getExhibitionErrorResult().getHttpStatus()).body(errorDto);
     }
 }
