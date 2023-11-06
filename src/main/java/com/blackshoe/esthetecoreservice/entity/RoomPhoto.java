@@ -15,9 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "room_photos")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
-@Builder
-@AllArgsConstructor
+@Getter @Builder @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class RoomPhoto {
     @Id
