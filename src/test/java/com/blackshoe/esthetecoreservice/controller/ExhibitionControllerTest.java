@@ -2,6 +2,8 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ErrorDto;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
+import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
+import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,6 +91,48 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).contains("error");
+    }
+
+    @Test
+    public void deleteExhibition_whenSuccess_returns200() throws Exception {
+        // given
+        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = ExhibitionDto.DeleteResponse.builder()
+                .exhibitionId(UUID.randomUUID().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        when(exhibitionService.deleteExhibition(any(UUID.class))).thenReturn(exhibitionDeleteResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionDeleteResponse));
+    }
+
+    @Test
+    public void deleteExhibition_whenPostNotFound_returns404() throws Exception {
+        // given
+        when(exhibitionService.deleteExhibition(any(UUID.class)))
+                .thenThrow(new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(response.getContentAsString()).contains("error");
     }
 }
