@@ -1,17 +1,14 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.dto.ResponseDto;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/exhibitions")
@@ -26,5 +23,13 @@ public class ExhibitionController {
         final ExhibitionDto.CreateResponse exhibitionCreateResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(exhibitionCreateResponse);
+    }
+
+    @DeleteMapping("/{exhibitionId}")
+    public ResponseEntity<ExhibitionDto.DeleteResponse> deleteExhibition(@PathVariable UUID exhibitionId) {
+
+        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = exhibitionService.deleteExhibition(exhibitionId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionDeleteResponse);
     }
 }
