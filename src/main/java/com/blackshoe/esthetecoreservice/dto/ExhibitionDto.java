@@ -57,4 +57,15 @@ public class ExhibitionDto {
         private String exhibitionId;
         private String createdAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DeleteResponse {
+        private String exhibitionId;
+        private String deletedAt;
+    }
 }
