@@ -45,4 +45,9 @@ public class RoomPhoto {
             roomPhotoId = UUID.randomUUID();
         }
     }
+
+    public void setRoom(Room room) {
+        this.room = room;
+        room.addRoomPhoto(this);
+    }
 }

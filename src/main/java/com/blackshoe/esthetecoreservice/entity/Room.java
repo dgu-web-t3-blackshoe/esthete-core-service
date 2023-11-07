@@ -66,6 +66,7 @@ public class Room {
 
     public void setExhibition(Exhibition exhibition) {
         this.exhibition = exhibition;
+        exhibition.addRoom(this);
     }
 
     public void addRoomPhoto(RoomPhoto roomPhoto) {
