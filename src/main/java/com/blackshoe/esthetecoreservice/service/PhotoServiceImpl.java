@@ -110,7 +110,7 @@ public class PhotoServiceImpl implements PhotoService{
     @Override
     @Transactional
     public PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId) {
-        Photo photo = photoRepository.findByPhotoId(photoId);
+        Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         PhotoUrl photoUrl = photo.getPhotoUrl();
 
