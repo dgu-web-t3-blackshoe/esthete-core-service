@@ -45,4 +45,12 @@ public class ExhibitionController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(roomCreateResponse);
     }
+
+    @DeleteMapping("/{exhibitionId}/rooms/{roomId}")
+    public ResponseEntity<RoomDto.DeleteResponse> deleteRoom(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
+
+        final RoomDto.DeleteResponse roomDeleteResponse = roomService.deleteRoom(roomId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(roomDeleteResponse);
+    }
 }
