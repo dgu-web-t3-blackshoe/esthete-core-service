@@ -127,7 +127,7 @@ public class ExhibitionControllerTest {
     }
 
     @Test
-    public void deleteExhibition_whenPostNotFound_returns404() throws Exception {
+    public void deleteExhibition_whenExhibitionNotFound_returns404() throws Exception {
         // given
         when(exhibitionService.deleteExhibition(any(UUID.class)))
                 .thenThrow(new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
@@ -201,4 +201,48 @@ public class ExhibitionControllerTest {
         assertThat(response.getContentAsString()).contains("error");
         log.info("response: {}", response.getContentAsString());
     }
+
+    @Test
+    public void deleteRoom_whenSuccess_returns200() throws Exception {
+        // given
+        final RoomDto.DeleteResponse roomDeleteResponse = RoomDto.DeleteResponse.builder()
+                .roomId(UUID.randomUUID().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        when(roomService.deleteRoom(any(UUID.class))).thenReturn(roomDeleteResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomDeleteResponse));
+    }
+
+    @Test
+    public void deleteRoom_whenRoomNotFound_returns404() throws Exception {
+        // given
+        when(roomService.deleteRoom(any(UUID.class)))
+                .thenThrow(new ExhibitionException(ExhibitionErrorResult.ROOM_NOT_FOUND));
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(response.getContentAsString()).contains("error");
+        log.info("response: {}", response.getContentAsString());
+    }
+
 }
