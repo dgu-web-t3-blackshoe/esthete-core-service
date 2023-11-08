@@ -109,4 +109,22 @@ public class RoomRepositoryTest {
         assertThat(roomPhotoRepository.findById(savedRoomPhoto.getId())).isEmpty();
         assertThat(photoRepository.findById(savedPhoto.getId())).isNotEmpty();
     }
+
+    @Test
+    public void findByRoomId_returns_room() {
+        // given
+        final Room savedRoom = roomRepository.save(room);
+
+        // when
+        final Room foundRoom = roomRepository.findByRoomId(savedRoom.getRoomId()).orElse(null);
+
+        // then
+        assertThat(foundRoom).isNotNull();
+        assertThat(foundRoom.getId()).isEqualTo(savedRoom.getId());
+        assertThat(foundRoom.getRoomId()).isEqualTo(savedRoom.getRoomId());
+        assertThat(foundRoom.getCreatedAt()).isEqualTo(savedRoom.getCreatedAt());
+        assertThat(foundRoom.getTitle()).isEqualTo(savedRoom.getTitle());
+        assertThat(foundRoom.getDescription()).isEqualTo(savedRoom.getDescription());
+        assertThat(foundRoom.getThumbnail()).isEqualTo(savedRoom.getThumbnail());
+    }
 }

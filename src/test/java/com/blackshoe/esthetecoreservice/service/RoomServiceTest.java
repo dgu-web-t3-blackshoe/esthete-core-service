@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,5 +86,21 @@ public class RoomServiceTest {
         verify(roomPhotoRepository, times(roomCreateRequest.getPhotos().size())).save(any(RoomPhoto.class));
         assertThat(roomCreateResponse.getRoomId()).isEqualTo(roomId.toString());
         assertThat(roomCreateResponse.getCreatedAt()).isEqualTo(createdAt.toString());
+    }
+
+    @Test
+    public void deleteRoom_whenSuccess_returnsRoomDeleteResponse() {
+        // given
+        when(roomRepository.findByRoomId(any(UUID.class))).thenReturn(Optional.of(room));
+        when(room.getRoomId()).thenReturn(roomId);
+
+        // when
+        final RoomDto.DeleteResponse roomDeleteResponse = roomService.deleteRoom(roomId);
+
+        // then
+        verify(roomRepository, times(1)).findByRoomId(any(UUID.class));
+        verify(roomRepository, times(1)).delete(any(Room.class));
+        assertThat(roomDeleteResponse.getRoomId()).isEqualTo(roomId.toString());
+        assertThat(roomDeleteResponse.getDeletedAt()).isNotNull();
     }
 }
