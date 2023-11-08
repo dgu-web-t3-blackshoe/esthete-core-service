@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,5 +75,21 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         return roomCreateResponseDto;
+    }
+
+    @Override
+    public RoomDto.DeleteResponse deleteRoom(UUID roomId) {
+
+        final Room room = roomRepository.findByRoomId(roomId)
+                .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.ROOM_NOT_FOUND));
+
+        roomRepository.delete(room);
+
+        final RoomDto.DeleteResponse roomDeleteResponseDto = RoomDto.DeleteResponse.builder()
+                .roomId(room.getRoomId().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        return roomDeleteResponseDto;
     }
 }
