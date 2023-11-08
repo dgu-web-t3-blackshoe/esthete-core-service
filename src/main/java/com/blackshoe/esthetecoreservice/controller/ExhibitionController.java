@@ -1,7 +1,9 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
+import com.blackshoe.esthetecoreservice.dto.RoomDto;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
+import com.blackshoe.esthetecoreservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ public class ExhibitionController {
 
     private final ExhibitionService exhibitionService;
 
+    private final RoomService roomService;
+
     @PostMapping
     public ResponseEntity<ExhibitionDto.CreateResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateRequest exhibitionCreateRequest) {
 
@@ -31,5 +35,14 @@ public class ExhibitionController {
         final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = exhibitionService.deleteExhibition(exhibitionId);
 
         return ResponseEntity.status(HttpStatus.OK).body(exhibitionDeleteResponse);
+    }
+
+    @PostMapping("/{exhibitionId}/rooms")
+    public ResponseEntity<RoomDto.CreateResponse> createRoom(@RequestBody @Valid RoomDto.CreateRequest roomCreateRequest,
+                                                             @PathVariable UUID exhibitionId) {
+
+        final RoomDto.CreateResponse roomCreateResponse = roomService.createRoom(roomCreateRequest, exhibitionId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomCreateResponse);
     }
 }

@@ -41,6 +41,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     }
 
     @Override
+    @Transactional
     public ExhibitionDto.DeleteResponse deleteExhibition(UUID exhibitionId) {
 
         final Exhibition exhibition = exhibitionRepository.findByExhibitionId(exhibitionId)
