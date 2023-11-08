@@ -23,10 +23,8 @@ public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "photo_id")
-    private long id;
+    private Long id;
 
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
@@ -35,9 +33,6 @@ public class Photo {
 
     @Column(name = "description", nullable = true, length = 100)
     private String description;
-
-    @Column(name = "detail", nullable = true, length = 100)
-    private String detail;
 
     @JoinColumn(name = "photo_url_id", foreignKey = @ForeignKey(name = "photo_fk_photo_url_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -49,20 +44,25 @@ public class Photo {
     private PhotoLocation photoLocation;
     */
 
-    @ColumnDefault("0")
-    @Column(name = "collections_count")
-    private long collectionsCount;
+    @Column(name = "photo_time", nullable = false, length = 20)
+    private String time;
 
     @ColumnDefault("0")
     @Column(name = "view_count")
-    private long viewCount;
-
-    @ColumnDefault("true")
-    @Column(nullable = false)
-    private boolean isPublic;
+    private Long viewCount;
 
     @CreatedDate
     @Column(name = "created_at", length = 20)
     private LocalDateTime createdAt;
 
+    public void setPhotoUrl(PhotoUrl photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    @PrePersist
+    public void setPhotoId() {
+        if (photoId == null) {
+            photoId = UUID.randomUUID();
+        }
+    }
 }

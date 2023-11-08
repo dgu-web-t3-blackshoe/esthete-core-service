@@ -1,6 +1,6 @@
 package com.blackshoe.esthetecoreservice.repository;
 
-import com.blackshoe.esthetecoreservice.entity.Photo;
+import com.blackshoe.esthetecoreservice.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PhotoRepository extends JpaRepository<Photo, Long> {
-    Optional<Photo> findByPhotoId(UUID photoId);
+public interface RoomRepository extends JpaRepository<Room, Long> {
+    Optional<Room> findByRoomId(UUID roomId);
 }
