@@ -56,8 +56,8 @@ public class ExhibitionServiceTest {
 
         // then
         verify(exhibitionRepository, times(1)).save(any(Exhibition.class));
-        assertThat(exhibitionCreateResponse.getExhibitionId()).isEqualTo(exhibitionId);
-        assertThat(exhibitionCreateResponse.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(exhibitionCreateResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionCreateResponse.getCreatedAt()).isEqualTo(createdAt.toString());
     }
 
     @Test
