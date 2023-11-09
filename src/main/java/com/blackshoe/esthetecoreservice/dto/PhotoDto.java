@@ -1,5 +1,7 @@
 package com.blackshoe.esthetecoreservice.dto;
 
+import com.blackshoe.esthetecoreservice.entity.Equipment;
+import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -7,11 +9,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.asm.Advice;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -63,6 +67,20 @@ public class PhotoDto {
         private String detail;
         private String isPublic;
         private String createdAt;
-
+    }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class GetPhotoResponse{
+        private String photoId;
+        private String title;
+        private String description;
+        private String detail;
+        private String time;
+        private String isPublic;
+        private PhotoLocation photoLocation;
+        private List<Equipment> equipments;
+        private Long viewCount;
+        private PhotoUrl photoUrl;
+        private String createdAt;
     }
 }

@@ -4,10 +4,13 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
 import com.blackshoe.esthetecoreservice.entity.Photo;
+import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
+import com.blackshoe.esthetecoreservice.repository.PhotoLocationRepository;
 import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
+import com.blackshoe.esthetecoreservice.repository.PhotoUrlRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +28,8 @@ public class PhotoServiceImpl implements PhotoService{
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
+    private final PhotoUrlRepository photoUrlRepository;
+    private final PhotoLocationRepository photoLocationRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
@@ -121,5 +126,26 @@ public class PhotoServiceImpl implements PhotoService{
                 .build();
 
         return getPhotoUrlResponse;
+    }
+
+    @Override
+    @Transactional
+    public PhotoDto.GetPhotoResponse getPhoto(UUID photoId) {
+        Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+
+        PhotoDto.GetPhotoResponse getPhotoResponse = PhotoDto.GetPhotoResponse.builder()
+                .photoId(photo.getPhotoId().toString())
+                .title(photo.getTitle())
+                .description(photo.getDescription())
+                .time(photo.getTime())
+                .photoUrl(photo.getPhotoUrl())
+                .photoLocation(photo.getPhotoLocation())
+                .equipments(photo.getEquipments())
+                .viewCount(photo.getViewCount())
+                .createdAt(String.valueOf(photo.getCreatedAt()))
+                .build();
+
+        return getPhotoResponse;
     }
 }

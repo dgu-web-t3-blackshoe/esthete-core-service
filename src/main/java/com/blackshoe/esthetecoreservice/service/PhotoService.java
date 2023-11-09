@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface PhotoService {
     PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.PhotoUploadRequest photoUploadRequest);
-
     PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId);
+    PhotoDto.GetPhotoResponse getPhoto(UUID photoId);
 }
