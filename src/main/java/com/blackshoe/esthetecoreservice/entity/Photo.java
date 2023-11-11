@@ -24,7 +24,7 @@ import java.util.UUID;
 public class Photo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "photo_id")
     private Long id;
 
@@ -41,26 +41,23 @@ public class Photo {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private PhotoUrl photoUrl;
 
-    /*
-    @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private PhotoLocation photoLocation;
-    */
-
     @Column(name = "photo_time", nullable = false, length = 20)
-    private String time;
+    private LocalDateTime time;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
     private PhotoLocation photoLocation;
 
     //equipments
-    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Equipment> equipments = new ArrayList<>();
 
-    @ColumnDefault("0")
-    @Column(name = "view_count")
-    private Long viewCount;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Genre> genres = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "photo_view_id", foreignKey = @ForeignKey(name = "photo_fk_photo_view_id"))
+    private PhotoView photoView;
 
     @CreatedDate
     @Column(name = "created_at", length = 20)

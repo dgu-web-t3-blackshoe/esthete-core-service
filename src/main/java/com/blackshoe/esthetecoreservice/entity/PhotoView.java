@@ -1,8 +1,5 @@
 package com.blackshoe.esthetecoreservice.entity;
 
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,19 +10,21 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "equipments")
+@Table(name = "photo_views")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Equipment {
+public class PhotoView {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "equipment_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "photo_view_id")
     private Long id;
 
-    @Column(columnDefinition = "BINARY(16)", name = "equipment_uuid")
-    private UUID equipmentId;
+    //photoUUID
+    @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
+    private UUID photoId;
 
 }

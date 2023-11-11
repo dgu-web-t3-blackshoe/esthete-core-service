@@ -10,5 +10,4 @@ import java.util.UUID;
 
 @Repository
 public interface PhotoUrlRepository extends JpaRepository<PhotoUrl, Long> {
-    Optional<PhotoUrl> findByPhotoId(UUID photoId);
 }

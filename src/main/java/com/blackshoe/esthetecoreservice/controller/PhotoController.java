@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@RequestMapping("/core/photo") @Slf4j @RestController
+@RequestMapping("/core/photos") @Slf4j @RestController
 public class PhotoController {
 
     private final ObjectMapper objectMapper;
@@ -27,7 +27,7 @@ public class PhotoController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> uploadPhoto(@RequestPart(name = "photo") MultipartFile photo,
                                                   @RequestPart(name = "photo_upload_request")
-                                                  PhotoDto.PhotoUploadRequest photoUploadRequest) {
+                                                  PhotoDto.UploadRequest photoUploadRequest) {
         //log all
         log.info("photoUploadRequest: {}", photoUploadRequest);
 
@@ -35,7 +35,7 @@ public class PhotoController {
         final PhotoDto photoDto = photoService.uploadPhotoToS3(photo, photoUploadRequest);
 
 
-        final PhotoDto.PhotoUploadResponse photoUploadResponse = PhotoDto.PhotoUploadResponse.builder()
+        final PhotoDto.UploadResponse photoUploadResponse = PhotoDto.UploadResponse.builder()
                 .photoId(photoDto.getPhotoId().toString())
                 .createdAt(photoDto.getCreatedAt().toString())
                 .build();
@@ -47,14 +47,10 @@ public class PhotoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping({"/{photo_id}/url"})
-    public ResponseEntity<ResponseDto> getPhotoUrl(@PathVariable(name = "photo_id") UUID photoId) {
-        final PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = photoService.getPhotoUrl(photoId);
+    @GetMapping({"/{photo_id}"})
+    public ResponseEntity<PhotoDto.GetResponse> getPhoto(@PathVariable(name = "photo_id") UUID photoId) {
+        final PhotoDto.GetResponse photoGetResponse = photoService.getPhoto(photoId);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(getPhotoUrlResponse, Map.class))
-                .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+        return ResponseEntity.ok(photoGetResponse);
     }
 }

@@ -7,17 +7,14 @@ import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
-import com.blackshoe.esthetecoreservice.repository.PhotoGenreRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoLocationRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoUrlRepository;
-import org.joda.time.LocalDateTime;
+import com.blackshoe.esthetecoreservice.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +31,9 @@ public class PhotoServiceTest {
 
     @Mock
     private PhotoRepository photoRepository;
+
+    @Mock
+    private PhotoViewRepository photoViewRepository;
 
     @Mock
     private PhotoGenreRepository photoGenreRepository;
@@ -60,7 +60,7 @@ public class PhotoServiceTest {
     private final List<Equipment> equipments = List.of(
             //repository findById로 가져온 photo의 equipments
             Equipment.builder()
-                    .equipment("equipment")
+                    .equipmentId(UUID.randomUUID())
                     .build()
     );
 
@@ -68,20 +68,21 @@ public class PhotoServiceTest {
             .photoId(photoId)
             .title("title")
             .description("description")
-            .time("time")
+            .time(LocalDateTime.of(2021, 1, 1, 1, 1, 1))
             .photoUrl(photoUrl)
             .photoLocation(photoLocation)
             .equipments(equipments)
-            .viewCount(0L)
             .build();
 
     @Test
     void getPhoto_whenSuccess_returnGetPhotoResponse() {
         // given
+        photoRepository.save(photo);
         when(photoRepository.findByPhotoId(photoId)).thenReturn(Optional.of(photo));
+        long viewCount = photoViewRepository.countByPhotoId(photoId) - 1;
 
         // when
-        PhotoDto.GetPhotoResponse getPhotoResponse = photoService.getPhoto(photoId);
+        PhotoDto.GetResponse getPhotoResponse = photoService.getPhoto(photoId);
 
         // then
         assertThat(getPhotoResponse.getTitle()).isEqualTo(photo.getTitle());
@@ -90,8 +91,7 @@ public class PhotoServiceTest {
         assertThat(getPhotoResponse.getPhotoUrl()).isEqualTo(photo.getPhotoUrl());
         assertThat(getPhotoResponse.getPhotoLocation()).isEqualTo(photo.getPhotoLocation());
         assertThat(getPhotoResponse.getEquipments()).isEqualTo(photo.getEquipments());
-        assertThat(getPhotoResponse.getViewCount()).isEqualTo(photo.getViewCount());
-
+        assertThat(getPhotoResponse.getViewCount()).isEqualTo(viewCount);
     }
 
 }

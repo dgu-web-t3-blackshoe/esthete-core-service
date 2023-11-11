@@ -16,7 +16,7 @@ import javax.persistence.*;
 @EntityListeners(AuditingEntityListener.class)
 public class PhotoLocation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "photo_id")
     private Long id;
 
@@ -34,4 +34,5 @@ public class PhotoLocation {
 
     @Column(name = "town", nullable = false, length = 20)
     private String town;
+
 }

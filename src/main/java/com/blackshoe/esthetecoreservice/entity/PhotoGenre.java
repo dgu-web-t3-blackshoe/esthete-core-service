@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class PhotoGenre {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "photo_genre_id")
     private Long id;
 

@@ -1,5 +1,7 @@
 package com.blackshoe.esthetecoreservice.entity;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +20,11 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "genre_id")
     private Long id;
 
     @Column(columnDefinition = "BINARY(16)", name = "genre_uuid")
     private UUID genreId;
+
 }
