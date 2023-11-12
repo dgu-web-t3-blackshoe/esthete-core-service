@@ -67,7 +67,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        get("/users/{userId}/basic-info", UUID.randomUUID())
+                        get("/core/users/{userId}/basic-info", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -85,7 +85,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        get("/users/{userId}/basic-info", UUID.randomUUID())
+                        get("/core/users/{userId}/basic-info", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -110,7 +110,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        get("/users/{userId}/exhibitions/current", UUID.randomUUID())
+                        get("/core/users/{userId}/exhibitions/current", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -136,7 +136,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
+                        post("/core/users/{photographerId}/guest-books", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(guestBookCreateRequest))
                 ).andExpect(status().isCreated())
@@ -163,7 +163,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
+                        post("/core/users/{photographerId}/guest-books", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(guestBookCreateRequest))
                 ).andExpect(status().isBadRequest())
@@ -192,7 +192,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/users/{userId}/supports", UUID.randomUUID().toString())
+                        post("/core/users/{userId}/supports", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(supportCreateRequest)))
                 .andExpect(status().isCreated())
@@ -216,7 +216,7 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/users/{userId}/supports/{photographerId}", UUID.randomUUID().toString(), UUID.randomUUID().toString())
+                        delete("/core/users/{userId}/supports/{photographerId}", UUID.randomUUID().toString(), UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();

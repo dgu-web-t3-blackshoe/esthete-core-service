@@ -68,7 +68,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                post("/exhibitions")
+                post("/core/exhibitions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(exhibitonCreateRequest)))
                 .andExpect(status().isCreated())
@@ -91,7 +91,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions")
+                        post("/core/exhibitions")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(exhibitonCreateRequest)))
                 .andExpect(status().isBadRequest())
@@ -115,7 +115,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -134,7 +134,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -165,7 +165,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                        post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
                 .andExpect(status().isCreated())
@@ -189,7 +189,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                        post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
                 .andExpect(status().isBadRequest())
@@ -214,7 +214,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -233,7 +233,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -262,7 +262,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        get("/exhibitions/random")
+                        get("/core/exhibitions/random")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -291,7 +291,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        get("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                        get("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();

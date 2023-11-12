@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/core/users")
 @RequiredArgsConstructor
 public class UserController {
 

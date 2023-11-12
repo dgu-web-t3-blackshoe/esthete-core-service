@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/exhibitions")
+@RequestMapping("/core/exhibitions")
 @RequiredArgsConstructor
 public class ExhibitionController {
 
