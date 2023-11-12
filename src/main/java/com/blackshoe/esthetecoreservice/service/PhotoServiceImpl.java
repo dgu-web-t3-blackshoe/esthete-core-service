@@ -101,7 +101,7 @@ public class PhotoServiceImpl implements PhotoService{
                 .build();
 
         List<PhotoDto.GenreDto> genreDtos = photoUploadRequest.getGenreIds();
-        List<PhotoDto.EquipmentDto> equipmentDtos = photoUploadRequest.getEquipmentIds();
+        List<PhotoDto.PhotoEquipmentDto> equipmentDtos = photoUploadRequest.getEquipmentNames();
 
         List<Genre> genres = new ArrayList<>();
 
@@ -112,13 +112,13 @@ public class PhotoServiceImpl implements PhotoService{
             genres.add(newGenre);
         });
 
-        List<Equipment> equipments = new ArrayList<>();
+        List<PhotoEquipment> photoEquipments = new ArrayList<>();
 
         equipmentDtos.forEach(equipment -> {
-            Equipment newEquipment = Equipment.builder()
-                    .equipmentId(equipment.getEquipmentId())
+            PhotoEquipment newEquipment = PhotoEquipment.builder()
+                    .photoEquipmentName(equipment.getEquipmentName())
                     .build();
-            equipments.add(newEquipment);
+            photoEquipments.add(newEquipment);
         });
 
         Photo uploadedPhoto = Photo.builder()
@@ -129,8 +129,8 @@ public class PhotoServiceImpl implements PhotoService{
                 .createdAt(LocalDateTime.now())
                 .time(photoUploadRequest.getTime())
                 .photoLocation(photoLocation)
-                .genres(genres)
-                .equipments(equipments)
+                //.photoGenres(genres)
+                .photoEquipments(photoEquipments)
                 .photoView(PhotoView.builder()
                         .photoId(photoId)
                         .build())
@@ -154,7 +154,7 @@ public class PhotoServiceImpl implements PhotoService{
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         long viewCount = photoViewRepository.countByPhotoId(photoId) - 1;
-
+        /*
         PhotoDto.GenreIdsRequest genreIdsRequest = PhotoDto.GenreIdsRequest.builder()
                 .genreIds(
                         photo.getGenres()
@@ -163,12 +163,12 @@ public class PhotoServiceImpl implements PhotoService{
                                 .collect(Collectors.toList())  // 수정된 부분
                 )
                 .build();
-
+        */
         PhotoDto.EquipmentIdsRequest equipmentIdsRequest = PhotoDto.EquipmentIdsRequest.builder()
                 .equipmentIds(
-                        photo.getEquipments()
+                        photo.getPhotoEquipments()
                                 .stream()
-                                .map(equipment -> equipment.getEquipmentId().toString())
+                                .map(equipment -> equipment.getPhotoEquipmentName())
                                 .collect(Collectors.toList())  // 수정된 부분
                 )
                 .build();
@@ -193,7 +193,7 @@ public class PhotoServiceImpl implements PhotoService{
                 .photoUrl(urlRequest)
                 .photoLocation(locationRequest)
                 .equipmentIds(equipmentIdsRequest)
-                .genreIds(genreIdsRequest)
+                //.genreIds(genreIdsRequest)
                 .viewCount(viewCount)
                 .createdAt(String.valueOf(photo.getCreatedAt()))
                 .build();

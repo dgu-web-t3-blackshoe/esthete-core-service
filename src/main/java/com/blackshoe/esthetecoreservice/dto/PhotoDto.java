@@ -1,6 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
-import com.blackshoe.esthetecoreservice.entity.Equipment;
+import com.blackshoe.esthetecoreservice.entity.PhotoEquipment;
 import com.blackshoe.esthetecoreservice.entity.Genre;
 import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
@@ -65,7 +65,7 @@ public class PhotoDto {
         private List<GenreDto> genreIds;
 
         @NotNull(message = "equipments are required")
-        private List<EquipmentDto> equipmentIds;
+        private List<PhotoEquipmentDto> equipmentNames;
     }
 
     @Data
@@ -108,8 +108,9 @@ public class PhotoDto {
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class EquipmentDto{
-        private UUID equipmentId;
+    public static class PhotoEquipmentDto{
+        private String equipmentName;
+
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor

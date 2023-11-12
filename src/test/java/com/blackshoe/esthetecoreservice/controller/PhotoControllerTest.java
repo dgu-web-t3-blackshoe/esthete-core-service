@@ -73,7 +73,7 @@ public class PhotoControllerTest {
                 .town("town")
                 .build();
 
-        Equipment equipment = Equipment.builder()
+        PhotoEquipment equipment = PhotoEquipment.builder()
                 .equipmentId(UUID.randomUUID())
                 .build();
 
@@ -88,7 +88,7 @@ public class PhotoControllerTest {
                 .time(LocalDateTime.of(2021, 1, 1, 1, 1, 1))
                 .photoUrl(photoUrl)
                 .photoLocation(photoLocation)
-                .equipments(
+                .photoEquipments(
                         List.of(equipment)
                 )
                 .genres(
