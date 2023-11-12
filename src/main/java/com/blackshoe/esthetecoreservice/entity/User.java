@@ -15,34 +15,73 @@ import java.util.UUID;
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
     @Column(columnDefinition = "BINARY(16)", name = "user_uuid")
     private UUID userId;
 
-    //nickname
     @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;
 
-    @Column(name = "biography", nullable = false, length = 1000)
+    @Column(name = "biography", nullable = false, columnDefinition = "TEXT")
     private String biography;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoEquipment> userEquipments = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserGenre> userGenres = new ArrayList<>();
-
-    //user profile img url
     @JoinColumn(name = "profile_img_url_id", foreignKey = @ForeignKey(name = "user_fk_profile_img_url_id"))
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ProfileImgUrl profileImgUrl;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserGenre> userGenres;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserEquipment> userEquipments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Exhibition> exhibitions;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos;
+
+    @Builder
+    public User(String nickname, String biography) {
+        this.nickname = nickname;
+        this.biography = biography;
+        this.userGenres = new ArrayList<>();
+        this.userEquipments = new ArrayList<>();
+        this.exhibitions = new ArrayList<>();
+        this.photos = new ArrayList<>();
+    }
+
+    @PrePersist
+    public void setUserId() {
+        if (userId == null) {
+            userId = UUID.randomUUID();
+        }
+    }
+
+    public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {
+        this.profileImgUrl = profileImgUrl;
+    }
+
+    public void addUserEquipment(UserEquipment userEquipment) {
+        this.userEquipments.add(userEquipment);
+    }
+
+    public void addUserGenre(UserGenre userGenre) {
+        this.userGenres.add(userGenre);
+    }
+
+    public void addExhibition(Exhibition exhibition) {
+        this.exhibitions.add(exhibition);
+    }
+
+    public void addPhoto(Photo photo) {
+        this.photos.add(photo);
+    }
 }

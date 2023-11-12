@@ -12,14 +12,12 @@ import javax.persistence.*;
 @Table(name = "user_genres")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class UserGenre {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "photo_genre_id")
+    @GeneratedValue
+    @Column(name = "user_genre_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,4 +27,14 @@ public class UserGenre {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", foreignKey = @ForeignKey(name = "user_genre_fk_genre_id"))
     private Genre genre;
+
+    @Builder
+    public UserGenre(Genre genre) {
+        this.genre = genre;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.addUserGenre(this);
+    }
 }

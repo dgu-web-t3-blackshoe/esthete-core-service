@@ -10,36 +10,30 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "profile_img_urls")
+@Table(name = "user_profile_img_urls")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class ProfileImgUrl {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_img_url_id")
-    private long id;
+    private Long id;
 
     @Column(columnDefinition = "BINARY(16)", name = "profile_img_url_uuid")
     private UUID profileImgUrlId;
 
-    @Column(name = "s3_url")
-    private String s3Url;
-
-    @Column(name = "cloudfront_url")
     private String cloudfrontUrl;
 
-    /*
-    public static PhotoUrl convertUserUrlDtoToEntity(PhotoUrlDto uploadedPhotoUrlDto) {
-        return PhotoUrl.builder()
-                .s3Url(uploadedPhotoUrlDto.getS3Url())
-                .cloudfrontUrl(uploadedPhotoUrlDto.getCloudfrontUrl())
-                .build();
+    private String s3Url;
+
+    @Builder
+    public ProfileImgUrl(String cloudfrontUrl, String s3Url) {
+        this.cloudfrontUrl = cloudfrontUrl;
+        this.s3Url = s3Url;
     }
-*/
+
     @PrePersist
     public void setProfileImgUrlId() {
         if (profileImgUrlId == null) {
