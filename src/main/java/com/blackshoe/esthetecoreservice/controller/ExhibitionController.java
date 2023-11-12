@@ -53,4 +53,12 @@ public class ExhibitionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(roomDeleteResponse);
     }
+
+    @GetMapping("/random")
+    public ResponseEntity<ExhibitionDto.GetRandomResponse> getRandomExhibition() {
+
+        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = exhibitionService.getRandomExhibition();
+
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionGetRandomResponse);
+    }
 }
