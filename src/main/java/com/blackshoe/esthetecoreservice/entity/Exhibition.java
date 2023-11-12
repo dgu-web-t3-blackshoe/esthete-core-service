@@ -28,6 +28,10 @@ public class Exhibition {
     @Column(columnDefinition = "BINARY(16)", name = "exhibition_uuid")
     private UUID exhibitionId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "exhibition_fk_user_id"))
+    private User user;
+
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
@@ -56,6 +60,11 @@ public class Exhibition {
         if (exhibitionId == null) {
             exhibitionId = UUID.randomUUID();
         }
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.addExhibition(this);
     }
 
     public void addRoom(Room room) {

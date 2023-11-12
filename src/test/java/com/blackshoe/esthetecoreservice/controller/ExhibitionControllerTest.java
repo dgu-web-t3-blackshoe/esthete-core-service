@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
+import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
@@ -28,8 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ExhibitionController.class)
@@ -68,7 +68,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                post("/exhibitions")
+                post("/core/exhibitions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(exhibitonCreateRequest)))
                 .andExpect(status().isCreated())
@@ -91,7 +91,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions")
+                        post("/core/exhibitions")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(exhibitonCreateRequest)))
                 .andExpect(status().isBadRequest())
@@ -115,7 +115,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -134,7 +134,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}", UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -165,7 +165,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                        post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
                 .andExpect(status().isCreated())
@@ -189,7 +189,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        post("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                        post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
                 .andExpect(status().isBadRequest())
@@ -214,7 +214,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -233,7 +233,7 @@ public class ExhibitionControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                        delete("/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                        delete("/core/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -245,4 +245,60 @@ public class ExhibitionControllerTest {
         log.info("response: {}", response.getContentAsString());
     }
 
+    @Test
+    public void readRandomExhibition_whenSuccess_returns200() throws Exception {
+        // given
+        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = ExhibitionDto.ReadRandomResponse.builder()
+                .exhibitionId(UUID.randomUUID().toString())
+                .title("title")
+                .description("description")
+                .thumbnail("thumbnail")
+                .userId(UUID.randomUUID().toString())
+                .nickname("nickname")
+                .profileImg("profileImg")
+                .build();
+
+        when(exhibitionService.readRandomExhibition()).thenReturn(exhibitionReadRandomResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/exhibitions/random")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadRandomResponse));
+    }
+
+    @Test
+    public void readExhibitionRoomList_whenSuccess_returns200() throws Exception {
+        // given
+        final RoomDto roomDto = RoomDto.builder()
+                .roomId(UUID.randomUUID().toString())
+                .title("title")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        final RoomDto.ReadListResponse roomReadListResponse = RoomDto.ReadListResponse.builder()
+                .rooms(List.of(roomDto))
+                .build();
+
+        when(roomService.readExhibitionRoomList(any(UUID.class))).thenReturn(roomReadListResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomReadListResponse));
+    }
 }

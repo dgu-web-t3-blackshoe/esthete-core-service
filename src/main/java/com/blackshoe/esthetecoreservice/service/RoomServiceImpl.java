@@ -78,6 +78,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomDto.DeleteResponse deleteRoom(UUID roomId) {
 
         final Room room = roomRepository.findByRoomId(roomId)
@@ -91,5 +92,17 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         return roomDeleteResponseDto;
+    }
+
+    @Override
+    public RoomDto.ReadListResponse readExhibitionRoomList(UUID exhibitionId) {
+
+        final List<RoomDto> roomDtoList = roomRepository.findAllByExhibitionId(exhibitionId);
+
+        final RoomDto.ReadListResponse roomReadListResponseDto = RoomDto.ReadListResponse.builder()
+                .rooms(roomDtoList)
+                .build();
+
+        return roomReadListResponseDto;
     }
 }
