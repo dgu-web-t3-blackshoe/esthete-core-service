@@ -40,20 +40,20 @@ public class UserServiceTest {
     private final UUID userId = UUID.randomUUID();
 
     @Test
-    public void getBasicInfo_returns_userGetBasicInfoResponse() {
+    public void readBasicInfo_returns_userGetBasicInfoResponse() {
         // given
         when(userRepository.findByUserId(any(UUID.class))).thenReturn(Optional.of(user));
         when(user.getUserId()).thenReturn(userId);
         when(user.getProfileImgUrl()).thenReturn(profileImgUrl);
 
         // when
-        final UserDto.GetBasicInfoResponse userGetBasicInfoResponse = userService.getBasicInfo(userId);
+        final UserDto.ReadBasicInfoResponse userReadBasicInfoResponse = userService.readBasicInfo(userId);
 
         // then
         verify(userRepository, times(1)).findByUserId(any(UUID.class));
-        assertThat(userGetBasicInfoResponse).isNotNull();
-        assertThat(userGetBasicInfoResponse.getUserId()).isEqualTo(userId.toString());
-        assertThat(userGetBasicInfoResponse.getNickname()).isEqualTo(user.getNickname());
-        assertThat(userGetBasicInfoResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
+        assertThat(userReadBasicInfoResponse).isNotNull();
+        assertThat(userReadBasicInfoResponse.getUserId()).isEqualTo(userId.toString());
+        assertThat(userReadBasicInfoResponse.getNickname()).isEqualTo(user.getNickname());
+        assertThat(userReadBasicInfoResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
     }
 }

@@ -43,14 +43,14 @@ public class UserControllerTest {
     private final Logger log = LoggerFactory.getLogger(ExhibitionControllerTest.class);
 
     @Test
-    public void getBasicInfo_whenSuccess_returns200() throws Exception {
+    public void readBasicInfo_whenSuccess_returns200() throws Exception {
         // given
-        final UserDto.GetBasicInfoResponse userGetBasicInfoResponse = UserDto.GetBasicInfoResponse.builder()
+        final UserDto.ReadBasicInfoResponse userReadBasicInfoResponse = UserDto.ReadBasicInfoResponse.builder()
                 .userId("userId")
                 .nickname("nickname")
                 .profileImg("profileImg")
                 .build();
-        when(userService.getBasicInfo(any(UUID.class))).thenReturn(userGetBasicInfoResponse);
+        when(userService.readBasicInfo(any(UUID.class))).thenReturn(userReadBasicInfoResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -62,13 +62,13 @@ public class UserControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(userGetBasicInfoResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(userReadBasicInfoResponse));
     }
 
     @Test
-    public void getBasicInfo_whenUserNotFound_returns404() throws Exception {
+    public void readBasicInfo_whenUserNotFound_returns404() throws Exception {
         // given
-        when(userService.getBasicInfo(any(UUID.class))).thenThrow(new UserException(UserErrorResult.USER_NOT_FOUND));
+        when(userService.readBasicInfo(any(UUID.class))).thenThrow(new UserException(UserErrorResult.USER_NOT_FOUND));
 
         // when
         final MvcResult mvcResult = mockMvc.perform(

@@ -16,7 +16,7 @@ public class UserDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class GetBasicInfoResponse {
+    public static class ReadBasicInfoResponse {
         private String userId;
         private String nickname;
         private String profileImg;

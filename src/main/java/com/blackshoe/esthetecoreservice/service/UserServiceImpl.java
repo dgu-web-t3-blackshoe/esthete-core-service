@@ -19,16 +19,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto.GetBasicInfoResponse getBasicInfo(UUID userId) {
+    public UserDto.ReadBasicInfoResponse readBasicInfo(UUID userId) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        UserDto.GetBasicInfoResponse userGetBasicInfoResponse = UserDto.GetBasicInfoResponse.builder()
+        UserDto.ReadBasicInfoResponse userReadBasicInfoResponse = UserDto.ReadBasicInfoResponse.builder()
                 .userId(user.getUserId().toString())
                 .nickname(user.getNickname())
                 .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
                 .build();
 
-        return userGetBasicInfoResponse;
+        return userReadBasicInfoResponse;
     }
 }

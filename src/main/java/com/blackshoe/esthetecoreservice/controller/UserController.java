@@ -20,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}/basic-info")
-    public ResponseEntity<UserDto.GetBasicInfoResponse> getBasicInfo(@PathVariable UUID userId) {
+    public ResponseEntity<UserDto.ReadBasicInfoResponse> getBasicInfo(@PathVariable UUID userId) {
 
-        UserDto.GetBasicInfoResponse userGetBasicInfoResponse = userService.getBasicInfo(userId);
+        UserDto.ReadBasicInfoResponse userGetBasicInfoResponse = userService.readBasicInfo(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(userGetBasicInfoResponse);
     }
