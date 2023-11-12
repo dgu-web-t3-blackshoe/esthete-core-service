@@ -104,7 +104,7 @@ public class ExhibitionServiceTest {
         when(exhibition.getUser().getUserId()).thenReturn(userId);
 
         // when
-        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = exhibitionService.getRandomExhibition(user);
+        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = exhibitionService.getRandomExhibition();
 
         // then
         verify(exhibitionRepository).findById(any(Long.class));

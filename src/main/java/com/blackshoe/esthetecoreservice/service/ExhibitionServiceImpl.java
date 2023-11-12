@@ -60,7 +60,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     }
 
     @Override
-    public ExhibitionDto.GetRandomResponse getRandomExhibition(User user) {
+    public ExhibitionDto.GetRandomResponse getRandomExhibition() {
 
             Optional<Exhibition> optionalExhibition = Optional.empty();
 
