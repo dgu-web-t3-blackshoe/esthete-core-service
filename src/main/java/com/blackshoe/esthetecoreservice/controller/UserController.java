@@ -2,8 +2,10 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
+import com.blackshoe.esthetecoreservice.dto.SupportDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.service.GuestBookService;
+import com.blackshoe.esthetecoreservice.service.SupportService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ public class UserController {
     private final UserService userService;
 
     private final GuestBookService guestBookService;
+
+    private final SupportService supportService;
 
     @GetMapping("/{userId}/basic-info")
     public ResponseEntity<UserDto.ReadBasicInfoResponse> getBasicInfo(@PathVariable UUID userId) {
@@ -44,5 +48,13 @@ public class UserController {
         GuestBookDto.CreateResponse guestBookCreateResponse = guestBookService.createGuestBook(photographerId, guestBookCreateRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateResponse);
+    }
+
+    @PostMapping("/{userId}/supports")
+    public ResponseEntity<SupportDto.CreateResponse> createSupport(@PathVariable UUID userId, @Valid @RequestBody SupportDto.CreateRequest supportCreateRequest) {
+
+        SupportDto.CreateResponse supportCreateResponse = supportService.createSupport(userId, supportCreateRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateResponse);
     }
 }
