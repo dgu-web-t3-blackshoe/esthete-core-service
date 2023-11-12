@@ -3,6 +3,7 @@ package com.blackshoe.esthetecoreservice.exception;
 import com.blackshoe.esthetecoreservice.dto.ErrorDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -25,6 +26,18 @@ public class GlobalExceptionHandler {
 
         final ErrorDto errorDto = ErrorDto.builder()
                 .error(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorDto> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+
+        log.error("DataIntegrityViolationException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getMessage())
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
