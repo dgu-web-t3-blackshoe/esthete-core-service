@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/exhibitions")
+@RequestMapping("/core/exhibitions")
 @RequiredArgsConstructor
 public class ExhibitionController {
 
@@ -52,5 +52,21 @@ public class ExhibitionController {
         final RoomDto.DeleteResponse roomDeleteResponse = roomService.deleteRoom(roomId);
 
         return ResponseEntity.status(HttpStatus.OK).body(roomDeleteResponse);
+    }
+
+    @GetMapping("/random")
+    public ResponseEntity<ExhibitionDto.ReadRandomResponse> getRandomExhibition() {
+
+        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = exhibitionService.readRandomExhibition();
+
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionReadRandomResponse);
+    }
+
+    @GetMapping("/{exhibitionId}/rooms")
+    public ResponseEntity<RoomDto.ReadListResponse> getExhibitionRoomList(@PathVariable UUID exhibitionId) {
+
+        final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(exhibitionId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(roomReadListResponse);
     }
 }

@@ -68,4 +68,33 @@ public class ExhibitionDto {
         private String exhibitionId;
         private String deletedAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadRandomResponse {
+        private String exhibitionId;
+        private String title;
+        private String description;
+        private String thumbnail;
+        private String userId;
+        private String nickname;
+        private String profileImg;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadCurrentOfUserResponse {
+        private String exhibitionId;
+        private String title;
+        private String description;
+        private String thumbnail;
+    }
 }

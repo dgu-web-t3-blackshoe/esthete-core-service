@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -42,7 +43,7 @@ public class RoomServiceTest {
     @Mock
     private RoomPhotoRepository roomPhotoRepository;
 
-    @Mock
+    @Spy
     private final Room room = Room.builder()
             .title("test")
             .description("test")
@@ -102,5 +103,27 @@ public class RoomServiceTest {
         verify(roomRepository, times(1)).delete(any(Room.class));
         assertThat(roomDeleteResponse.getRoomId()).isEqualTo(roomId.toString());
         assertThat(roomDeleteResponse.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    public void readExhibitionRoomList_whenSuccess_returnsRoomReadListResponse() {
+        // given
+        final RoomDto roomDto = RoomDto.builder()
+                .roomId(roomId.toString())
+                .title("test")
+                .description("test")
+                .thumbnail("thumbnail")
+                .build();
+        when(roomRepository.findAllByExhibitionId(any(UUID.class))).thenReturn(List.of(roomDto));
+
+        // when
+        final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(UUID.randomUUID());
+
+        // then
+        verify(roomRepository, times(1)).findAllByExhibitionId(any(UUID.class));
+        assertThat(roomReadListResponse.getRooms()).isNotNull();
+        assertThat(roomReadListResponse.getRooms().get(0).getRoomId()).isEqualTo(roomId.toString());
+        assertThat(roomReadListResponse.getRooms().get(0).getTitle()).isEqualTo(room.getTitle());
+        assertThat(roomReadListResponse.getRooms().get(0).getThumbnail()).isEqualTo(room.getThumbnail());
     }
 }

@@ -1,9 +1,7 @@
 package com.blackshoe.esthetecoreservice.repository;
 
-import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
-import com.blackshoe.esthetecoreservice.entity.Room;
-import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
+import com.blackshoe.esthetecoreservice.dto.RoomDto;
+import com.blackshoe.esthetecoreservice.entity.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -12,6 +10,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.EntityListeners;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +28,9 @@ public class RoomRepositoryTest {
 
     @Autowired
     private PhotoRepository photoRepository;
+
+    @Autowired
+    private ExhibitionRepository exhibitionRepository;
 
     private final Room room = Room.builder()
             .title("title")
@@ -128,5 +132,52 @@ public class RoomRepositoryTest {
         assertThat(foundRoom.getTitle()).isEqualTo(savedRoom.getTitle());
         assertThat(foundRoom.getDescription()).isEqualTo(savedRoom.getDescription());
         assertThat(foundRoom.getThumbnail()).isEqualTo(savedRoom.getThumbnail());
+    }
+
+    @Test
+    public void findAllByExhibitionId_returns_roomList() {
+        // given
+        final Exhibition exhibition = Exhibition.builder()
+                .title("title")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
+
+        final UUID exhibitionId = savedExhibition.getExhibitionId();
+
+        final Room room1 = Room.builder()
+                .title("1")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        room1.setExhibition(savedExhibition);
+
+        final Room room2 = Room.builder()
+                .title("2")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        room2.setExhibition(savedExhibition);
+
+        final Room room3 = Room.builder()
+                .title("3")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        room3.setExhibition(savedExhibition);
+
+        // when
+        final List<RoomDto> rooms = roomRepository.findAllByExhibitionId(exhibitionId);
+
+        // then
+        assertThat(rooms).isNotNull();
+        assertThat(rooms.size()).isEqualTo(3);
+        IntStream.range(0, rooms.size() - 1)
+                .forEach(i -> assertThat(rooms.get(i).getTitle()).isLessThan(rooms.get(i + 1).getTitle()));
     }
 }

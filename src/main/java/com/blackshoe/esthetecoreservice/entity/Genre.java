@@ -21,7 +21,7 @@ public class Genre {
     @Column(name = "genre_id")
     private Long id;
 
-    @Column(columnDefinition = "BINARY(16)", name = "genre_uuid", length = 16)
+    @Column(columnDefinition = "BINARY(16)", name = "genre_uuid")
     private UUID genreId;
 
     @Column(name = "genre_name")
@@ -38,5 +38,4 @@ public class Genre {
     public Genre(String genreName) {
         this.genreName = genreName;
     }
-
 }

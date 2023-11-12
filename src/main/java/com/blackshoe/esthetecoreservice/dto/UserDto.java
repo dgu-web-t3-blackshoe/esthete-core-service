@@ -21,4 +21,15 @@ public class UserDto {
     public static class ReadEquipmentsResponse {
         List<String> equipmentNames;
     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadBasicInfoResponse {
+        private String userId;
+        private String nickname;
+        private String profileImg;
+    }
 }
