@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
+import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -55,5 +57,30 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                 .build();
 
         return exhibitionDeleteResponse;
+    }
+
+    @Override
+    public ExhibitionDto.GetRandomResponse getRandomExhibition(User user) {
+
+            Optional<Exhibition> optionalExhibition = Optional.empty();
+
+            while (optionalExhibition.isEmpty()) {
+                final Long exhibitionId = (long) (Math.random() * 1000000);
+                optionalExhibition = exhibitionRepository.findById(exhibitionId);
+            }
+
+            final Exhibition exhibition = optionalExhibition.get();
+
+            final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = ExhibitionDto.GetRandomResponse.builder()
+                    .exhibitionId(exhibition.getExhibitionId().toString())
+                    .title(exhibition.getTitle())
+                    .description(exhibition.getDescription())
+                    .thumbnail(exhibition.getThumbnail())
+                    .userId(exhibition.getUser().getUserId().toString())
+                    .nickname(exhibition.getUser().getNickname())
+                    .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
+                    .build();
+
+            return exhibitionGetRandomResponse;
     }
 }
