@@ -2,13 +2,16 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
+import com.blackshoe.esthetecoreservice.dto.SupportDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.service.GuestBookService;
+import com.blackshoe.esthetecoreservice.service.SupportService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,9 @@ public class UserControllerTest {
     @MockBean
     private GuestBookService guestBookService;
 
+    @MockBean
+    private SupportService supportService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger log = LoggerFactory.getLogger(ExhibitionControllerTest.class);
@@ -62,8 +68,8 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                get("/users/{userId}/basic-info", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        get("/users/{userId}/basic-info", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -80,8 +86,8 @@ public class UserControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                get("/users/{userId}/basic-info", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        get("/users/{userId}/basic-info", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -132,7 +138,7 @@ public class UserControllerTest {
         // when
         final MvcResult mvcResult = mockMvc.perform(
                         post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
-                                .contentType(MediaType .APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(guestBookCreateRequest))
                 ).andExpect(status().isCreated())
                 .andReturn();
@@ -159,7 +165,7 @@ public class UserControllerTest {
         // when
         final MvcResult mvcResult = mockMvc.perform(
                         post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
-                                .contentType(MediaType .APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(guestBookCreateRequest))
                 ).andExpect(status().isBadRequest())
                 .andReturn();
@@ -169,5 +175,33 @@ public class UserControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getContentAsString()).contains("error");
         log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void createSupport_whenSuccess_returns201() throws Exception {
+        // given
+        final SupportDto.CreateRequest supportCreateRequest = SupportDto.CreateRequest.builder()
+                .photographerId(UUID.randomUUID().toString())
+                .build();
+
+        final SupportDto.CreateResponse supportCreateResponse = SupportDto.CreateResponse.builder()
+                .supportId(UUID.randomUUID().toString())
+                .createdAt(LocalDateTime.now().toString())
+                .build();
+
+        when(supportService.createSupport(any(UUID.class), any(SupportDto.CreateRequest.class))).thenReturn(supportCreateResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/users/{userId}/supports", UUID.randomUUID().toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(supportCreateRequest)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportCreateResponse));
     }
 }
