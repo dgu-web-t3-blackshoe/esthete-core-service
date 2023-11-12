@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.repository;
 
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.Room;
+import com.blackshoe.esthetecoreservice.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -27,6 +28,11 @@ public class ExhibitionRepositoryTest {
             .thumbnail("thumbnail")
             .build();
 
+    private final User user = User.builder()
+            .nickname("nickname")
+            .biography("biography")
+            .build();
+
     @Test
     public void assert_isNotNull() {
         assertThat(exhibitionRepository).isNotNull();
@@ -35,6 +41,7 @@ public class ExhibitionRepositoryTest {
     @Test
     public void save_returns_savedExhibition() {
         // given
+        exhibition.setUser(user);
 
         // when
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
