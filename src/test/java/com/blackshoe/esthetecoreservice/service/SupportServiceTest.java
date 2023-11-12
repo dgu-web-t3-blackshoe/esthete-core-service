@@ -74,4 +74,19 @@ public class SupportServiceTest {
         assertThat(supportCreateResponse.getSupportId()).isNotNull();
         assertThat(supportCreateResponse.getCreatedAt()).isNotNull();
     }
+
+    @Test
+    public void deleteSupport_whenSuccess_returnsSupportDeleteResponse() {
+        // given
+        when(supportRepository.findByUserIdAndPhotographerId(userId, photographerId)).thenReturn(Optional.of(support));
+        when(support.getSupportId()).thenReturn(UUID.randomUUID());
+
+        // when
+        final SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
+
+        // then
+        assertThat(supportDeleteResponse).isNotNull();
+        assertThat(supportDeleteResponse.getSupportId()).isNotNull();
+        assertThat(supportDeleteResponse.getDeletedAt()).isNotNull();
+    }
 }
