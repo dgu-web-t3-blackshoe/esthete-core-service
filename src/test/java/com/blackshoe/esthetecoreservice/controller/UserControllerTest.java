@@ -1,9 +1,11 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
+import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
+import com.blackshoe.esthetecoreservice.service.GuestBookService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -20,12 +22,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -38,6 +42,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private GuestBookService guestBookService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -107,5 +114,60 @@ public class UserControllerTest {
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadCurrentOfUserResponse));
+    }
+
+    @Test
+    public void createGuestBook_whenSuccess_returns200() throws Exception {
+        // given
+        final GuestBookDto.CreateRequest guestBookCreateRequest = GuestBookDto.CreateRequest.builder()
+                .userId(UUID.randomUUID().toString())
+                .content("content")
+                .build();
+        final GuestBookDto.CreateResponse guestBookCreateResponse = GuestBookDto.CreateResponse.builder()
+                .guestBookId(UUID.randomUUID().toString())
+                .createdAt(LocalDateTime.now().toString())
+                .build();
+        when(guestBookService.createGuestBook(any(UUID.class), any(GuestBookDto.CreateRequest.class))).thenReturn(guestBookCreateResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
+                                .contentType(MediaType .APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(guestBookCreateRequest))
+                ).andExpect(status().isCreated())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(guestBookCreateResponse));
+    }
+
+    @Test
+    public void createGuestBook_whenInvalidParma_returns400() throws Exception {
+        // given
+        String content = "";
+        for (int i = 0; i < 102; i++) {
+            content += "a";
+        }
+
+        final GuestBookDto.CreateRequest guestBookCreateRequest = GuestBookDto.CreateRequest.builder()
+                .userId(UUID.randomUUID().toString())
+                .content(content)
+                .build();
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/users/{photographerId}/guest-books", UUID.randomUUID().toString())
+                                .contentType(MediaType .APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(guestBookCreateRequest))
+                ).andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).contains("error");
+        log.info("response: {}", response.getContentAsString());
     }
 }
