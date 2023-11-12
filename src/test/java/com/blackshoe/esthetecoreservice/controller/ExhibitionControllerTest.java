@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
+import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
@@ -28,8 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ExhibitionController.class)
@@ -243,6 +243,34 @@ public class ExhibitionControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(response.getContentAsString()).contains("error");
         log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getRandomExhibition_whenSuccess_returns200() throws Exception {
+        // given
+        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = ExhibitionDto.GetRandomResponse.builder()
+                .exhibitionId(UUID.randomUUID().toString())
+                .title("title")
+                .description("description")
+                .thumbnail("thumbnail")
+                .userId(UUID.randomUUID().toString())
+                .nickname("nickname")
+                .profileImg("profileImg")
+                .build();
+
+        when(exhibitionService.getRandomExhibition()).thenReturn(exhibitionGetRandomResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/exhibitions/random")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionGetRandomResponse));
     }
 
 }
