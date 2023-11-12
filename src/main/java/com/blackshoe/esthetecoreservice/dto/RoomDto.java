@@ -26,12 +26,18 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoomDto {
     private Long id;
-    private UUID roomId;
+    private String roomId;
     private String title;
     private String description;
     private String thumbnail;
-    private Exhibition exhibition;
-    private LocalDateTime createdAt;
+    private String createdAt;
+
+    public RoomDto(UUID roomId, String title, String description, String thumbnail) {
+        this.roomId = roomId.toString();
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+    }
 
     @Data
     @Builder
@@ -75,5 +81,15 @@ public class RoomDto {
     public static class DeleteResponse {
         private String roomId;
         private String deletedAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadListResponse {
+        private List<RoomDto> rooms;
     }
 }
