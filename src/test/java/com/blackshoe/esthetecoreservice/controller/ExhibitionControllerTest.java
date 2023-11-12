@@ -273,4 +273,32 @@ public class ExhibitionControllerTest {
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadRandomResponse));
     }
 
+    @Test
+    public void readExhibitionRoomList_whenSuccess_returns200() throws Exception {
+        // given
+        final RoomDto roomDto = RoomDto.builder()
+                .roomId(UUID.randomUUID().toString())
+                .title("title")
+                .description("description")
+                .thumbnail("thumbnail")
+                .build();
+
+        final RoomDto.ReadListResponse roomReadListResponse = RoomDto.ReadListResponse.builder()
+                .rooms(List.of(roomDto))
+                .build();
+
+        when(roomService.readExhibitionRoomList(any(UUID.class))).thenReturn(roomReadListResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomReadListResponse));
+    }
 }
