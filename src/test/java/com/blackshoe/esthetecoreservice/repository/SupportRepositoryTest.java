@@ -6,11 +6,13 @@ import com.blackshoe.esthetecoreservice.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.EntityListeners;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @EntityListeners(AuditingEntityListener.class)
 @DataJpaTest
@@ -69,5 +71,58 @@ public class SupportRepositoryTest {
         assertThat(savedSupport).isNotNull();
         assertThat(savedSupport.getUser()).isEqualTo(savedUser);
         assertThat(savedSupport.getPhotographer()).isEqualTo(savedPhotographer);
+    }
+
+    @Test
+    public void save_uniqueSupport_onlyOnce() {
+        // given
+        photographer.setProfileImgUrl(profileImgUrl1);
+        User savedPhotographer = userRepository.save(photographer);
+
+        user.setProfileImgUrl(profileImgUrl2);
+        User savedUser = userRepository.save(user);
+
+        final Support support1 = Support.builder()
+                .photographer(savedPhotographer)
+                .build();
+
+        support1.setUser(savedUser);
+
+        final Support support2 = Support.builder()
+                .photographer(savedPhotographer)
+                .build();
+
+        support2.setUser(savedUser);
+
+        // when
+        Support savedSupport = supportRepository.save(support1);
+
+        // then
+        assertThrows(DataIntegrityViolationException.class, () -> supportRepository.save(support2));
+    }
+
+    @Test
+    public void findByUserIdAndPhotographerId_returns_optionalSupport() {
+        // given
+        photographer.setProfileImgUrl(profileImgUrl1);
+        User savedPhotographer = userRepository.save(photographer);
+
+        user.setProfileImgUrl(profileImgUrl2);
+        User savedUser = userRepository.save(user);
+
+        final Support support = Support.builder()
+                .photographer(savedPhotographer)
+                .build();
+
+        support.setUser(savedUser);
+
+        Support savedSupport = supportRepository.save(support);
+
+        // when
+        Support foundSupport = supportRepository.findByUserIdAndPhotographerId(savedUser.getUserId(), savedPhotographer.getUserId()).get();
+
+        // then
+        assertThat(foundSupport).isNotNull();
+        assertThat(foundSupport).isEqualTo(savedSupport);
     }
 }
