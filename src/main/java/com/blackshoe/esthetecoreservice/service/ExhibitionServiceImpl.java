@@ -60,7 +60,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     }
 
     @Override
-    public ExhibitionDto.GetRandomResponse getRandomExhibition() {
+    public ExhibitionDto.ReadRandomResponse readRandomExhibition() {
 
             Optional<Exhibition> optionalExhibition = Optional.empty();
 
@@ -71,7 +71,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
             final Exhibition exhibition = optionalExhibition.get();
 
-            final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = ExhibitionDto.GetRandomResponse.builder()
+            final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = ExhibitionDto.ReadRandomResponse.builder()
                     .exhibitionId(exhibition.getExhibitionId().toString())
                     .title(exhibition.getTitle())
                     .description(exhibition.getDescription())
@@ -81,6 +81,6 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                     .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
                     .build();
 
-            return exhibitionGetRandomResponse;
+            return exhibitionReadRandomResponse;
     }
 }

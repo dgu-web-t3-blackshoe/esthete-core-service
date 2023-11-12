@@ -5,8 +5,6 @@ import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.ProfileImgUrl;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomRepository;
-import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -95,7 +93,7 @@ public class ExhibitionServiceTest {
     }
 
     @Test
-    public void getRandomExhibition_whenSuccess_returnsExhibitionGetRandomResponse() {
+    public void readRandomExhibition_whenSuccess_returnsExhibitionGetRandomResponse() {
         // given
         user.setProfileImgUrl(profileImgUrl);
         when(exhibitionRepository.findById(any(Long.class))).thenReturn(Optional.of(exhibition));
@@ -104,16 +102,16 @@ public class ExhibitionServiceTest {
         when(exhibition.getUser().getUserId()).thenReturn(userId);
 
         // when
-        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = exhibitionService.getRandomExhibition();
+        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = exhibitionService.readRandomExhibition();
 
         // then
         verify(exhibitionRepository).findById(any(Long.class));
-        assertThat(exhibitionGetRandomResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
-        assertThat(exhibitionGetRandomResponse.getTitle()).isEqualTo(exhibition.getTitle());
-        assertThat(exhibitionGetRandomResponse.getDescription()).isEqualTo(exhibition.getDescription());
-        assertThat(exhibitionGetRandomResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
-        assertThat(exhibitionGetRandomResponse.getUserId()).isEqualTo(userId.toString());
-        assertThat(exhibitionGetRandomResponse.getNickname()).isEqualTo(user.getNickname());
-        assertThat(exhibitionGetRandomResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
+        assertThat(exhibitionReadRandomResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionReadRandomResponse.getTitle()).isEqualTo(exhibition.getTitle());
+        assertThat(exhibitionReadRandomResponse.getDescription()).isEqualTo(exhibition.getDescription());
+        assertThat(exhibitionReadRandomResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
+        assertThat(exhibitionReadRandomResponse.getUserId()).isEqualTo(userId.toString());
+        assertThat(exhibitionReadRandomResponse.getNickname()).isEqualTo(user.getNickname());
+        assertThat(exhibitionReadRandomResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
     }
 }

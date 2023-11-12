@@ -246,9 +246,9 @@ public class ExhibitionControllerTest {
     }
 
     @Test
-    public void getRandomExhibition_whenSuccess_returns200() throws Exception {
+    public void readRandomExhibition_whenSuccess_returns200() throws Exception {
         // given
-        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = ExhibitionDto.GetRandomResponse.builder()
+        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = ExhibitionDto.ReadRandomResponse.builder()
                 .exhibitionId(UUID.randomUUID().toString())
                 .title("title")
                 .description("description")
@@ -258,7 +258,7 @@ public class ExhibitionControllerTest {
                 .profileImg("profileImg")
                 .build();
 
-        when(exhibitionService.getRandomExhibition()).thenReturn(exhibitionGetRandomResponse);
+        when(exhibitionService.readRandomExhibition()).thenReturn(exhibitionReadRandomResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -270,7 +270,7 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionGetRandomResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadRandomResponse));
     }
 
 }

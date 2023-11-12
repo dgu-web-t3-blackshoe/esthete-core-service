@@ -75,7 +75,7 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class GetRandomResponse {
+    public static class ReadRandomResponse {
         private String exhibitionId;
         private String title;
         private String description;

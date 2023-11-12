@@ -55,10 +55,10 @@ public class ExhibitionController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<ExhibitionDto.GetRandomResponse> getRandomExhibition() {
+    public ResponseEntity<ExhibitionDto.ReadRandomResponse> getRandomExhibition() {
 
-        final ExhibitionDto.GetRandomResponse exhibitionGetRandomResponse = exhibitionService.getRandomExhibition();
+        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = exhibitionService.readRandomExhibition();
 
-        return ResponseEntity.status(HttpStatus.OK).body(exhibitionGetRandomResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionReadRandomResponse);
     }
 }
