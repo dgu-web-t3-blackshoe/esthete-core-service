@@ -61,4 +61,12 @@ public class ExhibitionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(exhibitionReadRandomResponse);
     }
+
+    @GetMapping("/{exhibitionId}/rooms")
+    public ResponseEntity<RoomDto.ReadListResponse> getExhibitionRoomList(@PathVariable UUID exhibitionId) {
+
+        final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(exhibitionId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(roomReadListResponse);
+    }
 }
