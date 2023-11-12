@@ -4,11 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.asm.Advice;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,7 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "photos")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter @Builder @AllArgsConstructor
+@Getter @Builder(toBuilder = true) @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Photo {
 
@@ -59,9 +56,9 @@ public class Photo {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoGenre> photoGenres = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "photo_view_id", foreignKey = @ForeignKey(name = "photo_fk_photo_view_id"))
-    private PhotoView photoView;
+    @ColumnDefault("0")
+    @Column(nullable = false)
+    private long viewCount;
 
     @CreatedDate
     @Column(name = "created_at", length = 20)
@@ -77,9 +74,12 @@ public class Photo {
     }
 
     @PrePersist
-    public void setPhotoId() {
+    public void setPhotoIdAndPhotoGenres() {
         if (photoId == null) {
             photoId = UUID.randomUUID();
         }
+    }
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

@@ -5,8 +5,6 @@ import com.blackshoe.esthetecoreservice.entity.Equipment;
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
-import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
-import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +31,7 @@ public class PhotoServiceTest {
     private PhotoRepository photoRepository;
 
     @Mock
-    private PhotoViewRepository photoViewRepository;
+    private ViewRepository photoViewRepository;
 
     @Mock
     private PhotoGenreRepository photoGenreRepository;

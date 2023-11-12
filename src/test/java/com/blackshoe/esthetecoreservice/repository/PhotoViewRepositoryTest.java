@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PhotoViewRepositoryTest {
 
     @Autowired
-    private PhotoViewRepository photoViewRepository;
+    private ViewRepository photoViewRepository;
 
     @Test
     public void assert_isNotNull() {

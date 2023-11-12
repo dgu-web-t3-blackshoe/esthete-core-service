@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class PhotoGenre {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "photo_genre_id")
     private Long id;
 
@@ -29,4 +29,12 @@ public class PhotoGenre {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", foreignKey = @ForeignKey(name = "photo_genre_fk_genre_id"))
     private Genre genre;
+
+    public void setPhoto(Photo photo) {
+        this.photo = photo;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
 }

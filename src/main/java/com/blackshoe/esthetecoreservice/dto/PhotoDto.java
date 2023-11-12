@@ -62,7 +62,7 @@ public class PhotoDto {
         private LocalDateTime time;
 
         @NotNull(message = "genres are required")
-        private List<GenreDto> genreIds;
+        private List<Long> genreIds;
 
         @NotNull(message = "equipments are required")
         private List<PhotoEquipmentDto> equipmentNames;
@@ -94,15 +94,15 @@ public class PhotoDto {
         private LocalDateTime time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
-        private EquipmentIdsRequest equipmentIds;
-        private GenreIdsRequest genreIds;
+        private EquipmentIdsRequest equipmentNames;
+        private List<String> genreIds;
         private Long viewCount;
         private String createdAt;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class GenreDto{
+    public static class GenreIdDto{
         private UUID genreId;
     }
 
@@ -116,13 +116,13 @@ public class PhotoDto {
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class GenreIdsRequest{
-        private List<String> genreIds;
+        private List<Long> genreIds;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class EquipmentIdsRequest{
-        private List<String> equipmentIds;
+        private List<String> equipmentNames;
     }
 
 
@@ -140,5 +140,18 @@ public class PhotoDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class UrlRequest{
         private String cloudfrontUrl;
+    }
+
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class GetGenresResponse{
+        private List<GenreDto> genres;
+    }
+
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class GenreDto{
+        private String genreId;
+        private String genreName;
     }
 }

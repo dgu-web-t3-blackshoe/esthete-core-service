@@ -10,21 +10,25 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "photo_views")
+@Table(name = "views")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class PhotoView {
+public class View {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "photo_view_id")
+    @Column(name = "view_id")
     private Long id;
 
-    //photoUUID
-    @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
-    private UUID photoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "view_fk_photo_id"))
+    private Photo photo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "view_fk_user_id"))
+    private User user;
 
 }

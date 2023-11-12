@@ -21,11 +21,10 @@ import java.util.UUID;
 @RequestMapping("/core/photos") @Slf4j @RestController
 public class PhotoController {
 
-    private final ObjectMapper objectMapper;
     private final PhotoService photoService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ResponseDto> uploadPhoto(@RequestPart(name = "photo") MultipartFile photo,
+    public ResponseEntity<PhotoDto.UploadResponse> uploadPhoto(@RequestPart(name = "photo") MultipartFile photo,
                                                   @RequestPart(name = "photo_upload_request")
                                                   PhotoDto.UploadRequest photoUploadRequest) {
         //log all
@@ -40,11 +39,7 @@ public class PhotoController {
                 .createdAt(photoDto.getCreatedAt().toString())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(photoUploadResponse, Map.class))
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        return ResponseEntity.ok(photoUploadResponse);
     }
 
     @GetMapping({"/{photo_id}"})
@@ -53,4 +48,12 @@ public class PhotoController {
 
         return ResponseEntity.ok(photoGetResponse);
     }
+
+    @GetMapping({"/genres"})
+    public ResponseEntity<PhotoDto.GetGenresResponse> getGenres() {
+        final PhotoDto.GetGenresResponse photoGetGenresResponse = photoService.getGenres();
+
+        return ResponseEntity.ok(photoGetGenresResponse);
+    }
+
 }

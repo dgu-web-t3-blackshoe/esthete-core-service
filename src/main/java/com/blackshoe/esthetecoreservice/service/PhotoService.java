@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface PhotoService {
     PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.UploadRequest photoUploadRequest);
     PhotoDto.GetResponse getPhoto(UUID photoId);
+    PhotoDto.GetGenresResponse getGenres();
 }

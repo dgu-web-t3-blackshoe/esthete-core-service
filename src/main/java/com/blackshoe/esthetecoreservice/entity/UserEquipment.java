@@ -22,10 +22,6 @@ public class UserEquipment {
     @Column(name = "user_equipment_id")
     private Long id;
 
-
-    @Column(name = "equipment_name", nullable = false, length = 50)
-    private String userEquipmentName;
-
     @Column(columnDefinition = "BINARY(16)", name = "user_equipment_uuid")
     private UUID equipmentId;
 
