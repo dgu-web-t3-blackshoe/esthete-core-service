@@ -1,8 +1,11 @@
 package com.blackshoe.esthetecoreservice.service;
 
+import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
+import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.ProfileImgUrl;
 import com.blackshoe.esthetecoreservice.entity.User;
+import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +30,9 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private ExhibitionRepository exhibitionRepository;
+
+    @Mock
     private final User user = User.builder()
             .nickname("nickname")
             .biography("biography")
@@ -38,6 +44,15 @@ public class UserServiceTest {
             .build();
 
     private final UUID userId = UUID.randomUUID();
+
+    @Mock
+    private final Exhibition exhibition = Exhibition.builder()
+            .title("test")
+            .description("test")
+            .thumbnail("thumbnail")
+            .build();
+
+    private final UUID exhibitionId = UUID.randomUUID();
 
     @Test
     public void readBasicInfo_returns_userGetBasicInfoResponse() {
@@ -55,5 +70,24 @@ public class UserServiceTest {
         assertThat(userReadBasicInfoResponse.getUserId()).isEqualTo(userId.toString());
         assertThat(userReadBasicInfoResponse.getNickname()).isEqualTo(user.getNickname());
         assertThat(userReadBasicInfoResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
+    }
+
+    @Test
+    public void readCurrentExhibitionOfUser_whenSuccess_returnsExhibitionUserCurrentResponse() {
+        // given
+        user.setProfileImgUrl(profileImgUrl);
+        when(exhibitionRepository.findMostRecentExhibitionOfUser(any(UUID.class))).thenReturn(Optional.of(exhibition));
+        when(exhibition.getExhibitionId()).thenReturn(exhibitionId);
+
+        // when
+        final ExhibitionDto.ReadCurrentOfUserResponse exhibitionReadCurrentOfUserResponse
+                = userService.readCurrentExhibitionOfUser(userId);
+
+        // then
+        verify(exhibitionRepository).findMostRecentExhibitionOfUser(any(UUID.class));
+        assertThat(exhibitionReadCurrentOfUserResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionReadCurrentOfUserResponse.getTitle()).isEqualTo(exhibition.getTitle());
+        assertThat(exhibitionReadCurrentOfUserResponse.getDescription()).isEqualTo(exhibition.getDescription());
+        assertThat(exhibitionReadCurrentOfUserResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
     }
 }
