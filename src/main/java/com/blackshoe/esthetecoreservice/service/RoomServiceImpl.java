@@ -78,6 +78,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomDto.DeleteResponse deleteRoom(UUID roomId) {
 
         final Room room = roomRepository.findByRoomId(roomId)
