@@ -57,4 +57,12 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateResponse);
     }
+
+    @DeleteMapping("/{userId}/supports/{photographerId}")
+    public ResponseEntity<SupportDto.DeleteResponse> deleteSupport(@PathVariable UUID userId, @PathVariable UUID photographerId) {
+
+        SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(supportDeleteResponse);
+    }
 }
