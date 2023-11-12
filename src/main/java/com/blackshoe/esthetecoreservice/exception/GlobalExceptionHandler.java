@@ -36,9 +36,21 @@ public class GlobalExceptionHandler {
         log.error("ExhibitionException", e);
 
         final ErrorDto errorDto = ErrorDto.builder()
-                .error(e.getMessage())
+                .error(e.getExhibitionErrorResult().getMessage())
                 .build();
 
         return ResponseEntity.status(e.getExhibitionErrorResult().getHttpStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<ErrorDto> handleUserException(UserException e) {
+
+        log.error("UserException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getUserErrorResult().getMessage())
+                .build();
+
+        return ResponseEntity.status(e.getUserErrorResult().getHttpStatus()).body(errorDto);
     }
 }
