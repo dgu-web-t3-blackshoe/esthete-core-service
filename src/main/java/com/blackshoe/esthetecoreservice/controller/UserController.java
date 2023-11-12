@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.controller;
 
+import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,13 @@ public class UserController {
         UserDto.ReadBasicInfoResponse userGetBasicInfoResponse = userService.readBasicInfo(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(userGetBasicInfoResponse);
+    }
+
+    @GetMapping("/{userId}/exhibitions/current")
+    public ResponseEntity<ExhibitionDto.ReadCurrentOfUserResponse> getCurrentExhibitionOfUser(@PathVariable UUID userId) {
+
+        ExhibitionDto.ReadCurrentOfUserResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userReadCurrentExhibitionOfUserResponse);
     }
 }
