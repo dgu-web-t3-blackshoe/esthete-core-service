@@ -31,8 +31,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -203,5 +202,28 @@ public class UserControllerTest {
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportCreateResponse));
+    }
+
+    @Test
+    public void deleteSupport_whenSuccess_returns200() throws Exception {
+        // given
+        final SupportDto.DeleteResponse supportDeleteResponse = SupportDto.DeleteResponse.builder()
+                .supportId(UUID.randomUUID().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        when(supportService.deleteSupport(any(UUID.class), any(UUID.class))).thenReturn(supportDeleteResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        delete("/users/{userId}/supports/{photographerId}", UUID.randomUUID().toString(), UUID.randomUUID().toString())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportDeleteResponse));
     }
 }
