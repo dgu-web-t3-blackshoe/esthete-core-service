@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface SupportService {
 
     SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest);
+
+    SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId);
 }

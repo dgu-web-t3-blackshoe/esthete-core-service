@@ -38,4 +38,16 @@ public class SupportDto {
         private String supportId;
         private String createdAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DeleteResponse {
+
+            private String supportId;
+            private String deletedAt;
+    }
 }

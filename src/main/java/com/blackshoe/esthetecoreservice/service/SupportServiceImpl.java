@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -46,5 +47,21 @@ public class SupportServiceImpl implements SupportService {
                 .build();
 
         return supportCreateResponse;
+    }
+
+    @Override
+    public SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId) {
+
+        final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
+                .orElseThrow(() -> new UserException(UserErrorResult.SUPPORT_NOT_FOUND));
+
+        supportRepository.delete(support);
+
+        final SupportDto.DeleteResponse supportDeleteResponse = SupportDto.DeleteResponse.builder()
+                .supportId(support.getSupportId().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        return supportDeleteResponse;
     }
 }
