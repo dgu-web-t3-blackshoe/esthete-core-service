@@ -28,6 +28,10 @@ public class Photo {
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "photo_fk_user_id"))
+    private User user;
+
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
@@ -57,6 +61,11 @@ public class Photo {
 
     public void setPhotoUrl(PhotoUrl photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.addPhoto(this);
     }
 
     @PrePersist
