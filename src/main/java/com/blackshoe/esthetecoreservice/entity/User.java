@@ -48,6 +48,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos;
 
+    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GuestBook> guestBooks;
+
     @Builder
     public User(String nickname, String biography) {
         this.nickname = nickname;
@@ -56,6 +59,7 @@ public class User {
         this.userEquipments = new ArrayList<>();
         this.exhibitions = new ArrayList<>();
         this.photos = new ArrayList<>();
+        this.guestBooks = new ArrayList<>();
     }
 
     @PrePersist
@@ -83,5 +87,9 @@ public class User {
 
     public void addPhoto(Photo photo) {
         this.photos.add(photo);
+    }
+
+    public void addGuestBook(GuestBook guestBook) {
+        this.guestBooks.add(guestBook);
     }
 }
