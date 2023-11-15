@@ -18,6 +18,7 @@ import java.util.UUID;
 @Builder
 public class PhotoDto {
 
+    private UUID userId;
     private UUID photoId;
     private String title;
     private String description;
@@ -31,6 +32,9 @@ public class PhotoDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @NoArgsConstructor @AllArgsConstructor
     public static class PhotoUploadRequest {
+
+        @NotNull(message = "userId is required")
+        private UUID userId;
 
         @NotNull(message = "title is required")
         private String title;
@@ -63,6 +67,33 @@ public class PhotoDto {
         private String detail;
         private String isPublic;
         private String createdAt;
+    }
 
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeleteRequest{
+
+        @NotNull(message = "userId is required")
+        private UUID userId;
+        private UUID photoId;
+    }
+
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeleteResponse{
+        private String photoId;
+    }
+
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class FindNewWorkResponse{
+        private String photographerId;
+        private String profileImgCloudfrontUrl;
+        private String nickname;
+        private Boolean hasNew;
+        private String updatedAt;
     }
 }
