@@ -85,15 +85,4 @@ public class PhotoDto {
     public static class DeleteResponse{
         private String photoId;
     }
-
-    @Data
-    @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class FindNewWorkResponse{
-        private String photographerId;
-        private String profileImgCloudfrontUrl;
-        private String nickname;
-        private Boolean hasNew;
-        private String updatedAt;
-    }
 }

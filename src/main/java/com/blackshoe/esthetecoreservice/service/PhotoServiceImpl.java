@@ -3,19 +3,26 @@ package com.blackshoe.esthetecoreservice.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
-import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
+import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
+import com.blackshoe.esthetecoreservice.exception.UserException;
+import com.blackshoe.esthetecoreservice.repository.NewWorkRepository;
 import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
+import com.blackshoe.esthetecoreservice.repository.SupportRepository;
+import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,6 +32,13 @@ public class PhotoServiceImpl implements PhotoService{
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
+
+    //redis
+    private final RedisTemplate redisTemplate;
+
+    private final NewWorkRepository newWorkRepository;
+    private final UserRepository userRepository;
+    private final SupportRepository supportRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
@@ -42,6 +56,8 @@ public class PhotoServiceImpl implements PhotoService{
         if (photo == null) {
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }
+
+        User photographer = userRepository.findByUserId(photoUploadRequest.getUserId()).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         //String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
         String s3FilePath = PHOTO_DIRECTORY;
@@ -94,6 +110,36 @@ public class PhotoServiceImpl implements PhotoService{
 
         photoRepository.save(uploadedPhoto);
 
+
+
+        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
+        List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
+
+        String[] userIdWithCondition;
+        List<String[]> supporters = new ArrayList<>();
+
+        for(Support support : supports){
+            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
+            supporters.add(userIdWithCondition);
+        }
+
+        String hasNewRedisKey = "photographer_" + photoUploadRequest.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
+        redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
+        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
+        if(newWork == null){
+            newWork = NewWork.builder()
+                    .photo(uploadedPhoto)
+                    .photographer(photographer)
+                    .photographerId(UUID.fromString(photographer.getUserId().toString()))
+                    .build();
+        }
+        else {
+            newWork.setPhoto(uploadedPhoto);
+        }
+
+        newWorkRepository.save(newWork);
+
         PhotoDto photoDto = PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
@@ -103,7 +149,11 @@ public class PhotoServiceImpl implements PhotoService{
                 .isPublic(Boolean.valueOf(photoUploadRequest.getIsPublic()))
                 .createdAt(uploadedPhoto.getCreatedAt())
                 .build();
-
+        /*
+        1. 해당하는 userId로 redis 있는지 조회, 있다면 photoId, exhibitionId
+        2. value : True인지 False인지 -> hasNew
+        3. NewWorkResponse에 담아서 반환.
+         */
         return photoDto;
     }
 
@@ -121,5 +171,21 @@ public class PhotoServiceImpl implements PhotoService{
                 .build();
 
         return getPhotoUrlResponse;
+    }
+
+    @Override
+    @Transactional
+    public PhotoDto.DeleteResponse deletePhoto(UUID photoId) {
+        Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+        photoRepository.delete(photo);
+
+        redisTemplate.delete("*" + photoId.toString());
+
+        PhotoDto.DeleteResponse photoDeleteResponse = PhotoDto.DeleteResponse.builder()
+                .photoId(photo.getPhotoId().toString())
+                .build();
+
+        return photoDeleteResponse;
     }
 }

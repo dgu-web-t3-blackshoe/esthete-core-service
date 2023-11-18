@@ -10,4 +10,6 @@ public interface PhotoService {
     PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.PhotoUploadRequest photoUploadRequest);
 
     PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId);
+
+    PhotoDto.DeleteResponse deletePhoto(UUID photoId);
 }

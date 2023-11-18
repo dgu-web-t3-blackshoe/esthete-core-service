@@ -24,7 +24,7 @@ public class GuestBook {
     @Column(name = "guest_book_id")
     private Long id;
 
-    @Column(columnDefinition = "BINARY(16)", name = "user_equipment_uuid")
+    @Column(columnDefinition = "BINARY(16)", name = "guest_book_uuid")
     private UUID guestBookId;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -46,7 +46,6 @@ public class SupportDto {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class DeleteResponse {
-
             private String supportId;
             private String deletedAt;
     }
