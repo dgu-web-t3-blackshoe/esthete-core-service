@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
+import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -25,13 +26,13 @@ public class RoomPhotoDto {
     private String userId;
     private String nickname;
 
-    public RoomPhotoDto(UUID roomId, UUID photoId, String title, String photo, UUID userId, String nickname) {
-        this.roomId = roomId.toString();
-        this.photoId = photoId.toString();
-        this.title = title;
-        this.photo = photo;
-        this.userId = userId.toString();
-        this.nickname = nickname;
+    public RoomPhotoDto(RoomPhoto roomPhoto) {
+        this.roomId = roomPhoto.getRoom().getRoomId().toString();
+        this.photoId = roomPhoto.getPhoto().getPhotoId().toString();
+        this.title = roomPhoto.getPhoto().getTitle();
+        this.photo = roomPhoto.getPhoto().getPhotoUrl().getCloudfrontUrl();
+        this.userId = roomPhoto.getPhoto().getUser().getUserId().toString();
+        this.nickname = roomPhoto.getPhoto().getUser().getNickname();
     }
 
     @Data

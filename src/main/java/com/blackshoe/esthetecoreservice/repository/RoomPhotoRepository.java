@@ -12,13 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface RoomPhotoRepository extends JpaRepository<RoomPhoto, Long> {
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.RoomPhotoDto(" +
-            "rp.room.roomId, " +
-            "rp.photo.photoId, " +
-            "rp.photo.title, " +
-            "rp.photo.photoUrl.cloudfrontUrl, " +
-            "rp.photo.user.userId, " +
-            "rp.photo.user.nickname) " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.RoomPhotoDto(rp) " +
             "FROM RoomPhoto rp " +
             "WHERE rp.room.roomId = :roomId")
     List<RoomPhotoDto> findAllByRoomId(@Param("roomId") UUID roomId);
