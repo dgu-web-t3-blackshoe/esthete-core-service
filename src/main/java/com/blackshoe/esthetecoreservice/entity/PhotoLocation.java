@@ -17,7 +17,7 @@ import javax.persistence.*;
 public class PhotoLocation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "photo_id")
+    @Column(name = "photo_location_id")
     private Long id;
 
     @Column(name = "longitude", nullable = false, length = 20)

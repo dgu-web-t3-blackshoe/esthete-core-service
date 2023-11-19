@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -78,5 +79,44 @@ public class UserController {
         SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
 
         return ResponseEntity.status(HttpStatus.OK).body(supportDeleteResponse);
+    }
+
+    @GetMapping("/{userId}/supports/all")
+    public ResponseEntity<SupportDto.ReadSupportingPhotographersResponse> getUserSupports(
+            @PathVariable("userId") UUID userId,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) List<String> genres,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page) {
+
+        //sort = recent or popular or trending
+        SupportDto.ReadSupportingPhotographersResponse readSupportingPhotographersResponse = supportService.readSupportingPhotographers(userId, nickname, sort, genres, size, page);
+
+        return ResponseEntity.ok().body(readSupportingPhotographersResponse);
+    }
+
+    @GetMapping("/{userId}/photos")
+    public ResponseEntity<List<UserDto.ReadUserPhotosResponse>> getUserPhotos(@PathVariable UUID userId) {
+
+        List<UserDto.ReadUserPhotosResponse> content = userService.readUserPhotos(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(content);
+    }
+
+    @GetMapping("/{userId}/exhibitions")
+    public ResponseEntity<List<UserDto.ReadUserExhibitionResponse>> getUserExhibitions(@PathVariable UUID userId) {
+
+        List<UserDto.ReadUserExhibitionResponse> content = userService.readUserExhibitions(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(content);
+    }
+
+    @GetMapping("/{userId}/guest-books")
+    public ResponseEntity<List<UserDto.ReadUserGuestbookResponse>> getUserGuestBooks(@PathVariable UUID userId) {
+
+        List<UserDto.ReadUserGuestbookResponse> content = userService.readUserGuestbooks(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(content);
     }
 }

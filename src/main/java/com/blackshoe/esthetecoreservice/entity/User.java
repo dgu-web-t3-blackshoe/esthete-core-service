@@ -54,6 +54,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
 
+    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Highlight> highlights;
+
     @Builder
     public User(String nickname, String biography) {
         this.nickname = nickname;
@@ -100,4 +103,5 @@ public class User {
     public void addSupport(Support support) {
         this.supports.add(support);
     }
+
 }

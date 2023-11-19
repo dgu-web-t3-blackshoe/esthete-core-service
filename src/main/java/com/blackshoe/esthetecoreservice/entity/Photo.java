@@ -64,6 +64,9 @@ public class Photo {
     @Column(name = "created_at", length = 20)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoGenre> photoGenres;
+
     public void setPhotoUrl(PhotoUrl photoUrl) {
         this.photoUrl = photoUrl;
     }
@@ -78,6 +81,10 @@ public class Photo {
         if (photoId == null) {
             photoId = UUID.randomUUID();
         }
+    }
+  
+    public void addPhotoGenre(PhotoGenre photoGenre) {
+        this.photoGenres.add(photoGenre);
     }
     public void increaseViewCount() {
         this.viewCount++;

@@ -37,6 +37,8 @@ public class ExhibitionDto {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class CreateRequest {
+        @NotNull(message = "사용자 ID를 입력해주세요.")
+        private String userId;
         @NotNull(message = "전시 제목을 입력해주세요.")
         private String title;
         @NotNull(message = "전시 설명을 입력해주세요.")
@@ -97,4 +99,6 @@ public class ExhibitionDto {
         private String description;
         private String thumbnail;
     }
+
+
 }

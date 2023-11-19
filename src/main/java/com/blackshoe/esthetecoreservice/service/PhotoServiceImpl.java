@@ -6,10 +6,13 @@ import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
+import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
+import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +36,14 @@ public class PhotoServiceImpl implements PhotoService{
     private final GenreRepository genreRepository;
     private final PhotoGenreRepository photoGenreRepository;
 
+    //redis
+    private final RedisTemplate redisTemplate;
+
+    private final NewWorkRepository newWorkRepository;
+    private final UserRepository userRepository;
+    private final SupportRepository supportRepository;
+    private final GenreRepository genreRepository;
+
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
     @Value("${cloud.aws.cloudfront.distribution-domain}")
@@ -50,6 +61,8 @@ public class PhotoServiceImpl implements PhotoService{
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }
 
+        User photographer = userRepository.findByUserId(photoUploadRequest.getUserId()).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
         //String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
         String s3FilePath = PHOTO_DIRECTORY;
         String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
@@ -58,9 +71,6 @@ public class PhotoServiceImpl implements PhotoService{
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + photoId + fileExtension;
 
-        //if (!ContentType.isContentTypeValid(photo.getContentType())) {
-        //    throw new PhotoException(PhotoErrorResult.INVALID_SKIN_TYPE);
-        //}
 
         if (photo.getSize() > 52428800) {
             throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
@@ -91,6 +101,16 @@ public class PhotoServiceImpl implements PhotoService{
 
         PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
 
+        List<PhotoGenre> photoGenres = new ArrayList<>();
+
+        for(String genreName : photoUploadRequest.getGenres()){
+
+            Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+
+            photoGenres.add(PhotoGenre.builder()
+                    .genre(genre)
+                    .build());
+        }
         PhotoLocation photoLocation = PhotoLocation.builder()
                 .longitude(photoUploadRequest.getLongitude())
                 .latitude(photoUploadRequest.getLatitude())
@@ -111,13 +131,13 @@ public class PhotoServiceImpl implements PhotoService{
             photoEquipments.add(newEquipment);
         });
 
-
         Photo uploadedPhoto = Photo.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
                 .title(photoUploadRequest.getTitle())
                 .description(photoUploadRequest.getDescription())
                 .createdAt(LocalDateTime.now())
+                .photoGenres(photoGenres)
                 .time(photoUploadRequest.getTime())
                 .photoLocation(photoLocation)
                 .photoEquipments(photoEquipments)
@@ -125,6 +145,33 @@ public class PhotoServiceImpl implements PhotoService{
 
         photoRepository.save(uploadedPhoto);
 
+        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
+        List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
+
+        String[] userIdWithCondition;
+        List<String[]> supporters = new ArrayList<>();
+
+        for(Support support : supports){
+            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
+            supporters.add(userIdWithCondition);
+        }
+
+        String hasNewRedisKey = "photographer_" + photoUploadRequest.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
+        redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
+        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
+        if(newWork == null){
+            newWork = NewWork.builder()
+                    .photo(uploadedPhoto)
+                    .photographer(photographer)
+                    .photographerId(UUID.fromString(photographer.getUserId().toString()))
+                    .build();
+        }
+        else {
+            newWork.setPhoto(uploadedPhoto);
+        }
+
+        newWorkRepository.save(newWork);
         List<Long> genreIds  = photoUploadRequest.getGenreIds();
 
         for (long genreId : genreIds) {
@@ -137,7 +184,6 @@ public class PhotoServiceImpl implements PhotoService{
 
             photoGenreRepository.save(photoGenre);
         }
-
         PhotoDto photoDto = PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
@@ -220,5 +266,21 @@ public class PhotoServiceImpl implements PhotoService{
                 .build();
 
         return getGenresResponse;
+    }
+
+    @Override
+    @Transactional
+    public PhotoDto.DeleteResponse deletePhoto(UUID photoId) {
+        Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+        photoRepository.delete(photo);
+
+        redisTemplate.delete("*" + photoId.toString());
+
+        PhotoDto.DeleteResponse photoDeleteResponse = PhotoDto.DeleteResponse.builder()
+                .photoId(photo.getPhotoId().toString())
+                .build();
+
+        return photoDeleteResponse;
     }
 }

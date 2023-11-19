@@ -23,6 +23,7 @@ import java.util.UUID;
 @Builder
 public class PhotoDto {
 
+    private UUID userId;
     private UUID photoId;
     private String title;
     private String description;
@@ -37,6 +38,9 @@ public class PhotoDto {
     @NoArgsConstructor @AllArgsConstructor
     public static class UploadRequest {
 
+        @NotNull(message = "userId is required")
+        private UUID userId;
+
         @NotNull(message = "title is required")
         private String title;
 
@@ -46,6 +50,12 @@ public class PhotoDto {
         @NotNull(message = "longitude is required")
         private double longitude;
 
+        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
+        private String isPublic;
+
+        @NotNull(message = "genres are required")
+        List<String> genres;
+      
         @NotNull(message = "latitude is required")
         private double latitude;
 
@@ -60,9 +70,6 @@ public class PhotoDto {
 
         @NotNull(message = "time is required")
         private LocalDateTime time;
-
-        @NotNull(message = "genres are required")
-        private List<Long> genreIds;
 
         @NotNull(message = "equipments are required")
         private List<PhotoEquipmentDto> equipmentNames;
@@ -85,6 +92,23 @@ public class PhotoDto {
         private String description;
         private String createdAt;
     }
+
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeleteRequest{
+
+        @NotNull(message = "userId is required")
+        private UUID userId;
+        private UUID photoId;
+    }
+
+    @Data
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeleteResponse{
+        private String photoId;
+
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class GetResponse{

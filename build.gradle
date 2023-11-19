@@ -30,9 +30,8 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
-    implementation 'com.mysql:mysql-connector-j'
-    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //swagger
     implementation 'io.springfox:springfox-boot-starter:3.0.0'

@@ -12,13 +12,11 @@ import javax.persistence.*;
 @Table(name = "photo_genres")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class PhotoGenre {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "photo_genre_id")
     private Long id;
 
@@ -30,8 +28,15 @@ public class PhotoGenre {
     @JoinColumn(name = "genre_id", foreignKey = @ForeignKey(name = "photo_genre_fk_genre_id"))
     private Genre genre;
 
+    @Builder
+    public PhotoGenre(Photo photo, Genre genre) {
+        this.photo = photo;
+        this.genre = genre;
+    }
+
     public void setPhoto(Photo photo) {
         this.photo = photo;
+        photo.addPhotoGenre(this);
     }
 
     public void setGenre(Genre genre) {
