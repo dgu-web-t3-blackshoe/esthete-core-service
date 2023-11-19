@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -47,6 +48,9 @@ public class PhotoDto {
 
         @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
         private String isPublic;
+
+        @NotNull(message = "genres are required")
+        List<String> genres;
     }
 
     @Data

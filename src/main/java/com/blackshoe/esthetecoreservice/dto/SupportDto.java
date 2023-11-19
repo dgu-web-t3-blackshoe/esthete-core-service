@@ -10,8 +10,21 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 public class SupportDto {
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadResponse {
+        private String supportId;
+        private String deletedAt;
+    }
 
     @Data
     @Builder
@@ -48,5 +61,34 @@ public class SupportDto {
     public static class DeleteResponse {
             private String supportId;
             private String deletedAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadSupportingPhotographersResponse{
+        private List<ReadSupportingPhotographer> contents;
+
+        public void addReadSupportingPhotographer(ReadSupportingPhotographer readSupportingPhotographer){
+            contents.add(readSupportingPhotographer);
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadSupportingPhotographer {
+        private String photographerId;
+        private String profileImg;
+        private String nickname;
+        private String biography;
+        private List<String> genres;
+        private List<String> highlights;
     }
 }

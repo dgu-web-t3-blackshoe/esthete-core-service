@@ -8,10 +8,7 @@ import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
-import com.blackshoe.esthetecoreservice.repository.NewWorkRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.SupportRepository;
-import com.blackshoe.esthetecoreservice.repository.UserRepository;
+import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +36,7 @@ public class PhotoServiceImpl implements PhotoService{
     private final NewWorkRepository newWorkRepository;
     private final UserRepository userRepository;
     private final SupportRepository supportRepository;
+    private final GenreRepository genreRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
@@ -67,9 +65,6 @@ public class PhotoServiceImpl implements PhotoService{
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + photoId + fileExtension;
 
-        //if (!ContentType.isContentTypeValid(photo.getContentType())) {
-        //    throw new PhotoException(PhotoErrorResult.INVALID_SKIN_TYPE);
-        //}
 
         if (photo.getSize() > 52428800) {
             throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
@@ -100,17 +95,27 @@ public class PhotoServiceImpl implements PhotoService{
 
         PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
 
+        List<PhotoGenre> photoGenres = new ArrayList<>();
+
+        for(String genreName : photoUploadRequest.getGenres()){
+
+            Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+
+            photoGenres.add(PhotoGenre.builder()
+                    .genre(genre)
+                    .build());
+        }
+
         Photo uploadedPhoto = Photo.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
                 .title(photoUploadRequest.getTitle())
                 .description(photoUploadRequest.getDescription())
                 .createdAt(LocalDateTime.now())
+                .photoGenres(photoGenres)
                 .build();
 
         photoRepository.save(uploadedPhoto);
-
-
 
         NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
         List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
@@ -149,11 +154,7 @@ public class PhotoServiceImpl implements PhotoService{
                 .isPublic(Boolean.valueOf(photoUploadRequest.getIsPublic()))
                 .createdAt(uploadedPhoto.getCreatedAt())
                 .build();
-        /*
-        1. 해당하는 userId로 redis 있는지 조회, 있다면 photoId, exhibitionId
-        2. value : True인지 False인지 -> hasNew
-        3. NewWorkResponse에 담아서 반환.
-         */
+
         return photoDto;
     }
 

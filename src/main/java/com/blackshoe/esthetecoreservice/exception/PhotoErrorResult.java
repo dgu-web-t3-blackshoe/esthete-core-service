@@ -12,6 +12,7 @@ public enum PhotoErrorResult {
     INVALID_PHOTO_SIZE(HttpStatus.BAD_REQUEST, "사진 파일의 크기가 유효하지 않습니다."),
     INVALID_PHOTO_TYPE(HttpStatus.BAD_REQUEST, "사진 파일의 확장자가 유효하지 않습니다."),
     PHOTO_NOT_FOUND(HttpStatus.NOT_FOUND, "사진을 찾을 수 없습니다."),
+    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND, "장르를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
