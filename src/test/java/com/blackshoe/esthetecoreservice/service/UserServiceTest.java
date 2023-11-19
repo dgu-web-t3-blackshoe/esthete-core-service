@@ -12,7 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,5 +92,47 @@ public class UserServiceTest {
         assertThat(exhibitionReadCurrentOfUserResponse.getTitle()).isEqualTo(exhibition.getTitle());
         assertThat(exhibitionReadCurrentOfUserResponse.getDescription()).isEqualTo(exhibition.getDescription());
         assertThat(exhibitionReadCurrentOfUserResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
+    }
+
+    @Test
+    public void readAllNicknameContaining_whenSuccess_returnsUserReadAllContainingNicknameResponse() {
+        // given
+        when(userRepository.findAllByNicknameContaining(any(String.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        // when
+        final Page<UserDto.SearchResult> userReadAllNicknameContainingResponse
+                = userService.readAllNicknameContaining("test", Pageable.unpaged());
+
+        // then
+        verify(userRepository).findAllByNicknameContaining(any(String.class), any(Pageable.class));
+        assertThat(userReadAllNicknameContainingResponse).isNotNull();
+    }
+
+    @Test
+    public void readAllGenresContaining_whenSuccess_returnsUserReadAllContainingNicknameResponse() {
+        // given
+        when(userRepository.findAllByGenresContaining(any(List.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        // when
+        final Page<UserDto.SearchResult> userReadAllGenresContainingResponse
+                = userService.readAllGenresContaining(List.of(), Pageable.unpaged());
+
+        // then
+        verify(userRepository).findAllByGenresContaining(any(List.class), any(Pageable.class));
+        assertThat(userReadAllGenresContainingResponse).isNotNull();
+    }
+
+    @Test
+    public void readAllNicknameAndGenreContaining_whenSuccess_returnsUserReadAllContainingNicknameResponse() {
+        // given
+        when(userRepository.findAllByNicknameAndGenresContaining(any(String.class), any(List.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        // when
+        final Page<UserDto.SearchResult> userReadAllGenresContainingAndNicknameContainingResponse
+                = userService.readAllNicknameAndGenreContaining("test", List.of(), Pageable.unpaged());
+
+        // then
+        verify(userRepository).findAllByNicknameAndGenresContaining(any(String.class), any(List.class), any(Pageable.class));
+        assertThat(userReadAllGenresContainingAndNicknameContainingResponse).isNotNull();
     }
 }
