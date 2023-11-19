@@ -6,8 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
+
+    @EntityGraph(attributePaths = "photoGenres")
     Optional<Photo> findByPhotoId(UUID photoId);
 }

@@ -5,23 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "photos")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter @Builder @AllArgsConstructor
+@Getter @Builder(toBuilder = true) @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Photo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "photo_id")
     private Long id;
 
@@ -42,18 +42,23 @@ public class Photo {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private PhotoUrl photoUrl;
 
-    /*
-    @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private PhotoLocation photoLocation;
-    */
-
     @Column(name = "photo_time", nullable = false, length = 20)
-    private String time;
+    private LocalDateTime time;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
+    private PhotoLocation photoLocation;
+
+    //equipments
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoEquipment> photoEquipments = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoGenre> photoGenres = new ArrayList<>();
 
     @ColumnDefault("0")
-    @Column(name = "view_count")
-    private Long viewCount;
+    @Column(nullable = false)
+    private long viewCount;
 
     @CreatedDate
     @Column(name = "created_at", length = 20)
@@ -69,9 +74,12 @@ public class Photo {
     }
 
     @PrePersist
-    public void setPhotoId() {
+    public void setPhotoIdAndPhotoGenres() {
         if (photoId == null) {
             photoId = UUID.randomUUID();
         }
+    }
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

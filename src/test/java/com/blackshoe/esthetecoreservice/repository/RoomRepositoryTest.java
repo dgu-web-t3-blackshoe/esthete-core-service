@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.EntityListeners;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -45,7 +46,7 @@ public class RoomRepositoryTest {
     private final Photo photo = Photo.builder()
             .title("title")
             .description("description")
-            .time("time")
+            .time(LocalDateTime.of(2021, 1, 1, 1, 1, 1))
             .build();
 
     @Test
