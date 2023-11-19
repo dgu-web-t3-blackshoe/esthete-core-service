@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -225,5 +226,117 @@ public class UserControllerTest {
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportDeleteResponse));
+    }
+
+    @Test
+    public void readAllNicknameContaining_whenSuccess_returns200() throws Exception {
+        // given
+        when(userService.readAllNicknameContaining(any(), any())).thenReturn(Page.empty());
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/users/search")
+                                .param("nickname", "nickname")
+                                .param("sort", "recent")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void readAllGenresContaining_whenSuccess_returns200() throws Exception {
+        // given
+        when(userService.readAllNicknameContaining(any(), any())).thenReturn(Page.empty());
+        String genres = UUID.randomUUID() + "," + UUID.randomUUID();
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/users/search")
+                                .param("genres", genres)
+                                .param("sort", "popular")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void readAllNicknameAndGenresContaining_whenSuccess_returns200() throws Exception {
+        // given
+        when(userService.readAllNicknameContaining(any(), any())).thenReturn(Page.empty());
+        String genres = UUID.randomUUID() + "," + UUID.randomUUID();
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/users/search")
+                                .param("nickname", "nickname")
+                                .param("genres", genres)
+                                .param("sort", "trending")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void readAllNicknameAndGenresContaining_whenInvalidParam_returns400() throws Exception {
+        // given
+        when(userService.readAllNicknameContaining(any(), any())).thenReturn(Page.empty());
+        String genres = "12345";
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/users/search")
+                                .param("nickname", "nickname")
+                                .param("genres", genres)
+                                .param("sort", "trending")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    public void readAllNicknameAndGenresContaining_whenInvalidSortParam_returns400() throws Exception {
+        // given
+        when(userService.readAllNicknameContaining(any(), any())).thenReturn(Page.empty());
+        String genres = UUID.randomUUID() + "," + UUID.randomUUID();
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/users/search")
+                                .param("nickname", "nickname")
+                                .param("genres", genres)
+                                .param("sort", "invalid")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }
