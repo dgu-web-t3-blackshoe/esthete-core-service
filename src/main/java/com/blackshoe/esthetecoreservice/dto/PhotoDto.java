@@ -53,6 +53,7 @@ public class PhotoDto {
         @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
         private String isPublic;
 
+        //@TODO: genreIds ?
         @NotNull(message = "genres are required")
         List<String> genres;
       
@@ -108,6 +109,7 @@ public class PhotoDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class DeleteResponse{
         private String photoId;
+    }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -178,4 +180,6 @@ public class PhotoDto {
         private String genreId;
         private String genreName;
     }
+
+
 }

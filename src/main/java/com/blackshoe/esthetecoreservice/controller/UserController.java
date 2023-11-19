@@ -40,6 +40,7 @@ public class UserController {
         UserDto.ReadEquipmentsResponse response = userService.getEquipmentsForUser(userId);
 
         return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{userId}/basic-info")
     public ResponseEntity<UserDto.ReadBasicInfoResponse> getBasicInfo(@PathVariable UUID userId) {
