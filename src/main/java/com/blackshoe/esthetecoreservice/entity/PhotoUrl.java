@@ -21,7 +21,7 @@ import java.util.UUID;
 public class PhotoUrl {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "photo_url_id")
     private long id;
 

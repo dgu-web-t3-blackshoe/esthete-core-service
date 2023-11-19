@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +30,11 @@ public class PhotoServiceImpl implements PhotoService{
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
+    private final PhotoUrlRepository photoUrlRepository;
+    private final PhotoLocationRepository photoLocationRepository;
+    private final ViewRepository photoViewRepository;
+    private final GenreRepository genreRepository;
+    private final PhotoGenreRepository photoGenreRepository;
 
     //redis
     private final RedisTemplate redisTemplate;
@@ -50,7 +56,7 @@ public class PhotoServiceImpl implements PhotoService{
     //@TODO: user 포함한 로직
     @Transactional
     @Override
-    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.PhotoUploadRequest photoUploadRequest) {
+    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.UploadRequest photoUploadRequest) {
         if (photo == null) {
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }
@@ -105,6 +111,25 @@ public class PhotoServiceImpl implements PhotoService{
                     .genre(genre)
                     .build());
         }
+        PhotoLocation photoLocation = PhotoLocation.builder()
+                .longitude(photoUploadRequest.getLongitude())
+                .latitude(photoUploadRequest.getLatitude())
+                .state(photoUploadRequest.getState())
+                .city(photoUploadRequest.getCity())
+                .town(photoUploadRequest.getTown())
+                .build();
+
+
+        List<PhotoDto.PhotoEquipmentDto> equipmentDtos = photoUploadRequest.getEquipmentNames();
+
+        List<PhotoEquipment> photoEquipments = new ArrayList<>();
+
+        equipmentDtos.forEach(equipment -> {
+            PhotoEquipment newEquipment = PhotoEquipment.builder()
+                    .photoEquipmentName(equipment.getEquipmentName())
+                    .build();
+            photoEquipments.add(newEquipment);
+        });
 
         Photo uploadedPhoto = Photo.builder()
                 .photoId(photoId)
@@ -113,6 +138,9 @@ public class PhotoServiceImpl implements PhotoService{
                 .description(photoUploadRequest.getDescription())
                 .createdAt(LocalDateTime.now())
                 .photoGenres(photoGenres)
+                .time(photoUploadRequest.getTime())
+                .photoLocation(photoLocation)
+                .photoEquipments(photoEquipments)
                 .build();
 
         photoRepository.save(uploadedPhoto);
@@ -144,34 +172,100 @@ public class PhotoServiceImpl implements PhotoService{
         }
 
         newWorkRepository.save(newWork);
+        List<Long> genreIds  = photoUploadRequest.getGenreIds();
 
+        for (long genreId : genreIds) {
+            Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+
+            PhotoGenre photoGenre = PhotoGenre.builder()
+                    .photo(uploadedPhoto)
+                    .genre(genre)
+                    .build();
+
+            photoGenreRepository.save(photoGenre);
+        }
         PhotoDto photoDto = PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
-                .title(photoUploadRequest.getTitle())
-                .description(photoUploadRequest.getDescription())
-                .detail(photoUploadRequest.getDetail())
-                .isPublic(Boolean.valueOf(photoUploadRequest.getIsPublic()))
-                .createdAt(uploadedPhoto.getCreatedAt())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return photoDto;
     }
 
+
     @Override
     @Transactional
-    public PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId) {
+    public PhotoDto.GetResponse getPhoto(UUID photoId) {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
-        PhotoUrl photoUrl = photo.getPhotoUrl();
+        List<PhotoGenre> photoGenres = photoGenreRepository.findByPhoto(photo).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_GENRE_NOT_FOUND));
 
-        PhotoDto.GetPhotoUrlResponse getPhotoUrlResponse = PhotoDto.GetPhotoUrlResponse.builder()
-                .title(photo.getTitle())
-                .description(photo.getDescription())
-                .cloudfrontUrl(photoUrl.getCloudfrontUrl())
+        PhotoDto.EquipmentIdsRequest equipmentNames = PhotoDto.EquipmentIdsRequest.builder()
+                .equipmentNames(
+                        photo.getPhotoEquipments()
+                                .stream()
+                                .map(equipment -> equipment.getPhotoEquipmentName())
+                                .collect(Collectors.toList())  // 수정된 부분
+                )
                 .build();
 
-        return getPhotoUrlResponse;
+
+        PhotoDto.LocationRequest locationRequest = PhotoDto.LocationRequest.builder()
+                .longitude(photo.getPhotoLocation().getLongitude())
+                .latitude(photo.getPhotoLocation().getLatitude())
+                .state(photo.getPhotoLocation().getState())
+                .city(photo.getPhotoLocation().getCity())
+                .town(photo.getPhotoLocation().getTown())
+                .build();
+
+        PhotoDto.UrlRequest urlRequest = PhotoDto.UrlRequest.builder()
+                .cloudfrontUrl(photo.getPhotoUrl().getCloudfrontUrl())
+                .build();
+
+        log.info("photo.getPhotoGenres(): {}", photo.getPhotoGenres());
+
+        //PhotoGenre to Long
+        List<String> genreIds = photoGenres
+                .stream()
+                .map(photoGenre -> String.valueOf(photoGenre.getGenre().getGenreId()))
+                .collect(Collectors.toList());
+
+        PhotoDto.GetResponse getPhotoResponse = PhotoDto.GetResponse.builder()
+                .photoId(photo.getPhotoId().toString())
+                .title(photo.getTitle())
+                .description(photo.getDescription())
+                .time(photo.getTime())
+                .photoUrl(urlRequest)
+                .photoLocation(locationRequest)
+                .equipmentNames(equipmentNames)
+                .genreIds(genreIds)
+                .viewCount(photo.getViewCount())
+                .createdAt(String.valueOf(photo.getCreatedAt()))
+                .build();
+
+
+        return getPhotoResponse;
+    }
+
+    @Override
+    @Transactional
+    public PhotoDto.GetGenresResponse getGenres() {
+        List<Genre> genres = genreRepository.findAll();
+
+        List<PhotoDto.GenreDto> genreDtos = genres
+                .stream()
+                .map(genre -> PhotoDto.GenreDto.builder()
+                        .genreId(String.valueOf(genre.getGenreId()))
+                        .genreName(genre.getGenreName())
+                        .build())
+                .collect(Collectors.toList());
+
+        PhotoDto.GetGenresResponse getGenresResponse = PhotoDto.GetGenresResponse.builder()
+                .genres(genreDtos)
+                .build();
+
+        return getGenresResponse;
     }
 
     @Override

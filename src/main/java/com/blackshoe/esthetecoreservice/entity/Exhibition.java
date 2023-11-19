@@ -21,7 +21,7 @@ import java.util.UUID;
 public class Exhibition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "exhibition_id")
     private Long id;
 

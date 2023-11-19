@@ -38,4 +38,8 @@ public class PhotoGenre {
         this.photo = photo;
         photo.addPhotoGenre(this);
     }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
 }

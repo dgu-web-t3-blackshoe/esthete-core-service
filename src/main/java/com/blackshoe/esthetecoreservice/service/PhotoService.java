@@ -12,4 +12,8 @@ public interface PhotoService {
     PhotoDto.GetPhotoUrlResponse getPhotoUrl(UUID photoId);
 
     PhotoDto.DeleteResponse deletePhoto(UUID photoId);
+  
+    PhotoDto.GetResponse getPhoto(UUID photoId);
+  
+    PhotoDto.GetGenresResponse getGenres();
 }

@@ -12,4 +12,5 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
 
     @Query("select g from Genre g where g.genreName = :genreName")
     Optional<Genre> findByGenreName(String genreName);
+    Optional<Genre> findById(Long id);
 }
