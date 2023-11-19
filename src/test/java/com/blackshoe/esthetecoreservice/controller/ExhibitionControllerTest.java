@@ -2,10 +2,12 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
+import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
+import com.blackshoe.esthetecoreservice.service.RoomPhotoService;
 import com.blackshoe.esthetecoreservice.service.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -45,6 +47,9 @@ public class ExhibitionControllerTest {
 
     @MockBean
     private RoomService roomService;
+
+    @MockBean
+    private RoomPhotoService roomPhotoService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -300,5 +305,27 @@ public class ExhibitionControllerTest {
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomReadListResponse));
+    }
+
+    @Test
+    public void readExhibitionRoomPhotoList_whenSuccess_returns200() throws Exception {
+        // given
+        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse = RoomPhotoDto.ReadListResponse.builder()
+                .roomPhotos(List.of())
+                .build();
+
+        when(roomPhotoService.readRoomPhotoList(any(UUID.class))).thenReturn(roomPhotoReadListResponse);
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                        get("/core/exhibitions/{exhibitionId}/rooms/{roomId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        final MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomPhotoReadListResponse));
     }
 }
