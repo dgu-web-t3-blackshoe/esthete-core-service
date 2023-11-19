@@ -55,6 +55,8 @@ public class SupportServiceImpl implements SupportService {
         final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.SUPPORT_NOT_FOUND));
 
+        support.unsetUser();
+
         supportRepository.delete(support);
 
         final SupportDto.DeleteResponse supportDeleteResponse = SupportDto.DeleteResponse.builder()

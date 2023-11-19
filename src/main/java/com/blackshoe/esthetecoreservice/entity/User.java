@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +39,14 @@ public class User {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ProfileImgUrl profileImgUrl;
 
+    @CreatedDate
+    @Column(name = "created_at", length = 20)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at", length = 20)
+    private LocalDateTime updatedAt;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGenre> userGenres;
 
@@ -54,6 +65,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
 
+    private Long supportCount;
+
+    private Long viewCount;
+
     @Builder
     public User(String nickname, String biography) {
         this.nickname = nickname;
@@ -64,6 +79,8 @@ public class User {
         this.photos = new ArrayList<>();
         this.guestBooks = new ArrayList<>();
         this.supports = new ArrayList<>();
+        this.supportCount = 0L;
+        this.viewCount = 0L;
     }
 
     @PrePersist
@@ -99,5 +116,10 @@ public class User {
 
     public void addSupport(Support support) {
         this.supports.add(support);
+        this.supportCount++;
+    }
+
+    public void removeSupport(Support support) {
+        this.supportCount--;
     }
 }
