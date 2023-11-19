@@ -127,4 +127,19 @@ public class RoomPhotoRepositoryTest {
         assertThat(roomPhotoDtoList.get(0).getUserId()).isNotNull();
         assertThat(roomPhotoDtoList.get(0).getNickname()).isEqualTo("nickname");
     }
+
+    @Test
+    public void findAllByRoomId_whenEmptyRoom_returnsEmptyList() {
+        // given
+        final Room savedRoom = roomRepository.save(room);
+
+        final UUID roomId = savedRoom.getRoomId();
+
+        // when
+        final List<RoomPhotoDto> roomPhotoDtoList = roomPhotoRepository.findAllByRoomId(roomId);
+
+        // then
+        assertThat(roomPhotoDtoList).isNotNull();
+        assertThat(roomPhotoDtoList.size()).isEqualTo(0);
+    }
 }
