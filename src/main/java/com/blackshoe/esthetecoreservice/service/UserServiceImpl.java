@@ -3,6 +3,7 @@ package com.blackshoe.esthetecoreservice.service;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
+import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
@@ -14,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -53,5 +56,25 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return exhibitionReadCurrentOfUserResponse;
+    }
+
+    @Override
+    public List<UserDto.ReadUserPhotosResponse> readUserPhotos(UUID userId) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+        List<Photo> photos = user.getPhotos();
+
+        List<UserDto.ReadUserPhotosResponse> contents = new ArrayList<>();
+        for(Photo photo : photos) {
+            UserDto.ReadUserPhotosResponse userReadUserPhotosResponse = UserDto.ReadUserPhotosResponse.builder()
+                    .userId(user.getUserId().toString())
+                    .nickname(user.getNickname())
+                    .photoId(photo.getPhotoId().toString())
+                    .photoUrl(photo.getPhotoUrl().getCloudfrontUrl())
+                    .createdAt(photo.getCreatedAt().toString())
+                    .build();
+            contents.add(userReadUserPhotosResponse);
+        }
+
+        return contents;
     }
 }

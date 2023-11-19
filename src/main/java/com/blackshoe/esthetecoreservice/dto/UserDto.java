@@ -21,4 +21,20 @@ public class UserDto {
         private String nickname;
         private String profileImg;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadUserPhotosResponse {
+        private String photoId;
+        private String title;
+        private String photoUrl;
+        private String userId;
+        private String nickname;
+        private String createdAt;
+    }
+
 }

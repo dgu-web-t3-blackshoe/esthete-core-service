@@ -81,4 +81,12 @@ public class UserController {
 
         return ResponseEntity.ok().body(readSupportingPhotographersResponse);
     }
+
+    @GetMapping("/{userId}/photos")
+    public ResponseEntity<List<UserDto.ReadUserPhotosResponse>> getUserPhotos(@PathVariable UUID userId) {
+
+        List<UserDto.ReadUserPhotosResponse> contents = userService.readUserPhotos(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(contents);
+    }
 }
