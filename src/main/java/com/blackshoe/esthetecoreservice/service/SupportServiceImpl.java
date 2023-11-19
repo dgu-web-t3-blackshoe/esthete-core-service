@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ public class SupportServiceImpl implements SupportService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest) {
 
         final User user = userRepository.findByUserId(userId)
@@ -50,6 +52,7 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
+    @Transactional
     public SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId) {
 
         final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
