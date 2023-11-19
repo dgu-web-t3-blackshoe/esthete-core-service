@@ -89,4 +89,12 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(contents);
     }
+
+    @GetMapping("/{userId}/exhibitions")
+    public ResponseEntity<List<UserDto.ReadUserExhibitionResponse>> getUserExhibitions(@PathVariable UUID userId) {
+
+        List<UserDto.ReadUserExhibitionResponse> contents = userService.readUserExhibitions(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(contents);
+    }
 }

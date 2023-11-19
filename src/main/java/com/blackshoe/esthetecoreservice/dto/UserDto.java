@@ -37,4 +37,16 @@ public class UserDto {
         private String createdAt;
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadUserExhibitionResponse {
+        private String exhibitionId;
+        private String title;
+        private String description;
+        private String thumbnail;
+    }
 }

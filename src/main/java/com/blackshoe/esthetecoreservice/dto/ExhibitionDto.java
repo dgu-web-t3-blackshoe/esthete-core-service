@@ -99,4 +99,6 @@ public class ExhibitionDto {
         private String description;
         private String thumbnail;
     }
+
+
 }

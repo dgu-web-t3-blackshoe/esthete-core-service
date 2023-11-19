@@ -77,4 +77,23 @@ public class UserServiceImpl implements UserService {
 
         return contents;
     }
+
+    @Override
+    public List<UserDto.ReadUserExhibitionResponse> readUserExhibitions(UUID userId) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+        List<Exhibition> exhibitions = user.getExhibitions();
+
+        List<UserDto.ReadUserExhibitionResponse> contents = new ArrayList<>();
+        for(Exhibition exhibition : exhibitions) {
+            UserDto.ReadUserExhibitionResponse userReadUserExhibitionResponse = UserDto.ReadUserExhibitionResponse.builder()
+                    .exhibitionId(exhibition.getExhibitionId().toString())
+                    .title(exhibition.getTitle())
+                    .description(exhibition.getDescription())
+                    .thumbnail(exhibition.getThumbnail())
+                    .build();
+            contents.add(userReadUserExhibitionResponse);
+        }
+
+        return contents;
+    }
 }
