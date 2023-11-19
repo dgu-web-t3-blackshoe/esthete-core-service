@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -31,5 +32,15 @@ public class RoomPhotoDto {
         this.photo = photo;
         this.userId = userId.toString();
         this.nickname = nickname;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadListResponse {
+        private List<RoomPhotoDto> roomPhotos;
     }
 }
