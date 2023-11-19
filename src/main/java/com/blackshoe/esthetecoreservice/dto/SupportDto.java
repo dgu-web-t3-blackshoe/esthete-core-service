@@ -70,10 +70,10 @@ public class SupportDto {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReadSupportingPhotographersResponse{
-        private List<ReadSupportingPhotographer> contents;
+        private List<ReadSupportingPhotographer> content;
 
         public void addReadSupportingPhotographer(ReadSupportingPhotographer readSupportingPhotographer){
-            contents.add(readSupportingPhotographer);
+            content.add(readSupportingPhotographer);
         }
     }
 
@@ -91,4 +91,6 @@ public class SupportDto {
         private List<String> genres;
         private List<String> highlights;
     }
+
+
 }

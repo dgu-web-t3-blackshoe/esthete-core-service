@@ -97,7 +97,7 @@ public class SupportServiceImpl implements SupportService {
         }
 
         SupportDto.ReadSupportingPhotographersResponse supportingPhotographersResponse = SupportDto.ReadSupportingPhotographersResponse.builder()
-                .contents(new ArrayList<>())
+                .content(new ArrayList<>())
                 .build();
 
         //genres 내 genreName과 일치하는 photographer의 genreName을 가져온다.

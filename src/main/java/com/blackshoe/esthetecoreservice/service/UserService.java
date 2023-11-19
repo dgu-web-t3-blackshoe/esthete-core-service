@@ -14,4 +14,6 @@ public interface UserService {
     List<UserDto.ReadUserPhotosResponse> readUserPhotos(UUID userId);
 
     List<UserDto.ReadUserExhibitionResponse> readUserExhibitions(UUID userId);
+
+    List<UserDto.ReadUserGuestbookResponse> readUserGuestbooks(UUID userId);
 }

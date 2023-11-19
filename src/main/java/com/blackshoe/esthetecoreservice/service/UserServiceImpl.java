@@ -5,6 +5,7 @@ import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
+import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
         List<Photo> photos = user.getPhotos();
 
-        List<UserDto.ReadUserPhotosResponse> contents = new ArrayList<>();
+        List<UserDto.ReadUserPhotosResponse> content = new ArrayList<>();
         for(Photo photo : photos) {
             UserDto.ReadUserPhotosResponse userReadUserPhotosResponse = UserDto.ReadUserPhotosResponse.builder()
                     .userId(user.getUserId().toString())
@@ -72,10 +73,10 @@ public class UserServiceImpl implements UserService {
                     .photoUrl(photo.getPhotoUrl().getCloudfrontUrl())
                     .createdAt(photo.getCreatedAt().toString())
                     .build();
-            contents.add(userReadUserPhotosResponse);
+            content.add(userReadUserPhotosResponse);
         }
 
-        return contents;
+        return content;
     }
 
     @Override
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
         List<Exhibition> exhibitions = user.getExhibitions();
 
-        List<UserDto.ReadUserExhibitionResponse> contents = new ArrayList<>();
+        List<UserDto.ReadUserExhibitionResponse> content = new ArrayList<>();
         for(Exhibition exhibition : exhibitions) {
             UserDto.ReadUserExhibitionResponse userReadUserExhibitionResponse = UserDto.ReadUserExhibitionResponse.builder()
                     .exhibitionId(exhibition.getExhibitionId().toString())
@@ -91,9 +92,31 @@ public class UserServiceImpl implements UserService {
                     .description(exhibition.getDescription())
                     .thumbnail(exhibition.getThumbnail())
                     .build();
-            contents.add(userReadUserExhibitionResponse);
+            content.add(userReadUserExhibitionResponse);
         }
 
-        return contents;
+        return content;
+    }
+
+    @Override
+    public List<UserDto.ReadUserGuestbookResponse> readUserGuestbooks(UUID userId) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        List<GuestBook> guestbooks = user.getGuestBooks();
+
+        List<UserDto.ReadUserGuestbookResponse> content = new ArrayList<>();
+        for(GuestBook guestbook : guestbooks) {
+            UserDto.ReadUserGuestbookResponse userReadUserGuestbookResponse = UserDto.ReadUserGuestbookResponse.builder()
+                    .guestbookId(guestbook.getGuestBookId().toString())
+                    .createdAt(guestbook.getCreatedAt().toString())
+                    .photographerId(userId.toString())
+                    .userId(guestbook.getUser().getUserId().toString())
+                    .nickname(guestbook.getUser().getNickname())
+                    .content(guestbook.getContent())
+                    .build();
+            content.add(userReadUserGuestbookResponse);
+        }
+
+        return content;
     }
 }
