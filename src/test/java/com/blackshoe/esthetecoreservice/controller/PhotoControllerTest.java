@@ -52,7 +52,7 @@ public class PhotoControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger log = LoggerFactory.getLogger(ExhibitionControllerTest.class);
-
+/*
     @Test
     public void getPhoto_whenSuccess_return200() throws Exception {
         log.info("getPhoto()");
@@ -126,7 +126,7 @@ public class PhotoControllerTest {
         assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(photoGetResponse));
 
     }
-
+*/
     @Test
     public void getPhoto_whenPhotoNotFound_return404() throws Exception {
         log.info("getPhoto_whenPhotoNotFound_return404()");

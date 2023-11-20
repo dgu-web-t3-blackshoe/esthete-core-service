@@ -171,10 +171,15 @@ public class PhotoServiceImpl implements PhotoService{
         }
 
         newWorkRepository.save(newWork);
-        List<Long> genreIds  = photoUploadRequest.getGenreIds();
 
-        for (long genreId : genreIds) {
-            Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+        List<UUID> genreIds  = photoUploadRequest.getGenres()
+                .stream()
+                .map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND)).getGenreId())
+                .collect(Collectors.toList());
+
+        for (UUID genreId : genreIds) {
+
+            Genre genre = genreRepository.findByGenreId(genreId).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
 
             PhotoGenre photoGenre = PhotoGenre.builder()
                     .photo(uploadedPhoto)
