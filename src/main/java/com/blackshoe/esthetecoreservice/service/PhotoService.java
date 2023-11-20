@@ -7,8 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 public interface PhotoService {
-    PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.UploadRequest photoUploadRequest);
-
     PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest);
 
     PhotoDto.DeleteResponse deletePhoto(UUID photoId);
