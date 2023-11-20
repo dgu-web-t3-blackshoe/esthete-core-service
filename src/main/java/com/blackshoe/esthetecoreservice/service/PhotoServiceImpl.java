@@ -42,7 +42,6 @@ public class PhotoServiceImpl implements PhotoService{
     private final NewWorkRepository newWorkRepository;
     private final UserRepository userRepository;
     private final SupportRepository supportRepository;
-    private final GenreRepository genreRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
@@ -56,7 +55,7 @@ public class PhotoServiceImpl implements PhotoService{
     //@TODO: user 포함한 로직
     @Transactional
     @Override
-    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.UploadRequest photoUploadRequest) {
+    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest) {
         if (photo == null) {
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }

@@ -1,5 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
+import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
+import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 
 import java.util.List;
@@ -11,9 +13,9 @@ public interface UserService {
 
     ExhibitionDto.ReadCurrentOfUserResponse readCurrentExhibitionOfUser(UUID userId);
 
-    List<UserDto.ReadUserPhotosResponse> readUserPhotos(UUID userId);
+    List<PhotoDto.ReadResponse> readUserPhotos(UUID userId);
 
-    List<UserDto.ReadUserExhibitionResponse> readUserExhibitions(UUID userId);
+    List<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId);
 
-    List<UserDto.ReadUserGuestbookResponse> readUserGuestbooks(UUID userId);
+    List<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId);
 }

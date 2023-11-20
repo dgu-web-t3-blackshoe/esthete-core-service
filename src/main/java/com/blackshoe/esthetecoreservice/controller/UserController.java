@@ -1,6 +1,6 @@
 package com.blackshoe.esthetecoreservice.controller;
 
-import com.blackshoe.esthetecoreservice.dto.UserDto;
+import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
-import com.blackshoe.esthetecoreservice.dto.SupportDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.service.GuestBookService;
 import com.blackshoe.esthetecoreservice.service.SupportService;
@@ -97,25 +94,25 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/photos")
-    public ResponseEntity<List<UserDto.ReadUserPhotosResponse>> getUserPhotos(@PathVariable UUID userId) {
+    public ResponseEntity<List<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable UUID userId) {
 
-        List<UserDto.ReadUserPhotosResponse> content = userService.readUserPhotos(userId);
+        List<PhotoDto.ReadResponse> content = userService.readUserPhotos(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(content);
     }
 
     @GetMapping("/{userId}/exhibitions")
-    public ResponseEntity<List<UserDto.ReadUserExhibitionResponse>> getUserExhibitions(@PathVariable UUID userId) {
+    public ResponseEntity<List<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable UUID userId) {
 
-        List<UserDto.ReadUserExhibitionResponse> content = userService.readUserExhibitions(userId);
+        List<ExhibitionDto.ReadResponse> content = userService.readUserExhibitions(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(content);
     }
 
     @GetMapping("/{userId}/guest-books")
-    public ResponseEntity<List<UserDto.ReadUserGuestbookResponse>> getUserGuestBooks(@PathVariable UUID userId) {
+    public ResponseEntity<List<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable UUID userId) {
 
-        List<UserDto.ReadUserGuestbookResponse> content = userService.readUserGuestbooks(userId);
+        List<GuestBookDto.ReadResponse> content = userService.readUserGuestbooks(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(content);
     }

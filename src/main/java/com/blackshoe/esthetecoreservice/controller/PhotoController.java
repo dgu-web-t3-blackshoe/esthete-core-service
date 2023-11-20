@@ -26,7 +26,7 @@ public class PhotoController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PhotoDto.UploadResponse> uploadPhoto(@RequestPart(name = "photo") MultipartFile photo,
                                                   @RequestPart(name = "photo_upload_request")
-                                                  PhotoDto.UploadRequest photoUploadRequest) {
+                                                  PhotoDto.CreateRequest photoUploadRequest) {
         //log all
         log.info("photoUploadRequest: {}", photoUploadRequest);
 

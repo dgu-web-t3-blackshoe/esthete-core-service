@@ -1,5 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
+import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
+import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.Photo;
@@ -13,9 +15,6 @@ import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.UserEquipmentRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
-import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -84,13 +81,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto.ReadUserPhotosResponse> readUserPhotos(UUID userId) {
+    public List<PhotoDto.ReadResponse> readUserPhotos(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
         List<Photo> photos = user.getPhotos();
 
-        List<UserDto.ReadUserPhotosResponse> content = new ArrayList<>();
+        List<PhotoDto.ReadResponse> content = new ArrayList<>();
         for(Photo photo : photos) {
-            UserDto.ReadUserPhotosResponse userReadUserPhotosResponse = UserDto.ReadUserPhotosResponse.builder()
+            PhotoDto.ReadResponse userReadUserPhotosResponse = PhotoDto.ReadResponse.builder()
                     .userId(user.getUserId().toString())
                     .nickname(user.getNickname())
                     .photoId(photo.getPhotoId().toString())
@@ -104,13 +101,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto.ReadUserExhibitionResponse> readUserExhibitions(UUID userId) {
+    public List<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
         List<Exhibition> exhibitions = user.getExhibitions();
 
-        List<UserDto.ReadUserExhibitionResponse> content = new ArrayList<>();
+        List<ExhibitionDto.ReadResponse> content = new ArrayList<>();
         for(Exhibition exhibition : exhibitions) {
-            UserDto.ReadUserExhibitionResponse userReadUserExhibitionResponse = UserDto.ReadUserExhibitionResponse.builder()
+            ExhibitionDto.ReadResponse userReadUserExhibitionResponse = ExhibitionDto.ReadResponse.builder()
                     .exhibitionId(exhibition.getExhibitionId().toString())
                     .title(exhibition.getTitle())
                     .description(exhibition.getDescription())
@@ -123,14 +120,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto.ReadUserGuestbookResponse> readUserGuestbooks(UUID userId) {
+    public List<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         List<GuestBook> guestbooks = user.getGuestBooks();
 
-        List<UserDto.ReadUserGuestbookResponse> content = new ArrayList<>();
+        List<GuestBookDto.ReadResponse> content = new ArrayList<>();
         for(GuestBook guestbook : guestbooks) {
-            UserDto.ReadUserGuestbookResponse userReadUserGuestbookResponse = UserDto.ReadUserGuestbookResponse.builder()
+            GuestBookDto.ReadResponse userReadUserGuestbookResponse = GuestBookDto.ReadResponse.builder()
                     .guestbookId(guestbook.getGuestBookId().toString())
                     .createdAt(guestbook.getCreatedAt().toString())
                     .photographerId(userId.toString())
