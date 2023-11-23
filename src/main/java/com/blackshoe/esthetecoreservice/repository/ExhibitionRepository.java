@@ -1,6 +1,8 @@
 package com.blackshoe.esthetecoreservice.repository;
 
+import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
+import com.blackshoe.esthetecoreservice.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,18 +19,11 @@ import java.util.UUID;
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
     Optional<Exhibition> findByExhibitionId(UUID exhibitionId);
 
-    default Optional<Exhibition> findMostRecentExhibitionOfUser(@Param("userId") UUID userId) {
-        final Page<Exhibition> exhibitionPage
-                = findMostRecentExhibitionOfUser(userId, PageRequest.of(0, 1));
+    Optional<Exhibition> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
 
-        return Optional.ofNullable(exhibitionPage.getContent().size() > 0 ?
-                exhibitionPage.getContent().get(0) : null);
+    default Optional<Exhibition> findMostRecentExhibitionOfUser(@Param("userId") UUID userId) {
+        return findTopByUserIdOrderByCreatedAtDesc(userId);
     };
 
-    @Query(value = "SELECT e " +
-            "FROM Exhibition e " +
-            "WHERE e.user.userId = :userId " +
-            "ORDER BY e.createdAt DESC ")
-    Page<Exhibition> findMostRecentExhibitionOfUser(@Param("userId") UUID userId, Pageable pageable);
-
+    Page<ExhibitionDto.ReadResponse> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 }

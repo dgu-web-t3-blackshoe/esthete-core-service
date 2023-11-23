@@ -2,7 +2,10 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.service.UserService;
+import com.blackshoe.esthetecoreservice.vo.SortType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -95,26 +98,39 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/photos")
-    public ResponseEntity<List<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable UUID userId) {
+    public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable UUID userId, @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(required = false, defaultValue = "recent") String sort) {
+        final Sort sortBy = SortType.convertParamToColumn(sort);
 
-        List<PhotoDto.ReadResponse> content = userService.readUserPhotos(userId);
+        Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 
-        return ResponseEntity.status(HttpStatus.OK).body(content);
+        return ResponseEntity.status(HttpStatus.OK).body(readUserPhotos);
     }
 
     @GetMapping("/{userId}/exhibitions")
-    public ResponseEntity<List<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable UUID userId) {
+    public ResponseEntity<Page<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable UUID userId,
+                                                                               @RequestParam(defaultValue = "10") int size,
+                                                                               @RequestParam(defaultValue = "0") int page,
+                                                                               @RequestParam(required = false, defaultValue = "recent") String sort) {
+        final Sort sortBy = SortType.convertParamToColumn(sort);
 
-        List<ExhibitionDto.ReadResponse> content = userService.readUserExhibitions(userId);
+        Page<ExhibitionDto.ReadResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
 
-        return ResponseEntity.status(HttpStatus.OK).body(content);
+        return ResponseEntity.status(HttpStatus.OK).body(readUserExhibitions);
     }
 
     @GetMapping("/{userId}/guest-books")
-    public ResponseEntity<List<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable UUID userId) {
+    public ResponseEntity<Page<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable UUID userId,
+                                                                             @RequestParam(defaultValue = "10") int size,
+                                                                             @RequestParam(defaultValue = "0") int page,
+                                                                             @RequestParam(required = false, defaultValue = "recent") String sort) {
 
-        List<GuestBookDto.ReadResponse> content = userService.readUserGuestbooks(userId);
+        final Sort sortBy = SortType.convertParamToColumn(sort);
 
-        return ResponseEntity.status(HttpStatus.OK).body(content);
+        Page<GuestBookDto.ReadResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
+
+        return ResponseEntity.status(HttpStatus.OK).body(readUserGuestBooksPage);
+
     }
 }

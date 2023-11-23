@@ -4,23 +4,22 @@ import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
-import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.entity.UserEquipment;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
-import com.blackshoe.esthetecoreservice.repository.UserEquipmentRepository;
-import com.blackshoe.esthetecoreservice.repository.UserRepository;
+import com.blackshoe.esthetecoreservice.repository.*;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +30,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
+    private final PhotoRepository photoRepository;
+    private final GuestBookRepository guestBookRepository;
     private final ExhibitionRepository exhibitionRepository;
     private final UserEquipmentRepository userEquipmentRepository;
     @Override
@@ -81,63 +81,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<PhotoDto.ReadResponse> readUserPhotos(UUID userId) {
+    public Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-        List<Photo> photos = user.getPhotos();
 
-        List<PhotoDto.ReadResponse> content = new ArrayList<>();
-        for(Photo photo : photos) {
-            PhotoDto.ReadResponse userReadUserPhotosResponse = PhotoDto.ReadResponse.builder()
-                    .userId(user.getUserId().toString())
-                    .nickname(user.getNickname())
-                    .photoId(photo.getPhotoId().toString())
-                    .photoUrl(photo.getPhotoUrl().getCloudfrontUrl())
-                    .createdAt(photo.getCreatedAt().toString())
-                    .build();
-            content.add(userReadUserPhotosResponse);
-        }
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        return content;
+        Page<PhotoDto.ReadResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        return photoReadResponses;
     }
 
     @Override
-    public List<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId) {
+    public Page<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-        List<Exhibition> exhibitions = user.getExhibitions();
 
-        List<ExhibitionDto.ReadResponse> content = new ArrayList<>();
-        for(Exhibition exhibition : exhibitions) {
-            ExhibitionDto.ReadResponse userReadUserExhibitionResponse = ExhibitionDto.ReadResponse.builder()
-                    .exhibitionId(exhibition.getExhibitionId().toString())
-                    .title(exhibition.getTitle())
-                    .description(exhibition.getDescription())
-                    .thumbnail(exhibition.getThumbnail())
-                    .build();
-            content.add(userReadUserExhibitionResponse);
-        }
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        return content;
+        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        return exhibitionReadResponses;
     }
 
     @Override
-    public List<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId) {
+    public Page<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        List<GuestBook> guestbooks = user.getGuestBooks();
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        List<GuestBookDto.ReadResponse> content = new ArrayList<>();
-        for(GuestBook guestbook : guestbooks) {
-            GuestBookDto.ReadResponse userReadUserGuestbookResponse = GuestBookDto.ReadResponse.builder()
-                    .guestbookId(guestbook.getGuestBookId().toString())
-                    .createdAt(guestbook.getCreatedAt().toString())
-                    .photographerId(userId.toString())
-                    .userId(guestbook.getUser().getUserId().toString())
-                    .nickname(guestbook.getUser().getNickname())
-                    .content(guestbook.getContent())
-                    .build();
-            content.add(userReadUserGuestbookResponse);
-        }
+        Page<GuestBookDto.ReadResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 
-        return content;
+        return guestBookReadResponses;
     }
 }
