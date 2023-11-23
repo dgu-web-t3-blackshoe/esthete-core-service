@@ -6,6 +6,7 @@ import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.SupportRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
+import com.blackshoe.esthetecoreservice.repository.ViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class SupportServiceImpl implements SupportService {
 
     private final SupportRepository supportRepository;
     private final UserRepository userRepository;
-
+    private final ViewRepository viewRepository;
     @Override
     public SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest) {
 
@@ -100,9 +101,6 @@ public class SupportServiceImpl implements SupportService {
                 .content(new ArrayList<>())
                 .build();
 
-        //genres 내 genreName과 일치하는 photographer의 genreName을 가져온다.
-        //photographer의 highlightId를 가져온다.
-
         for(User photographer : photographers){
             SupportDto.ReadSupportingPhotographer readSupportingPhotographer = SupportDto.ReadSupportingPhotographer.builder()
                     .photographerId(photographer.getUserId().toString())
@@ -117,13 +115,11 @@ public class SupportServiceImpl implements SupportService {
                 String genreName = userGenre.getGenre().getGenreName();
                 readSupportingPhotographer.getGenres().add(genreName);
             }
-
-
-            for (Highlight highlight : photographer.getHighlights()) {
-                String highlightId = highlight.getHighlightId().toString();
-                readSupportingPhotographer.getHighlights().add(highlightId);
+            Pageable pageable2 = PageRequest.of(0, 10);
+            Page<Photo> highlights = viewRepository.findPhotosByUserIdOrderByViewCount(photographer, pageable2);
+            for(Photo highlight : highlights){
+                readSupportingPhotographer.getHighlights().add(highlight.getPhotoId().toString());
             }
-
             supportingPhotographersResponse.addReadSupportingPhotographer(readSupportingPhotographer);
         }
 
