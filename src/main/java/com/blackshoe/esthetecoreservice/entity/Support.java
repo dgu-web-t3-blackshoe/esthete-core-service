@@ -48,6 +48,11 @@ public class Support {
         user.addSupport(this);
     }
 
+    public void unsetUser() {
+        this.user.removeSupport(this);
+        this.user = null;
+    }
+
     @PrePersist
     public void setSupportId() {
         if (supportId == null) {

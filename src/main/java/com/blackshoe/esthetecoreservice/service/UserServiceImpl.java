@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,5 +112,28 @@ public class UserServiceImpl implements UserService {
         Page<GuestBookDto.ReadResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 
         return guestBookReadResponses;
+    }
+
+    public Page<UserDto.SearchResult> readAllNicknameContaining(String nickname, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllNicknameContainingResponse = userRepository.findAllByNicknameContaining(nickname, pageable);
+
+        return userReadAllNicknameContainingResponse;
+    }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllGenresContaining(List<UUID> genres, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllGenresContainingResponse = userRepository.findAllByGenresContaining(genres, pageable);
+
+        return userReadAllGenresContainingResponse;
+    }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllNicknameAndGenreContaining(String nickname, List<UUID> genres, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllNicknameAndGenreContainingResponse = userRepository.findAllByNicknameAndGenresContaining(nickname, genres, pageable);
+
+        return userReadAllNicknameAndGenreContainingResponse;
     }
 }

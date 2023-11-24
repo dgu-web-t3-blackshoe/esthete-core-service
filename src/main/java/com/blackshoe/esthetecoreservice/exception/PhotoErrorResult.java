@@ -14,7 +14,11 @@ public enum PhotoErrorResult {
     PHOTO_NOT_FOUND(HttpStatus.NOT_FOUND, "사진을 찾을 수 없습니다."),
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND, "장르를 찾을 수 없습니다."),
     PHOTO_GENRE_NOT_FOUND(HttpStatus.NOT_FOUND, "사진 장르를 찾을 수 없습니다."),
+    INVALID_HASH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "해시 알고리즘이 유효하지 않습니다."),
+    PHOTO_HASH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사진 해시 생성에 실패했습니다."),
+    PHOTO_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "사진이 이미 존재합니다."),
     ;
+
 
     private final HttpStatus httpStatus;
     private final String message;

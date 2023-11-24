@@ -1,6 +1,7 @@
 package com.blackshoe.esthetecoreservice.dto;
 
 import com.blackshoe.esthetecoreservice.entity.Exhibition;
+import com.blackshoe.esthetecoreservice.entity.Room;
 import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -25,18 +26,17 @@ import java.util.UUID;
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoomDto {
-    private Long id;
     private String roomId;
     private String title;
     private String description;
     private String thumbnail;
     private String createdAt;
 
-    public RoomDto(UUID roomId, String title, String description, String thumbnail) {
-        this.roomId = roomId.toString();
-        this.title = title;
-        this.description = description;
-        this.thumbnail = thumbnail;
+    public RoomDto(Room room) {
+        this.roomId = room.getRoomId().toString();
+        this.title = room.getTitle();
+        this.description = room.getDescription();
+        this.thumbnail = room.getThumbnail();
     }
 
     @Data

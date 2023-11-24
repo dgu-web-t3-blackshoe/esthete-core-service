@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class SupportServiceImpl implements SupportService {
     private final UserRepository userRepository;
     private final ViewRepository viewRepository;
     @Override
+    @Transactional
     public SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest) {
 
         final User user = userRepository.findByUserId(userId)
@@ -54,10 +56,13 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
+    @Transactional
     public SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId) {
 
         final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.SUPPORT_NOT_FOUND));
+
+        support.unsetUser();
 
         supportRepository.delete(support);
 

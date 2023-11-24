@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByRoomId(UUID roomId);
 
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.RoomDto(r.roomId, r.title, r.description, r.thumbnail) " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.RoomDto(r) " +
             "FROM Room r " +
             "WHERE r.exhibition.exhibitionId = :exhibitionId " +
             "ORDER BY r.id ASC " )

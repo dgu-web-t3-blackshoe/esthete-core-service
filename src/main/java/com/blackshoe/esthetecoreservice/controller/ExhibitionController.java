@@ -2,7 +2,9 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
+import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
+import com.blackshoe.esthetecoreservice.service.RoomPhotoService;
 import com.blackshoe.esthetecoreservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ public class ExhibitionController {
     private final ExhibitionService exhibitionService;
 
     private final RoomService roomService;
+
+    private final RoomPhotoService roomPhotoService;
 
     @PostMapping
     public ResponseEntity<ExhibitionDto.CreateResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateRequest exhibitionCreateRequest) {
@@ -68,5 +72,13 @@ public class ExhibitionController {
         final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(exhibitionId);
 
         return ResponseEntity.status(HttpStatus.OK).body(roomReadListResponse);
+    }
+
+    @GetMapping("/{exhibitionId}/rooms/{roomId}")
+    public ResponseEntity<RoomPhotoDto.ReadListResponse> getExhibitionRoomPhoto(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
+
+        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse = roomPhotoService.readRoomPhotoList(roomId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadListResponse);
     }
 }

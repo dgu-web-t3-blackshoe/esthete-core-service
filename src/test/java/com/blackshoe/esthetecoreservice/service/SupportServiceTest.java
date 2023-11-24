@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,6 +81,7 @@ public class SupportServiceTest {
         // given
         when(supportRepository.findByUserIdAndPhotographerId(userId, photographerId)).thenReturn(Optional.of(support));
         when(support.getSupportId()).thenReturn(UUID.randomUUID());
+        doNothing().when(support).unsetUser();
 
         // when
         final SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);

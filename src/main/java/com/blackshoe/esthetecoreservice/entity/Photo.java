@@ -42,6 +42,15 @@ public class Photo {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private PhotoUrl photoUrl;
 
+    @OneToOne(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PhotoChecksum photoChecksum;
+
+    /*
+    @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private PhotoLocation photoLocation;
+    */
+
     @Column(name = "photo_time", nullable = false, length = 20)
     private LocalDateTime time;
 
