@@ -79,7 +79,7 @@ public class Photo {
             photoId = UUID.randomUUID();
         }
     }
-  
+
     public void addPhotoGenre(PhotoGenre photoGenre) {
         this.photoGenres.add(photoGenre);
     }

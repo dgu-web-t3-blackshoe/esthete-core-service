@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 public class UserDto {
 
@@ -33,6 +34,16 @@ public class UserDto {
         private String profileImg;
     }
 
-
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UserInfoDto {
+        private UUID userId;
+        private String email;
+        private String role;
+    }
 
 }

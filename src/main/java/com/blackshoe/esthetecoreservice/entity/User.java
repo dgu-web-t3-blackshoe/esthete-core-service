@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.entity;
 
+import com.blackshoe.esthetecoreservice.vo.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
+@Getter @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -25,6 +26,12 @@ public class User {
 
     @Column(columnDefinition = "BINARY(16)", name = "user_uuid")
     private UUID userId;
+
+    @Column(name = "email", nullable = false, length = 50)
+    private String email;
+
+    @Column(name = "role", length = 20)
+    private Role role;
 
     @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;

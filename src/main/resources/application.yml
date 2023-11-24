@@ -19,7 +19,8 @@ spring:
     password: ${MYSQL_PASSWORD}
 
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP-SERVERS}
   jpa:
     open-in-view: true
     generate-ddl: true
