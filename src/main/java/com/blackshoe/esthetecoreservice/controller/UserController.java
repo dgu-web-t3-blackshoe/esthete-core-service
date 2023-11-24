@@ -90,7 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/supports/all")
-    public ResponseEntity<SupportDto.ReadSupportingPhotographersResponse> getUserSupports(
+    public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
             @PathVariable("userId") UUID userId,
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String sort,
@@ -98,10 +98,9 @@ public class UserController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "0") int page) {
 
-        //sort = recent or popular or trending
-        SupportDto.ReadSupportingPhotographersResponse readSupportingPhotographersResponse = supportService.readSupportingPhotographers(userId, nickname, sort, genres, size, page);
 
-        return ResponseEntity.ok().body(readSupportingPhotographersResponse);
+        Page<UserDto.SearchResult> readSupportingPhotographersPage = supportService.readSupportingPhotographers(userId, nickname, sort, genres, size, page);
+        return ResponseEntity.status(HttpStatus.OK).body(readSupportingPhotographersPage);
     }
 
     @GetMapping("/{userId}/photos")

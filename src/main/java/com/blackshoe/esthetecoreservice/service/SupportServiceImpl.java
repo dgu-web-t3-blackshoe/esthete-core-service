@@ -1,6 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.SupportDto;
+import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
@@ -16,9 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -75,7 +76,7 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public SupportDto.ReadSupportingPhotographersResponse readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
+    public Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
 
         Page<User> photographers = null;
 
@@ -102,32 +103,9 @@ public class SupportServiceImpl implements SupportService {
                 photographers = supportRepository.getPhotographersBySupportCountInAWeekAndGenres(userId, genres, pageable);
         }
 
-        SupportDto.ReadSupportingPhotographersResponse supportingPhotographersResponse = SupportDto.ReadSupportingPhotographersResponse.builder()
-                .content(new ArrayList<>())
-                .build();
+        Page<UserDto.SearchResult> photographersResponse = photographers.map(photographer -> new UserDto.SearchResult(photographer));
 
-        for(User photographer : photographers){
-            SupportDto.ReadSupportingPhotographer readSupportingPhotographer = SupportDto.ReadSupportingPhotographer.builder()
-                    .photographerId(photographer.getUserId().toString())
-                    .profileImg(photographer.getProfileImgUrl().getCloudfrontUrl())
-                    .nickname(photographer.getNickname())
-                    .biography(photographer.getBiography())
-                    .genres(new ArrayList<>())
-                    .highlights(new ArrayList<>())
-                    .build();
+        return photographersResponse;
 
-            for (UserGenre userGenre : photographer.getUserGenres()) {
-                String genreName = userGenre.getGenre().getGenreName();
-                readSupportingPhotographer.getGenres().add(genreName);
-            }
-            Pageable pageable2 = PageRequest.of(0, 10);
-            Page<Photo> highlights = viewRepository.findPhotosByUserIdOrderByViewCount(photographer, pageable2);
-            for(Photo highlight : highlights){
-                readSupportingPhotographer.getHighlights().add(highlight.getPhotoId().toString());
-            }
-            supportingPhotographersResponse.addReadSupportingPhotographer(readSupportingPhotographer);
-        }
-
-        return supportingPhotographersResponse;
     }
 }
