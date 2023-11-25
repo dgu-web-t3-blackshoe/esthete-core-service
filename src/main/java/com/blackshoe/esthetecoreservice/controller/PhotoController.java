@@ -4,9 +4,12 @@ import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
 import com.blackshoe.esthetecoreservice.dto.ResponseDto;
 import com.blackshoe.esthetecoreservice.service.PhotoService;
+import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
+import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +57,25 @@ public class PhotoController {
         final PhotoDto.GetGenresResponse photoGetGenresResponse = photoService.getGenres();
 
         return ResponseEntity.ok(photoGetGenresResponse);
+    }
+
+    @GetMapping("/location")
+    public ResponseEntity<Page<PhotoDto.ReadRegionGroupResponse>> getTop10ByUserLocationGroupBy(@RequestParam(name = "longitude") double longitude,
+                                                                                         @RequestParam(name = "latitude") double latitude,
+                                                                                          @RequestParam(name = "radius") double radius,
+                                                                                          @RequestParam(name = "group") String group) {
+        final PhotoLocationFilter photoLocationFilter = PhotoLocationFilter.builder()
+                .longitude(longitude)
+                .latitude(latitude)
+                .radius(radius)
+                .build();
+
+        final LocationGroupType locationGroupType = LocationGroupType.convertParamToColumn(group);
+
+        final Page<PhotoDto.ReadRegionGroupResponse> photoReadRegionGroupResponse
+                = photoService.getTop10ByUserLocationGroupBy(photoLocationFilter, locationGroupType);
+
+        return ResponseEntity.status(HttpStatus.OK).body(photoReadRegionGroupResponse);
     }
 
 }
