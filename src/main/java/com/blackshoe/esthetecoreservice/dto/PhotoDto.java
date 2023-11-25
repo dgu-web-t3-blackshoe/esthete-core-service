@@ -191,4 +191,27 @@ public class PhotoDto {
         private String nickname;
         private String createdAt;
     }
+
+    @Data @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class ReadRegionGroupResponse {
+        private String state;
+        private String city;
+        private String town;
+        private String thumbnail;
+        private Long count;
+
+        @Builder
+        public ReadRegionGroupResponse(String state,
+                                       String city,
+                                       String town,
+                                       String thumbnail,
+                                       Long count) {
+            this.state = state;
+            this.city = city;
+            this.town = town;
+            this.thumbnail = thumbnail;
+            this.count = count;
+        }
+    }
 }
