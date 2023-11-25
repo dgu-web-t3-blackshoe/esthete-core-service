@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.service;
 
+import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.PhotoChecksum;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
@@ -36,10 +37,14 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
             throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
         }
 
+        Photo photo = photoRepository.findByPhotoId(photoId)
+                .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
         PhotoChecksum photoChecksum = PhotoChecksum.builder()
-                .photo(photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND)))
                 .checksum(checksum)
                 .build();
+
+        photo.setPhotoChecksum(photoChecksum);
 
         photoChecksumRepository.save(photoChecksum);
     }

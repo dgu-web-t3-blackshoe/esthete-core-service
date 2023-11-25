@@ -25,7 +25,6 @@ public class PhotoChecksum {
     @Column(name = "checksum", nullable = false, length = 32)
     private String checksum;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "photo_checksum_fk_photo_id"))
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "photoChecksum")
     private Photo photo;
 }
