@@ -1,6 +1,5 @@
 package com.blackshoe.esthetecoreservice.dto;
 
-import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.entity.UserGenre;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,15 +8,12 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class UserDto {
-
     @Data
     @Builder
     @NoArgsConstructor
@@ -209,5 +205,26 @@ public class UserDto {
 
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UpdateMyProfileRequest{
+        private String nickname;
+        private String biography;
+        private List<GenreDto> genres;
+        private List<String> equipmentNames;
+    }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class UpdateMyProfileResponse{
+        private String userId;
+        private String updatedAt;
+    }
 }

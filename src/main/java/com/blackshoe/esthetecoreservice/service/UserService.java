@@ -35,4 +35,6 @@ public interface UserService {
     UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId);
 
     UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg);
+
+    UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest);
 }

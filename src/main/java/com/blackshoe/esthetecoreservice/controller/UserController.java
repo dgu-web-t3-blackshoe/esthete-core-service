@@ -189,7 +189,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(myProfileInfoResponse); //200
     }
 
-    @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
+    @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<UserDto.SetMyProfileImgResponse> updateProfile(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable UUID userId) throws Exception {
 
@@ -198,5 +198,13 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(setMyProfileImgResponse); //200
 
+    }
+
+    @PutMapping("/{user_id}/profile")
+    public ResponseEntity<UserDto.UpdateMyProfileResponse> updateProfile(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateMyProfileRequest userUpdateProfileRequest) throws Exception {
+
+        UserDto.UpdateMyProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userUpdateProfileResponse); //200
     }
 }

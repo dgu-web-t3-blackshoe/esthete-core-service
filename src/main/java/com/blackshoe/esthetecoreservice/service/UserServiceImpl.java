@@ -1,5 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
+//import UserDto
+
 import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
@@ -17,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -161,7 +161,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-
         // GenreDto to UserGenre
 // GenreDto to UserGenre
         List<UserGenre> genres = signUpInfoRequest.getGenres().stream()
@@ -248,4 +247,41 @@ public class UserServiceImpl implements UserService {
 
         return setMyProfileImgResponse;
     }
+
+    @Override
+    public UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        List<UserGenre> genres = updateMyProfileRequest.getGenres().stream()
+                .map(genre -> {
+                    // UserDto.GenreDto를 UserGenre로 변환
+                    UserGenre userGenre = UserGenre.builder()
+                            .user(user)
+                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
+                            .build();
+                    return userGenre;
+                })
+                .collect(Collectors.toList());
+
+        List<UserEquipment> equipments = updateMyProfileRequest.getEquipmentNames().stream()
+                .map(equipmentName -> UserEquipment.builder()
+                        .user(user)
+                        .equipmentName(equipmentName)
+                        .build())
+                .collect(Collectors.toList());
+
+
+        User updatedUser = user.toBuilder()
+                .nickname(updateMyProfileRequest.getNickname())
+                .biography(updateMyProfileRequest.getBiography())
+                .userGenres(genres)
+                .userEquipments(equipments)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        return UserDto.UpdateMyProfileResponse.builder().userId(updatedUser.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
+    }
+
 }
