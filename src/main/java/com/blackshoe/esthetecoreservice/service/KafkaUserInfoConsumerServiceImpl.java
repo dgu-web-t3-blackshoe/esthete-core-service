@@ -42,19 +42,20 @@ public class KafkaUserInfoConsumerServiceImpl implements KafkaUserInfoConsumerSe
                 .cloudfrontUrl("")
                 .s3Url("")
                 .build();
-        User user = User.builder()
+
+        User user = User.createUserFromKafka()
                 .userId(userId)
-                .email(userInfoDto.getEmail())
-                .profileImgUrl(profileImgUrl)
                 .role(role)
+                .profileImgUrl(profileImgUrl)
                 .build();
+
         try {
             userRepository.save(user);
-            acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("Error saving user nickname", e);
             return;
         }
+
         acknowledgment.acknowledge();
     }
 

@@ -125,8 +125,8 @@ public class UserDto {
     public static class SignUpInfoRequest {
         private String nickname;
         private String biography;
-        private List<GenreDto> genres;
-        private List<String> equipmentNames;
+        private List<String> genres;
+        private List<String> equipments;
     }
 
     @Data
