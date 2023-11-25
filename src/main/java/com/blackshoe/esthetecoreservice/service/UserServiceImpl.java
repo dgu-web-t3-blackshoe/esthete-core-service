@@ -3,11 +3,9 @@ package com.blackshoe.esthetecoreservice.service;
 import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.User;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
-import com.blackshoe.esthetecoreservice.entity.UserEquipment;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
@@ -20,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.List;
@@ -35,6 +35,8 @@ public class UserServiceImpl implements UserService {
     private final GuestBookRepository guestBookRepository;
     private final ExhibitionRepository exhibitionRepository;
     private final UserEquipmentRepository userEquipmentRepository;
+
+    private final KafkaUserInfoProducerService kafkaUserInfoProducerService;
     @Override
     public UserDto.ReadEquipmentsResponse getEquipmentsForUser(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
@@ -135,5 +137,63 @@ public class UserServiceImpl implements UserService {
         Page<UserDto.SearchResult> userReadAllNicknameAndGenreContainingResponse = userRepository.findAllByNicknameAndGenresContaining(nickname, genres, pageable);
 
         return userReadAllNicknameAndGenreContainingResponse;
+    }
+
+    @Override
+    public UserDto.DeleteResponse deleteUser(UUID userId) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        userRepository.delete(user);
+
+        UserDto.DeleteResponse userDeleteResponse = UserDto.DeleteResponse.builder()
+                .userId(user.getUserId().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        kafkaUserInfoProducerService.deleteUser(UserDto.UserInfoDto.builder()
+                .userId(user.getUserId())
+                .build());
+
+        return userDeleteResponse;
+    }
+
+    @Override
+    public UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+
+        // GenreDto to UserGenre
+// GenreDto to UserGenre
+        List<UserGenre> genres = signUpInfoRequest.getGenres().stream()
+                .map(genre -> {
+                    // UserDto.GenreDto를 UserGenre로 변환
+                    UserGenre userGenre = UserGenre.builder()
+                            .user(user)
+                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
+                            .build();
+                    return userGenre;
+                })
+                .collect(Collectors.toList());
+
+        List<UserEquipment> equipments = signUpInfoRequest.getEquipmentNames().stream()
+                .map(equipmentName -> UserEquipment.builder()
+                        .user(user)
+                        .equipmentName(equipmentName)
+                        .build())
+                .collect(Collectors.toList());
+
+
+        User updatedUser = user.toBuilder()
+                .nickname(signUpInfoRequest.getNickname())
+                .biography(signUpInfoRequest.getBiography())
+                .userGenres(genres)
+                .userEquipments(equipments)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        return UserDto.SignUpInfoResponse.builder().userId(updatedUser.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
     }
 }

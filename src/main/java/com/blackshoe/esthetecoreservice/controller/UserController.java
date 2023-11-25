@@ -162,4 +162,20 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(readAllNicknameContainingPage);
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<UserDto.DeleteResponse> deleteUser(@PathVariable UUID userId) {
+
+        UserDto.DeleteResponse userDeleteResponse = userService.deleteUser(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userDeleteResponse);
+    }
+
+    @PostMapping("/{userId}/sign-up/info")
+    public ResponseEntity<UserDto.SignUpInfoResponse> signUp(@PathVariable UUID userId, @Valid @RequestBody UserDto.SignUpInfoRequest userSignUpRequest) {
+
+        UserDto.SignUpInfoResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userSignUpResponse);
+    }
 }

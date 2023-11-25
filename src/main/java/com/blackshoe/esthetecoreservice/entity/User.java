@@ -18,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter @Builder
+@Getter @Builder(toBuilder = true)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {

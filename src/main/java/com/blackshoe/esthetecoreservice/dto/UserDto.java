@@ -6,10 +6,7 @@ import com.blackshoe.esthetecoreservice.entity.UserGenre;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +24,7 @@ public class UserDto {
     public static class ReadEquipmentsResponse {
         List<String> equipmentNames;
     }
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -39,7 +37,10 @@ public class UserDto {
         private String profileImg;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class SearchResult {
@@ -79,6 +80,7 @@ public class UserDto {
         private String role;
     }
 
+    @Getter
     public static class GenreDto {
         private String genreId;
         private String genre;
@@ -103,5 +105,52 @@ public class UserDto {
             this.photoId = photoId.toString();
             this.photo = photo;
         }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DeleteResponse {
+        private String userId;
+        private String deletedAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class SignUpInfoRequest {
+        private String nickname;
+        private String biography;
+        private List<GenreDto> genres;
+        private List<String> equipmentNames;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class SignUpInfoResponse {
+        private String userId;
+        private String createdAt;
+    }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class UpdateRequest {
+        private String nickname;
+        private String biography;
+        private List<GenreDto> genres;
+        private List<String> equipmentNames;
     }
 }

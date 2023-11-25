@@ -35,7 +35,8 @@ public class Genre {
     }
 
     @Builder
-    public Genre(String genreName) {
+    public Genre(UUID genreId, String genreName) {
+        this.genreId = genreId;
         this.genreName = genreName;
     }
 }

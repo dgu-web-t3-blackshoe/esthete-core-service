@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "user_equipments")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
+@Getter @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class UserEquipment {

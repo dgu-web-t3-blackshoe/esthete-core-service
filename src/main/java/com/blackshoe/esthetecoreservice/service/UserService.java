@@ -26,4 +26,8 @@ public interface UserService {
     Page<UserDto.SearchResult> readAllGenresContaining(List<UUID> genres, Pageable pageable);
 
     Page<UserDto.SearchResult> readAllNicknameAndGenreContaining(String nickname, List<UUID> genres, Pageable pageable);
+
+    UserDto.DeleteResponse deleteUser(UUID userId);
+
+    UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest);
 }
