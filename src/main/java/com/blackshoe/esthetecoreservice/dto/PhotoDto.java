@@ -1,9 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
-import com.blackshoe.esthetecoreservice.entity.PhotoEquipment;
-import com.blackshoe.esthetecoreservice.entity.Genre;
-import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
-import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
@@ -70,7 +67,7 @@ public class PhotoDto {
         private String town;
 
         @NotNull(message = "time is required")
-        private LocalDateTime time;
+        private String time;
 
         @NotNull(message = "equipments are required")
         private List<PhotoEquipmentDto> equipmentNames;
@@ -117,7 +114,7 @@ public class PhotoDto {
         private String photoId;
         private String title;
         private String description;
-        private LocalDateTime time;
+        private String  time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
         private EquipmentIdsRequest equipmentNames;
@@ -190,5 +187,37 @@ public class PhotoDto {
         private String userId;
         private String nickname;
         private String createdAt;
+
+        public ReadResponse(Photo photo){
+            this.photoId = photo.getPhotoId().toString();
+            this.title = photo.getTitle();
+            this.photoUrl = photo.getPhotoUrl() != null ? photo.getPhotoUrl().getCloudfrontUrl() : "";
+            this.userId = photo.getUser() != null ? photo.getUser().getUserId().toString() : "";
+            this.nickname = photo.getUser() != null ? photo.getUser().getNickname() : "";
+            this.createdAt = photo.getCreatedAt() != null ? photo.getCreatedAt().toString() : "";
+        }
+    }
+
+    @Data @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class ReadRegionGroupResponse {
+        private String state;
+        private String city;
+        private String town;
+        private String thumbnail;
+        private Long count;
+
+        @Builder
+        public ReadRegionGroupResponse(String state,
+                                       String city,
+                                       String town,
+                                       String thumbnail,
+                                       Long count) {
+            this.state = state;
+            this.city = city;
+            this.town = town;
+            this.thumbnail = thumbnail;
+            this.count = count;
+        }
     }
 }

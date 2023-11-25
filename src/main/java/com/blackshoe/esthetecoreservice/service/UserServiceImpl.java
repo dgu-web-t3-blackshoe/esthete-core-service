@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -32,9 +33,12 @@ public class UserServiceImpl implements UserService {
     private final PhotoRepository photoRepository;
     private final GuestBookRepository guestBookRepository;
     private final ExhibitionRepository exhibitionRepository;
+    private final UserGenreRepository userGenreRepository;
     private final UserEquipmentRepository userEquipmentRepository;
+    private final GenreRepository genreRepository;
 
     private final KafkaUserInfoProducerService kafkaUserInfoProducerService;
+
     @Override
     public UserDto.ReadEquipmentsResponse getEquipmentsForUser(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
@@ -51,6 +55,7 @@ public class UserServiceImpl implements UserService {
                 .equipmentNames(equipmentNames)
                 .build();
     }
+
     @Override
     public UserDto.ReadBasicInfoResponse readBasicInfo(UUID userId) {
 
@@ -157,41 +162,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         // GenreDto to UserGenre
-// GenreDto to UserGenre
-        List<UserGenre> genres = signUpInfoRequest.getGenres().stream()
-                .map(genre -> {
-                    // UserDto.GenreDto를 UserGenre로 변환
-                    UserGenre userGenre = UserGenre.builder()
-                            .user(user)
-                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
-                            .build();
-                    return userGenre;
-                })
-                .collect(Collectors.toList());
+        signUpInfoRequest.getGenres().stream()
+                .forEach(genreId -> {
+                            // UserDto.GenreDto를 UserGenre로 변환
+                            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
+                                    .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
 
-        List<UserEquipment> equipments = signUpInfoRequest.getEquipmentNames().stream()
-                .map(equipmentName -> UserEquipment.builder()
-                        .user(user)
-                        .equipmentName(equipmentName)
-                        .build())
-                .collect(Collectors.toList());
+                            UserGenre userGenre = UserGenre.builder()
+                                    .genre(genre)
+                                    .build();
 
+                            userGenre.setUser(user);
 
-        User updatedUser = user.toBuilder()
-                .nickname(signUpInfoRequest.getNickname())
-                .biography(signUpInfoRequest.getBiography())
-                .userGenres(genres)
-                .userEquipments(equipments)
-                .build();
+                            userGenreRepository.save(userGenre);
+                        }
+                );
 
-        userRepository.save(updatedUser);
+        signUpInfoRequest.getEquipments().stream()
+                .forEach(equipmentName -> {
+                            UserEquipment userEquipment = UserEquipment.builder()
+                                    .equipmentName(equipmentName)
+                                    .build();
 
-        return UserDto.SignUpInfoResponse.builder().userId(updatedUser.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
+                            userEquipment.setUser(user);
+
+                            userEquipmentRepository.save(userEquipment);
+                        }
+                );
+
+        return UserDto.SignUpInfoResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
     }
 
     @Override
@@ -200,14 +205,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         //@TODO: kafka 활용 시 삭제할 block
-        if(user.getProfileImgUrl() == null) {
+        if (user.getProfileImgUrl() == null) {
             ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
                     .cloudfrontUrl("")
                     .s3Url("")
                     .build();
-            user = user.toBuilder()
-                    .profileImgUrl(profileImgUrl)
-                    .build();
+            user.setProfileImgUrl(profileImgUrl);
         }
 
         UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
@@ -222,6 +225,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
@@ -235,25 +239,21 @@ public class UserServiceImpl implements UserService {
                 .s3Url(userProfileImgUrl.getS3Url())
                 .build();
 
-        if(userProfileImgUrl.getCloudfrontUrl().equals("")) {
+        if (userProfileImgUrl.getCloudfrontUrl().equals("")) {
             profileImgUrl = ProfileImgUrl.builder()
                     .cloudfrontUrl("")
                     .s3Url("")
                     .build();
-        }else{
+        } else {
             profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
         }
 
-        User updatedUser = user.toBuilder()
-                .profileImgUrl(profileImgUrl)
-                .build();
-
-        userRepository.save(updatedUser);
+        user.setProfileImgUrl(profileImgUrl);
 
         UserDto.SetMyProfileImgResponse setMyProfileImgResponse = UserDto.SetMyProfileImgResponse.builder()
-                .userId(updatedUser.getUserId().toString())
-                .profileImg(updatedUser.getProfileImgUrl().getCloudfrontUrl())
-                .updatedAt(updatedUser.getUpdatedAt().toString())
+                .userId(user.getUserId().toString())
+                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .updatedAt(user.getUpdatedAt().toString())
                 .build();
 
         return setMyProfileImgResponse;
@@ -282,17 +282,7 @@ public class UserServiceImpl implements UserService {
                         .build())
                 .collect(Collectors.toList());
 
-
-        User updatedUser = user.toBuilder()
-                .nickname(updateMyProfileRequest.getNickname())
-                .biography(updateMyProfileRequest.getBiography())
-                .userGenres(genres)
-                .userEquipments(equipments)
-                .build();
-
-        userRepository.save(updatedUser);
-
-        return UserDto.UpdateMyProfileResponse.builder().userId(updatedUser.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
+        return UserDto.UpdateMyProfileResponse.builder().userId(user.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
     }
 
 }

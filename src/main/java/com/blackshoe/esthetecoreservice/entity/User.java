@@ -18,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter @Builder(toBuilder = true)
+@Getter
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -95,6 +95,14 @@ public class User {
         if (userId == null) {
             userId = UUID.randomUUID();
         }
+    }
+
+    @Builder(builderMethodName = "createUserFromKafka")
+    public User(UUID userId, String email, Role role, ProfileImgUrl profileImgUrl) {
+        this.userId = userId;
+        this.email = email;
+        this.role = role;
+        this.profileImgUrl = profileImgUrl;
     }
 
     public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {

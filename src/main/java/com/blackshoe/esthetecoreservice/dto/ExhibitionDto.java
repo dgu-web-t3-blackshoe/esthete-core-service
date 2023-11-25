@@ -38,6 +38,9 @@ public class ExhibitionDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class CreateRequest {
         @NotNull(message = "사용자 ID를 입력해주세요.")
+        @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-" +
+                "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                message = "올바른 사용자 ID 형식이 아닙니다.")
         private String userId;
         @NotNull(message = "전시 제목을 입력해주세요.")
         private String title;

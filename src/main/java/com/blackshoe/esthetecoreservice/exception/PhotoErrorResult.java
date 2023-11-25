@@ -17,7 +17,9 @@ public enum PhotoErrorResult {
     INVALID_HASH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "해시 알고리즘이 유효하지 않습니다."),
     PHOTO_HASH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사진 해시 생성에 실패했습니다."),
     PHOTO_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "사진이 이미 존재합니다."),
-    ;
+    INVALID_LOCATION_GROUP_TYPE(HttpStatus.BAD_REQUEST, "위치 그룹 타입이 유효하지 않습니다."),
+    INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "정렬 타입이 유효하지 않습니다."),
+    INVALID_ADDRESS_FILTER(HttpStatus.BAD_REQUEST, "주소 필터가 유효하지 않습니다.");
 
 
     private final HttpStatus httpStatus;
