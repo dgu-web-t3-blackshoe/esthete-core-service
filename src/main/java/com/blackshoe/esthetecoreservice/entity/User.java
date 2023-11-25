@@ -30,16 +30,16 @@ public class User {
     @Column(columnDefinition = "BINARY(16)", name = "user_uuid")
     private UUID userId;
 
-    @Column(name = "email", nullable = false, length = 50)
+    @Column(name = "email", length = 50)
     private String email;
 
     @Column(name = "role", length = 20)
     private Role role;
 
-    @Column(name = "nickname", nullable = false, length = 50)
+    @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "biography", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
     @JoinColumn(name = "profile_img_url_id", foreignKey = @ForeignKey(name = "user_fk_profile_img_url_id"))

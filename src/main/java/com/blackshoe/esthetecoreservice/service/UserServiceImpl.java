@@ -196,8 +196,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId) {
-
+        log.info("getMyProfileInfo userId: {}", userId.toString());
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        //@TODO: kafka 활용 시 삭제할 block
+        if(user.getProfileImgUrl() == null) {
+            ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+            user = user.toBuilder()
+                    .profileImgUrl(profileImgUrl)
+                    .build();
+        }
 
         UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
                 .userId(user.getUserId().toString())

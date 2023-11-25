@@ -46,6 +46,9 @@ springfox:
     swagger-ui:
       enabled: true
       base-url: core
+    open-api:
+      v3:
+        path: core/v3/api-docs
 
 cloud:
   aws:

@@ -1,6 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.UserDto;
+import com.blackshoe.esthetecoreservice.entity.ProfileImgUrl;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import com.blackshoe.esthetecoreservice.vo.Role;
@@ -19,6 +20,7 @@ public class KafkaUserInfoConsumerServiceImpl implements KafkaUserInfoConsumerSe
 
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+
     @Override
     @KafkaListener(topics = "user-create")
     @Transactional
@@ -36,13 +38,16 @@ public class KafkaUserInfoConsumerServiceImpl implements KafkaUserInfoConsumerSe
 
         UUID userId = userInfoDto.getUserId();
         Role role = Role.valueOf(userInfoDto.getRole());
-
+        ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
         User user = User.builder()
                 .userId(userId)
                 .email(userInfoDto.getEmail())
+                .profileImgUrl(profileImgUrl)
                 .role(role)
                 .build();
-
         try {
             userRepository.save(user);
             acknowledgment.acknowledge();
