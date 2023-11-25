@@ -10,7 +10,7 @@ import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
-import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -291,20 +291,20 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public Page<PhotoDto.ReadRegionGroupResponse> getTop10ByUserLocationGroupBy(PhotoLocationFilter photoLocationFilter,
+    public Page<PhotoDto.ReadRegionGroupResponse> getTop10ByUserLocationGroupBy(PhotoPointFilter photoPointFilter,
                                                                                 LocationGroupType locationGroupType) {
 
         final Page<PhotoDto.ReadRegionGroupResponse> photoReadRegionGroupResponse;
 
         switch (locationGroupType) {
             case STATE:
-                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByState(photoLocationFilter);
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByState(photoPointFilter);
                 return photoReadRegionGroupResponse;
             case CITY:
-                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByCity(photoLocationFilter);
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByCity(photoPointFilter);
                 return photoReadRegionGroupResponse;
             case TOWN:
-                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByTown(photoLocationFilter);
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByTown(photoPointFilter);
                 return photoReadRegionGroupResponse;
             default:
                 throw new PhotoException(PhotoErrorResult.INVALID_LOCATION_GROUP_TYPE);

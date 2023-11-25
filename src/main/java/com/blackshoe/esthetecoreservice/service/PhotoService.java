@@ -1,9 +1,8 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
-import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
 import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
-import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +17,6 @@ public interface PhotoService {
   
     PhotoDto.GetGenresResponse getGenres();
 
-    Page<PhotoDto.ReadRegionGroupResponse> getTop10ByUserLocationGroupBy(PhotoLocationFilter photoLocationFilter,
+    Page<PhotoDto.ReadRegionGroupResponse> getTop10ByUserLocationGroupBy(PhotoPointFilter photoPointFilter,
                                                                          LocationGroupType locationGroupType);
 }

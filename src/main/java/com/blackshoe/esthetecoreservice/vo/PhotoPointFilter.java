@@ -4,14 +4,14 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class PhotoLocationFilter {
+public class PhotoPointFilter {
     private Double latitude;
     private Double longitude;
     private Double latitudeDelta;
     private Double longitudeDelta;
 
     @Builder
-    public PhotoLocationFilter(Double latitude , Double longitude , Double radius) {
+    public PhotoPointFilter(Double latitude , Double longitude , Double radius) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.latitudeDelta = radiusToLatitudeDelta(radius);

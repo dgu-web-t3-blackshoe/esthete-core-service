@@ -1,12 +1,9 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
-import com.blackshoe.esthetecoreservice.dto.PhotoUrlDto;
-import com.blackshoe.esthetecoreservice.dto.ResponseDto;
 import com.blackshoe.esthetecoreservice.service.PhotoService;
 import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
-import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 //objectMapper
-import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -59,12 +55,12 @@ public class PhotoController {
         return ResponseEntity.ok(photoGetGenresResponse);
     }
 
-    @GetMapping("/location")
+    @GetMapping("/locations/current")
     public ResponseEntity<Page<PhotoDto.ReadRegionGroupResponse>> getTop10ByUserLocationGroupBy(@RequestParam(name = "longitude") double longitude,
                                                                                          @RequestParam(name = "latitude") double latitude,
                                                                                           @RequestParam(name = "radius") double radius,
                                                                                           @RequestParam(name = "group") String group) {
-        final PhotoLocationFilter photoLocationFilter = PhotoLocationFilter.builder()
+        final PhotoPointFilter photoPointFilter = PhotoPointFilter.builder()
                 .longitude(longitude)
                 .latitude(latitude)
                 .radius(radius)
@@ -73,7 +69,7 @@ public class PhotoController {
         final LocationGroupType locationGroupType = LocationGroupType.convertParamToColumn(group);
 
         final Page<PhotoDto.ReadRegionGroupResponse> photoReadRegionGroupResponse
-                = photoService.getTop10ByUserLocationGroupBy(photoLocationFilter, locationGroupType);
+                = photoService.getTop10ByUserLocationGroupBy(photoPointFilter, locationGroupType);
 
         return ResponseEntity.status(HttpStatus.OK).body(photoReadRegionGroupResponse);
     }

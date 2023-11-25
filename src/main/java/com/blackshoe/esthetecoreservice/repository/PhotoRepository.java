@@ -3,7 +3,8 @@ package com.blackshoe.esthetecoreservice.repository;
 import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
-import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.EntityGraph;
 
 @Repository
@@ -25,8 +27,8 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     Page<PhotoDto.ReadResponse> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
 
-    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByState(PhotoLocationFilter photoLocationFilter) {
-        return findByUserLocationGroupByState(photoLocationFilter, PageRequest.of(0, 10));
+    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByState(PhotoPointFilter photoPointFilter) {
+        return findByUserLocationGroupByState(photoPointFilter, PageRequest.of(0, 10));
     }
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadRegionGroupResponse(" +
@@ -37,18 +39,18 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "count(p)) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.latitude " +
-            "BETWEEN :#{#photoLocationFilter.latitude - #photoLocationFilter.latitudeDelta} " +
-            "AND :#{#photoLocationFilter.latitude + #photoLocationFilter.latitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.latitude - #photoPointFilter.latitudeDelta} " +
+            "AND :#{#photoPointFilter.latitude + #photoPointFilter.latitudeDelta} " +
             "AND p.photoLocation.longitude " +
-            "BETWEEN :#{#photoLocationFilter.longitude - #photoLocationFilter.longitudeDelta} " +
-            "AND :#{#photoLocationFilter.longitude + #photoLocationFilter.longitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.longitude - #photoPointFilter.longitudeDelta} " +
+            "AND :#{#photoPointFilter.longitude + #photoPointFilter.longitudeDelta} " +
             "GROUP BY p.photoLocation.state " +
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByState(
-            @Param("photoLocationFilter") PhotoLocationFilter photoLocationFilter, Pageable pageable);
+            @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
 
-    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByCity(PhotoLocationFilter photoLocationFilter) {
-        return findByUserLocationGroupByCity(photoLocationFilter, PageRequest.of(0, 10));
+    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByCity(PhotoPointFilter photoPointFilter) {
+        return findByUserLocationGroupByCity(photoPointFilter, PageRequest.of(0, 10));
     }
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadRegionGroupResponse(" +
@@ -59,18 +61,18 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "count(p)) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.latitude " +
-            "BETWEEN :#{#photoLocationFilter.latitude - #photoLocationFilter.latitudeDelta} " +
-            "AND :#{#photoLocationFilter.latitude + #photoLocationFilter.latitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.latitude - #photoPointFilter.latitudeDelta} " +
+            "AND :#{#photoPointFilter.latitude + #photoPointFilter.latitudeDelta} " +
             "AND p.photoLocation.longitude " +
-            "BETWEEN :#{#photoLocationFilter.longitude - #photoLocationFilter.longitudeDelta} " +
-            "AND :#{#photoLocationFilter.longitude + #photoLocationFilter.longitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.longitude - #photoPointFilter.longitudeDelta} " +
+            "AND :#{#photoPointFilter.longitude + #photoPointFilter.longitudeDelta} " +
             "GROUP BY p.photoLocation.city " +
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByCity(
-            @Param("photoLocationFilter") PhotoLocationFilter photoLocationFilter, Pageable pageable);
+            @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
 
-    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByTown(PhotoLocationFilter photoLocationFilter) {
-        return findByUserLocationGroupByTown(photoLocationFilter, PageRequest.of(0, 10));
+    default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByTown(PhotoPointFilter photoPointFilter) {
+        return findByUserLocationGroupByTown(photoPointFilter, PageRequest.of(0, 10));
     }
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadRegionGroupResponse(" +
@@ -81,31 +83,34 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "count(p)) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.latitude " +
-            "BETWEEN :#{#photoLocationFilter.latitude - #photoLocationFilter.latitudeDelta} " +
-            "AND :#{#photoLocationFilter.latitude + #photoLocationFilter.latitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.latitude - #photoPointFilter.latitudeDelta} " +
+            "AND :#{#photoPointFilter.latitude + #photoPointFilter.latitudeDelta} " +
             "AND p.photoLocation.longitude " +
-            "BETWEEN :#{#photoLocationFilter.longitude - #photoLocationFilter.longitudeDelta} " +
-            "AND :#{#photoLocationFilter.longitude + #photoLocationFilter.longitudeDelta} " +
+            "BETWEEN :#{#photoPointFilter.longitude - #photoPointFilter.longitudeDelta} " +
+            "AND :#{#photoPointFilter.longitude + #photoPointFilter.longitudeDelta} " +
             "GROUP BY p.photoLocation.town " +
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByTown(
-            @Param("photoLocationFilter") PhotoLocationFilter photoLocationFilter, Pageable pageable);
+            @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
             "FROM Photo p " +
-            "WHERE p.photoLocation.state = :state " +
-            "ORDER BY p.createdAt DESC")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationState(String state, Pageable pageable);
+            "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} ")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationState(
+            @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
             "FROM Photo p " +
-            "WHERE p.photoLocation.city = :city " +
-            "ORDER BY p.createdAt DESC")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationCity(String city, Pageable pageable);
+            "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} " +
+            "AND p.photoLocation.city = :#{#photoAddressFilter.city} ")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationStateAndCity(
+            @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
             "FROM Photo p " +
-            "WHERE p.photoLocation.town = :town " +
-            "ORDER BY p.createdAt DESC")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationTown(String town, Pageable pageable);
+            "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} " +
+            "AND p.photoLocation.city = :#{#photoAddressFilter.city} " +
+            "AND p.photoLocation.town = :#{#photoAddressFilter.town} ")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationStateAndCityAndTown(
+            @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 }
