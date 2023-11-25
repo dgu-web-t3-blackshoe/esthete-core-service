@@ -90,4 +90,22 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByTown(
             @Param("photoLocationFilter") PhotoLocationFilter photoLocationFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+            "FROM Photo p " +
+            "WHERE p.photoLocation.state = :state " +
+            "ORDER BY p.createdAt DESC")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationState(String state, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+            "FROM Photo p " +
+            "WHERE p.photoLocation.city = :city " +
+            "ORDER BY p.createdAt DESC")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationCity(String city, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+            "FROM Photo p " +
+            "WHERE p.photoLocation.town = :town " +
+            "ORDER BY p.createdAt DESC")
+    Page<PhotoDto.ReadResponse> findAllByPhotoLocationTown(String town, Pageable pageable);
 }
