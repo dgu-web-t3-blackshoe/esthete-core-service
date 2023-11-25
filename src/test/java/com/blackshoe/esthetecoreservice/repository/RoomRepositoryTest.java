@@ -46,7 +46,7 @@ public class RoomRepositoryTest {
     private final Photo photo = Photo.builder()
             .title("title")
             .description("description")
-            .time(LocalDateTime.of(2021, 1, 1, 1, 1, 1))
+            .time("time")
             .build();
 
     @Test

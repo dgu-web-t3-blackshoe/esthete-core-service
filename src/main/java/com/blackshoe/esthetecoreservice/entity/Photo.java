@@ -52,7 +52,7 @@ public class Photo {
     */
 
     @Column(name = "photo_time", nullable = false, length = 20)
-    private LocalDateTime time;
+    private String time;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
