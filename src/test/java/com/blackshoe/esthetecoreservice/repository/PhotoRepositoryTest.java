@@ -4,15 +4,23 @@ import com.blackshoe.esthetecoreservice.dto.PhotoDto;
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.PhotoLocation;
 import com.blackshoe.esthetecoreservice.entity.PhotoUrl;
-import com.blackshoe.esthetecoreservice.vo.PhotoLocationFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.EntityListeners;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@EntityListeners(AuditingEntityListener.class)
 public class PhotoRepositoryTest {
 
     @Autowired
@@ -49,7 +57,7 @@ public class PhotoRepositoryTest {
 
         photoRepository.save(photo);
 
-        PhotoLocationFilter photoLocationFilter = PhotoLocationFilter.builder()
+        PhotoPointFilter photoPointFilter = PhotoPointFilter.builder()
                 .latitude(1.0)
                 .longitude(1.0)
                 .radius(1.0)
@@ -57,7 +65,7 @@ public class PhotoRepositoryTest {
 
         // when
         Page<PhotoDto.ReadRegionGroupResponse> readPhotoRegionGroupResponse
-                = photoRepository.findTop10ByUserLocationGroupByState(photoLocationFilter);
+                = photoRepository.findTop10ByUserLocationGroupByState(photoPointFilter);
 
         // then
         assertThat(readPhotoRegionGroupResponse.getContent()).isNotNull();
@@ -72,7 +80,7 @@ public class PhotoRepositoryTest {
 
         photoRepository.save(photo);
 
-        PhotoLocationFilter photoLocationFilter = PhotoLocationFilter.builder()
+        PhotoPointFilter photoPointFilter = PhotoPointFilter.builder()
                 .latitude(1.0)
                 .longitude(1.0)
                 .radius(1.0)
@@ -80,7 +88,7 @@ public class PhotoRepositoryTest {
 
         // when
         Page<PhotoDto.ReadRegionGroupResponse> readPhotoRegionGroupResponse
-                = photoRepository.findTop10ByUserLocationGroupByCity(photoLocationFilter);
+                = photoRepository.findTop10ByUserLocationGroupByCity(photoPointFilter);
 
         // then
         assertThat(readPhotoRegionGroupResponse.getContent()).isNotNull();
@@ -95,7 +103,7 @@ public class PhotoRepositoryTest {
 
         photoRepository.save(photo);
 
-        PhotoLocationFilter photoLocationFilter = PhotoLocationFilter.builder()
+        PhotoPointFilter photoPointFilter = PhotoPointFilter.builder()
                 .latitude(1.0)
                 .longitude(1.0)
                 .radius(1.0)
@@ -103,10 +111,85 @@ public class PhotoRepositoryTest {
 
         // when
         Page<PhotoDto.ReadRegionGroupResponse> readPhotoRegionGroupResponse
-                = photoRepository.findTop10ByUserLocationGroupByTown(photoLocationFilter);
+                = photoRepository.findTop10ByUserLocationGroupByTown(photoPointFilter);
 
         // then
         assertThat(readPhotoRegionGroupResponse.getContent()).isNotNull();
         assertThat(readPhotoRegionGroupResponse.getContent().get(0).getTown()).isEqualTo("town");
+    }
+
+    @Test
+    public void findAllByPhotoLocationState_returns_readResponse() {
+        // given
+        photo.setPhotoLocation(photoLocation);
+        photo.setPhotoUrl(photoUrl);
+
+        photoRepository.save(photo);
+
+        PhotoAddressFilter photoAddressFilter = PhotoAddressFilter.builder()
+                .state("state")
+                .build();
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 10, sort);
+
+        // when
+        Page<PhotoDto.ReadResponse> readPhotoResponse
+                = photoRepository.findAllByPhotoLocationState(photoAddressFilter, pageable);
+
+        // then
+        assertThat(readPhotoResponse.getContent()).isNotNull();
+        assertThat(readPhotoResponse.getContent().get(0).getTitle()).isEqualTo(photo.getTitle());
+    }
+
+    @Test
+    public void findAllByPhotoLocationStateAndCity_returns_readResponse() {
+        // given
+        photo.setPhotoLocation(photoLocation);
+        photo.setPhotoUrl(photoUrl);
+
+        photoRepository.save(photo);
+
+        PhotoAddressFilter photoAddressFilter = PhotoAddressFilter.builder()
+                .state("state")
+                .city("city")
+                .build();
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 10, sort);
+
+        // when
+        Page<PhotoDto.ReadResponse> readPhotoResponse
+                = photoRepository.findAllByPhotoLocationStateAndCity(photoAddressFilter, pageable);
+
+        // then
+        assertThat(readPhotoResponse.getContent()).isNotNull();
+        assertThat(readPhotoResponse.getContent().get(0).getTitle()).isEqualTo(photo.getTitle());
+    }
+
+    @Test
+    public void findAllByPhotoLocationStateAndCityAndTown_returns_readResponse() {
+        // given
+        photo.setPhotoLocation(photoLocation);
+        photo.setPhotoUrl(photoUrl);
+
+        photoRepository.save(photo);
+
+        PhotoAddressFilter photoAddressFilter = PhotoAddressFilter.builder()
+                .state("state")
+                .city("city")
+                .town("town")
+                .build();
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 10, sort);
+
+        // when
+        Page<PhotoDto.ReadResponse> readPhotoResponse
+                = photoRepository.findAllByPhotoLocationStateAndCityAndTown(photoAddressFilter, pageable);
+
+        // then
+        assertThat(readPhotoResponse.getContent()).isNotNull();
+        assertThat(readPhotoResponse.getContent().get(0).getTitle()).isEqualTo(photo.getTitle());
     }
 }
