@@ -1,11 +1,13 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.SupportDto;
+import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.SupportRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
+import com.blackshoe.esthetecoreservice.repository.ViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,10 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,8 +28,9 @@ public class SupportServiceImpl implements SupportService {
 
     private final SupportRepository supportRepository;
     private final UserRepository userRepository;
-
+    private final ViewRepository viewRepository;
     @Override
+    @Transactional
     public SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest) {
 
         final User user = userRepository.findByUserId(userId)
@@ -53,10 +57,13 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
+    @Transactional
     public SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId) {
 
         final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.SUPPORT_NOT_FOUND));
+
+        support.unsetUser();
 
         supportRepository.delete(support);
 
@@ -69,7 +76,7 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public SupportDto.ReadSupportingPhotographersResponse readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
+    public Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
 
         Page<User> photographers = null;
 
@@ -96,37 +103,9 @@ public class SupportServiceImpl implements SupportService {
                 photographers = supportRepository.getPhotographersBySupportCountInAWeekAndGenres(userId, genres, pageable);
         }
 
-        SupportDto.ReadSupportingPhotographersResponse supportingPhotographersResponse = SupportDto.ReadSupportingPhotographersResponse.builder()
-                .content(new ArrayList<>())
-                .build();
+        Page<UserDto.SearchResult> photographersResponse = photographers.map(photographer -> new UserDto.SearchResult(photographer));
 
-        //genres 내 genreName과 일치하는 photographer의 genreName을 가져온다.
-        //photographer의 highlightId를 가져온다.
+        return photographersResponse;
 
-        for(User photographer : photographers){
-            SupportDto.ReadSupportingPhotographer readSupportingPhotographer = SupportDto.ReadSupportingPhotographer.builder()
-                    .photographerId(photographer.getUserId().toString())
-                    .profileImg(photographer.getProfileImgUrl().getCloudfrontUrl())
-                    .nickname(photographer.getNickname())
-                    .biography(photographer.getBiography())
-                    .genres(new ArrayList<>())
-                    .highlights(new ArrayList<>())
-                    .build();
-
-            for (UserGenre userGenre : photographer.getUserGenres()) {
-                String genreName = userGenre.getGenre().getGenreName();
-                readSupportingPhotographer.getGenres().add(genreName);
-            }
-
-
-            for (Highlight highlight : photographer.getHighlights()) {
-                String highlightId = highlight.getHighlightId().toString();
-                readSupportingPhotographer.getHighlights().add(highlightId);
-            }
-
-            supportingPhotographersResponse.addReadSupportingPhotographer(readSupportingPhotographer);
-        }
-
-        return supportingPhotographersResponse;
     }
 }

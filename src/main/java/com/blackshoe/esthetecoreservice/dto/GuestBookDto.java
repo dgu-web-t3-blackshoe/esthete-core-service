@@ -40,4 +40,19 @@ public class GuestBookDto {
         private String guestBookId;
         private String createdAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadResponse {
+        private String guestbookId;
+        private String createdAt;
+        private String photographerId;
+        private String userId;
+        private String nickname;
+        private String content;
+    }
 }

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "user_genres")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
+@Getter @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class UserGenre {

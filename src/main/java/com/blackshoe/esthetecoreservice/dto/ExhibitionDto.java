@@ -100,5 +100,16 @@ public class ExhibitionDto {
         private String thumbnail;
     }
 
-
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ReadResponse {
+        private String exhibitionId;
+        private String title;
+        private String description;
+        private String thumbnail;
+    }
 }

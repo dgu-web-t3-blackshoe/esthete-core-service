@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import com.blackshoe.esthetecoreservice.dto.ProfileImgUrlDto;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -40,4 +41,12 @@ public class ProfileImgUrl {
             profileImgUrlId = UUID.randomUUID();
         }
     }
+
+    public static ProfileImgUrl convertProfileImgUrlDtoToEntity(ProfileImgUrlDto uploadedProfileImgUrl) {
+        return ProfileImgUrl.builder()
+                .s3Url(uploadedProfileImgUrl.getS3Url())
+                .cloudfrontUrl(uploadedProfileImgUrl.getCloudfrontUrl())
+                .build();
+    }
+
 }

@@ -36,7 +36,7 @@ public class PhotoDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @NoArgsConstructor @AllArgsConstructor
-    public static class UploadRequest {
+    public static class CreateRequest {
 
         @NotNull(message = "userId is required")
         private UUID userId;
@@ -107,7 +107,7 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class DeleteResponse{
+    public static class DeleteResponse {
         private String photoId;
     }
 
@@ -181,5 +181,14 @@ public class PhotoDto {
         private String genreName;
     }
 
-
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class ReadResponse{
+        private String photoId;
+        private String title;
+        private String photoUrl;
+        private String userId;
+        private String nickname;
+        private String createdAt;
+    }
 }

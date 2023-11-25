@@ -55,7 +55,7 @@ public class PhotoServiceImpl implements PhotoService{
     //@TODO: user 포함한 로직
     @Transactional
     @Override
-    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.UploadRequest photoUploadRequest) {
+    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest) {
         if (photo == null) {
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }

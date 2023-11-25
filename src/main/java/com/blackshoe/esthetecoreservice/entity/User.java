@@ -1,12 +1,16 @@
 package com.blackshoe.esthetecoreservice.entity;
 
+import com.blackshoe.esthetecoreservice.vo.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
+@Getter @Builder(toBuilder = true)
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -26,15 +30,29 @@ public class User {
     @Column(columnDefinition = "BINARY(16)", name = "user_uuid")
     private UUID userId;
 
-    @Column(name = "nickname", nullable = false, length = 50)
+    @Column(name = "email", length = 50)
+    private String email;
+
+    @Column(name = "role", length = 20)
+    private Role role;
+
+    @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "biography", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
     @JoinColumn(name = "profile_img_url_id", foreignKey = @ForeignKey(name = "user_fk_profile_img_url_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ProfileImgUrl profileImgUrl;
+
+    @CreatedDate
+    @Column(name = "created_at", length = 20)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at", length = 20)
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGenre> userGenres;
@@ -54,8 +72,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
 
-    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Highlight> highlights;
+    private Long supportCount;
+
+    private Long viewCount;
 
     @Builder
     public User(String nickname, String biography) {
@@ -67,6 +86,8 @@ public class User {
         this.photos = new ArrayList<>();
         this.guestBooks = new ArrayList<>();
         this.supports = new ArrayList<>();
+        this.supportCount = 0L;
+        this.viewCount = 0L;
     }
 
     @PrePersist
@@ -102,6 +123,11 @@ public class User {
 
     public void addSupport(Support support) {
         this.supports.add(support);
+        this.supportCount++;
+    }
+
+    public void removeSupport(Support support) {
+        this.supportCount--;
     }
 
 }

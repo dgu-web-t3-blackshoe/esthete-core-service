@@ -1,29 +1,24 @@
 package com.blackshoe.esthetecoreservice.service;
 
-import com.blackshoe.esthetecoreservice.dto.UserDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.User;
-import com.blackshoe.esthetecoreservice.entity.GuestBook;
+//import UserDto
+
+import com.blackshoe.esthetecoreservice.dto.*;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
-import com.blackshoe.esthetecoreservice.entity.UserEquipment;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
-import com.blackshoe.esthetecoreservice.repository.UserEquipmentRepository;
-import com.blackshoe.esthetecoreservice.repository.UserRepository;
-import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
-import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
-import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
+import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,9 +29,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
+    private final PhotoRepository photoRepository;
+    private final GuestBookRepository guestBookRepository;
     private final ExhibitionRepository exhibitionRepository;
     private final UserEquipmentRepository userEquipmentRepository;
+
+    private final KafkaUserInfoProducerService kafkaUserInfoProducerService;
     @Override
     public UserDto.ReadEquipmentsResponse getEquipmentsForUser(UUID userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
@@ -84,63 +82,217 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto.ReadUserPhotosResponse> readUserPhotos(UUID userId) {
+    public Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-        List<Photo> photos = user.getPhotos();
 
-        List<UserDto.ReadUserPhotosResponse> content = new ArrayList<>();
-        for(Photo photo : photos) {
-            UserDto.ReadUserPhotosResponse userReadUserPhotosResponse = UserDto.ReadUserPhotosResponse.builder()
-                    .userId(user.getUserId().toString())
-                    .nickname(user.getNickname())
-                    .photoId(photo.getPhotoId().toString())
-                    .photoUrl(photo.getPhotoUrl().getCloudfrontUrl())
-                    .createdAt(photo.getCreatedAt().toString())
-                    .build();
-            content.add(userReadUserPhotosResponse);
-        }
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        return content;
+        Page<PhotoDto.ReadResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        return photoReadResponses;
     }
 
     @Override
-    public List<UserDto.ReadUserExhibitionResponse> readUserExhibitions(UUID userId) {
+    public Page<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-        List<Exhibition> exhibitions = user.getExhibitions();
 
-        List<UserDto.ReadUserExhibitionResponse> content = new ArrayList<>();
-        for(Exhibition exhibition : exhibitions) {
-            UserDto.ReadUserExhibitionResponse userReadUserExhibitionResponse = UserDto.ReadUserExhibitionResponse.builder()
-                    .exhibitionId(exhibition.getExhibitionId().toString())
-                    .title(exhibition.getTitle())
-                    .description(exhibition.getDescription())
-                    .thumbnail(exhibition.getThumbnail())
-                    .build();
-            content.add(userReadUserExhibitionResponse);
-        }
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        return content;
+        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        return exhibitionReadResponses;
     }
 
     @Override
-    public List<UserDto.ReadUserGuestbookResponse> readUserGuestbooks(UUID userId) {
+    public Page<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        List<GuestBook> guestbooks = user.getGuestBooks();
+        Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        List<UserDto.ReadUserGuestbookResponse> content = new ArrayList<>();
-        for(GuestBook guestbook : guestbooks) {
-            UserDto.ReadUserGuestbookResponse userReadUserGuestbookResponse = UserDto.ReadUserGuestbookResponse.builder()
-                    .guestbookId(guestbook.getGuestBookId().toString())
-                    .createdAt(guestbook.getCreatedAt().toString())
-                    .photographerId(userId.toString())
-                    .userId(guestbook.getUser().getUserId().toString())
-                    .nickname(guestbook.getUser().getNickname())
-                    .content(guestbook.getContent())
+        Page<GuestBookDto.ReadResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        return guestBookReadResponses;
+    }
+
+    public Page<UserDto.SearchResult> readAllNicknameContaining(String nickname, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllNicknameContainingResponse = userRepository.findAllByNicknameContaining(nickname, pageable);
+
+        return userReadAllNicknameContainingResponse;
+    }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllGenresContaining(List<UUID> genres, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllGenresContainingResponse = userRepository.findAllByGenresContaining(genres, pageable);
+
+        return userReadAllGenresContainingResponse;
+    }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllNicknameAndGenreContaining(String nickname, List<UUID> genres, Pageable pageable) {
+
+        Page<UserDto.SearchResult> userReadAllNicknameAndGenreContainingResponse = userRepository.findAllByNicknameAndGenresContaining(nickname, genres, pageable);
+
+        return userReadAllNicknameAndGenreContainingResponse;
+    }
+
+    @Override
+    public UserDto.DeleteResponse deleteUser(UUID userId) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        userRepository.delete(user);
+
+        UserDto.DeleteResponse userDeleteResponse = UserDto.DeleteResponse.builder()
+                .userId(user.getUserId().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        kafkaUserInfoProducerService.deleteUser(UserDto.UserInfoDto.builder()
+                .userId(user.getUserId())
+                .build());
+
+        return userDeleteResponse;
+    }
+
+    @Override
+    public UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        // GenreDto to UserGenre
+// GenreDto to UserGenre
+        List<UserGenre> genres = signUpInfoRequest.getGenres().stream()
+                .map(genre -> {
+                    // UserDto.GenreDto를 UserGenre로 변환
+                    UserGenre userGenre = UserGenre.builder()
+                            .user(user)
+                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
+                            .build();
+                    return userGenre;
+                })
+                .collect(Collectors.toList());
+
+        List<UserEquipment> equipments = signUpInfoRequest.getEquipmentNames().stream()
+                .map(equipmentName -> UserEquipment.builder()
+                        .user(user)
+                        .equipmentName(equipmentName)
+                        .build())
+                .collect(Collectors.toList());
+
+
+        User updatedUser = user.toBuilder()
+                .nickname(signUpInfoRequest.getNickname())
+                .biography(signUpInfoRequest.getBiography())
+                .userGenres(genres)
+                .userEquipments(equipments)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        return UserDto.SignUpInfoResponse.builder().userId(updatedUser.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
+    }
+
+    @Override
+    public UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId) {
+        log.info("getMyProfileInfo userId: {}", userId.toString());
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        //@TODO: kafka 활용 시 삭제할 block
+        if(user.getProfileImgUrl() == null) {
+            ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
                     .build();
-            content.add(userReadUserGuestbookResponse);
+            user = user.toBuilder()
+                    .profileImgUrl(profileImgUrl)
+                    .build();
         }
 
-        return content;
+        UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
+                .userId(user.getUserId().toString())
+                .nickname(user.getNickname())
+                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .biography(user.getBiography())
+                .updatedAt(user.getUpdatedAt().toString())
+                .build();
+
+        return myProfileInfoResponse;
     }
+
+    @Override
+    public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        ProfileImgUrl userProfileImgUrl = user.getProfileImgUrl();
+
+        ProfileImgUrl profileImgUrl;
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(userProfileImgUrl.getCloudfrontUrl())
+                .s3Url(userProfileImgUrl.getS3Url())
+                .build();
+
+        if(userProfileImgUrl.getCloudfrontUrl().equals("")) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        }else{
+            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
+        }
+
+        User updatedUser = user.toBuilder()
+                .profileImgUrl(profileImgUrl)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = UserDto.SetMyProfileImgResponse.builder()
+                .userId(updatedUser.getUserId().toString())
+                .profileImg(updatedUser.getProfileImgUrl().getCloudfrontUrl())
+                .updatedAt(updatedUser.getUpdatedAt().toString())
+                .build();
+
+        return setMyProfileImgResponse;
+    }
+
+    @Override
+    public UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        List<UserGenre> genres = updateMyProfileRequest.getGenres().stream()
+                .map(genre -> {
+                    // UserDto.GenreDto를 UserGenre로 변환
+                    UserGenre userGenre = UserGenre.builder()
+                            .user(user)
+                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
+                            .build();
+                    return userGenre;
+                })
+                .collect(Collectors.toList());
+
+        List<UserEquipment> equipments = updateMyProfileRequest.getEquipmentNames().stream()
+                .map(equipmentName -> UserEquipment.builder()
+                        .user(user)
+                        .equipmentName(equipmentName)
+                        .build())
+                .collect(Collectors.toList());
+
+
+        User updatedUser = user.toBuilder()
+                .nickname(updateMyProfileRequest.getNickname())
+                .biography(updateMyProfileRequest.getBiography())
+                .userGenres(genres)
+                .userEquipments(equipments)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        return UserDto.UpdateMyProfileResponse.builder().userId(updatedUser.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
+    }
+
 }
