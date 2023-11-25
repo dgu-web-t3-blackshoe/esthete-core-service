@@ -19,10 +19,10 @@ import java.util.UUID;
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
     Optional<Exhibition> findByExhibitionId(UUID exhibitionId);
 
-    Optional<Exhibition> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
+    Optional<Exhibition> findTopByUserUserIdOrderByCreatedAtDesc(UUID userId);
 
     default Optional<Exhibition> findMostRecentExhibitionOfUser(@Param("userId") UUID userId) {
-        return findTopByUserIdOrderByCreatedAtDesc(userId);
+        return findTopByUserUserIdOrderByCreatedAtDesc(userId);
     };
 
     Page<ExhibitionDto.ReadResponse> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
