@@ -10,11 +10,16 @@ import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressSearchType;
 import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -308,6 +313,30 @@ public class PhotoServiceImpl implements PhotoService {
                 return photoReadRegionGroupResponse;
             default:
                 throw new PhotoException(PhotoErrorResult.INVALID_LOCATION_GROUP_TYPE);
+        }
+    }
+
+    @Override
+    public Page<PhotoDto.ReadResponse> readByAddress(PhotoAddressFilter photoAddressFilter, Integer page, Integer size, Sort sort) {
+
+        final Pageable pageable = PageRequest.of(page, size, sort);
+
+        final Page<PhotoDto.ReadResponse> photoReadByAddressResponse;
+
+        final PhotoAddressSearchType photoAddressSearchType = photoAddressFilter.getSearchType();
+
+        switch (photoAddressSearchType) {
+            case STATE:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationState(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            case CITY:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationStateAndCity(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            case TOWN:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationStateAndCityAndTown(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            default:
+                throw new PhotoException(PhotoErrorResult.INVALID_ADDRESS_FILTER);
         }
     }
 }
