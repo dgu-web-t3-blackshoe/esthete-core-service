@@ -38,12 +38,12 @@ public class Photo {
     @Column(name = "description", nullable = true, length = 100)
     private String description;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "photo_url_id", foreignKey = @ForeignKey(name = "photo_fk_photo_url_id"))
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private PhotoUrl photoUrl;
 
-    @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "photo_checksum_fk_photo_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "photo_checksum_id", foreignKey = @ForeignKey(name = "photo_checksum_fk_photo_id"))
     private PhotoChecksum photoChecksum;
 
     /*
@@ -55,7 +55,7 @@ public class Photo {
     @Column(name = "photo_time", nullable = false, length = 20)
     private String time;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
     private PhotoLocation photoLocation;
 
@@ -80,6 +80,10 @@ public class Photo {
 
     public void setPhotoChecksum(PhotoChecksum photoChecksum) {
         this.photoChecksum = photoChecksum;
+    }
+
+    public void setPhotoLocation(PhotoLocation photoLocation) {
+        this.photoLocation = photoLocation;
     }
 
     public void setUser(User user) {
