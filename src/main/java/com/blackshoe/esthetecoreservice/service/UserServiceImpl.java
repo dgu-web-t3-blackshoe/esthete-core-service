@@ -1,15 +1,12 @@
 package com.blackshoe.esthetecoreservice.service;
 
-import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
-import com.blackshoe.esthetecoreservice.dto.PhotoDto;
-import com.blackshoe.esthetecoreservice.dto.UserDto;
+import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
-import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -195,5 +193,59 @@ public class UserServiceImpl implements UserService {
         userRepository.save(updatedUser);
 
         return UserDto.SignUpInfoResponse.builder().userId(updatedUser.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
+    }
+
+    @Override
+    public UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
+                .userId(user.getUserId().toString())
+                .nickname(user.getNickname())
+                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .biography(user.getBiography())
+                .updatedAt(user.getUpdatedAt().toString())
+                .build();
+
+        return myProfileInfoResponse;
+    }
+
+    @Override
+    public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        ProfileImgUrl userProfileImgUrl = user.getProfileImgUrl();
+
+        ProfileImgUrl profileImgUrl;
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(userProfileImgUrl.getCloudfrontUrl())
+                .s3Url(userProfileImgUrl.getS3Url())
+                .build();
+
+        if(userProfileImgUrl.getCloudfrontUrl().equals("")) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        }else{
+            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
+        }
+
+        User updatedUser = user.toBuilder()
+                .profileImgUrl(profileImgUrl)
+                .build();
+
+        userRepository.save(updatedUser);
+
+        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = UserDto.SetMyProfileImgResponse.builder()
+                .userId(updatedUser.getUserId().toString())
+                .profileImg(updatedUser.getProfileImgUrl().getCloudfrontUrl())
+                .updatedAt(updatedUser.getUpdatedAt().toString())
+                .build();
+
+        return setMyProfileImgResponse;
     }
 }

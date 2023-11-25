@@ -6,6 +6,7 @@ import com.blackshoe.esthetecoreservice.vo.SortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +26,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -177,5 +180,23 @@ public class UserController {
         UserDto.SignUpInfoResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userSignUpResponse);
+    }
+
+    @GetMapping("/{user_id}/profile") //API - 100
+    public ResponseEntity<UserDto.MyProfileInfoResponse> getUserMyProfile(@PathVariable UUID userId) throws Exception{
+        UserDto.MyProfileInfoResponse myProfileInfoResponse = userService.getMyProfileInfo(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(myProfileInfoResponse); //200
+    }
+
+    @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
+    public ResponseEntity<UserDto.SetMyProfileImgResponse> updateProfile(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+                                                     @PathVariable UUID userId) throws Exception {
+
+        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = userService.setMyProfileImg(userId, profileImg);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(setMyProfileImgResponse); //200
+
     }
 }

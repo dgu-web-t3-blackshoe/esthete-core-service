@@ -6,6 +6,7 @@ import com.blackshoe.esthetecoreservice.dto.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,4 +31,8 @@ public interface UserService {
     UserDto.DeleteResponse deleteUser(UUID userId);
 
     UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest);
+
+    UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId);
+
+    UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg);
 }

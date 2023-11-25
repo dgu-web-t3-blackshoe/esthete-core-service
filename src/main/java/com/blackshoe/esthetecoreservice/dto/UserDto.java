@@ -5,9 +5,12 @@ import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.entity.UserGenre;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.UUID;
 import java.util.ArrayList;
@@ -153,4 +156,58 @@ public class UserDto {
         private List<GenreDto> genres;
         private List<String> equipmentNames;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UpdateProfileRequestDto{
+        private String nickname;
+        private String biography;
+        private List<GenreDto> genres;
+        private List<String> equipmentNames;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class MyProfileInfoResponse{
+        private String userId;
+        private String nickname;
+        private String profileImg;
+        private String biography;
+        private List<GenreDto> genres;
+        private List<HighlightDto> highlights;
+        private String updatedAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class SetMyProfileImgRequest{
+        private String profileImg;
+    }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class SetMyProfileImgResponse{
+
+        private String userId;
+        private String profileImg;
+        private String updatedAt;
+
+    }
+
+
 }
