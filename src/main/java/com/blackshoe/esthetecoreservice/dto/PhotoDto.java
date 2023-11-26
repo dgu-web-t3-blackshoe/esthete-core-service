@@ -114,7 +114,7 @@ public class PhotoDto {
         private String photoId;
         private String title;
         private String description;
-        private String  time;
+        private String time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
         private EquipmentIdsRequest equipmentNames;
@@ -186,6 +186,7 @@ public class PhotoDto {
         private String photoUrl;
         private String userId;
         private String nickname;
+        private String time;
         private String createdAt;
 
         public ReadResponse(Photo photo){

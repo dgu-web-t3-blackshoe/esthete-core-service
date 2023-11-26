@@ -1,6 +1,7 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.*;
+import com.blackshoe.esthetecoreservice.service.ProfileImgService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +38,8 @@ public class UserController {
     private final GuestBookService guestBookService;
 
     private final SupportService supportService;
+
+    private final ProfileImgService profileImgService;
 
     @GetMapping("/{user_id}/equipments")
     ResponseEntity<UserDto.ReadEquipmentsResponse> getEquipments(@PathVariable(name = "user_id") UUID userId) {
@@ -166,10 +171,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userDeleteResponse);
     }
 
-    @PostMapping("/{userId}/sign-up/info")
-    public ResponseEntity<UserDto.SignUpInfoResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpInfoRequest userSignUpRequest) {
+    @PostMapping("/{userId}/sign-up/info") // SignUpInfoRequest -> SignUpRequest
+    public ResponseEntity<UserDto.SignUpResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpRequest userSignUpRequest) {
 
-        UserDto.SignUpInfoResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
+        UserDto.SignUpResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userSignUpResponse);
     }
@@ -181,22 +186,37 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(myProfileInfoResponse); //200
     }
 
+    @PutMapping("/{user_id}/profile")
+    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfile(@PathVariable UUID userId, @RequestPart(name = "profile_img", required = false) MultipartFile profileImg, @Valid @RequestBody UserDto.UpdateProfileRequest userUpdateProfileRequest) throws Exception {
+
+        UserDto.UpdateProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
+
+        ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
+
+        UserDto.UpdateProfileResponse updateProfileResponse = UserDto.UpdateProfileResponse.builder()
+                .userId(userId.toString())
+                .profileImg(profileImgUrlDto.getCloudfrontUrl())
+                .genres(userUpdateProfileResponse.getGenres())
+                .updatedAt(String.valueOf(LocalDateTime.now()))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(updateProfileResponse); //200
+    }
+
     @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
-    public ResponseEntity<UserDto.SetMyProfileImgResponse> setProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+    public ResponseEntity<UserDto.UpdateProfileImgResponse> updateProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable(name = "user_id") UUID userId) throws Exception {
 
-        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = userService.setMyProfileImg(userId, profileImg);
+        ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
 
+        UserDto.UpdateProfileImgResponse updateProfileImgResponse = UserDto.UpdateProfileImgResponse.builder()
+                .userId(userId.toString())
+                .profileImg(profileImgUrlDto.getCloudfrontUrl())
+                .updatedAt(String.valueOf(LocalDateTime.now()))
+                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(setMyProfileImgResponse); //200
-
+        return ResponseEntity.status(HttpStatus.OK).body(updateProfileImgResponse); //200
     }
 
-    @PutMapping("/{user_id}/profile")
-    public ResponseEntity<UserDto.UpdateMyProfileResponse> updateProfile(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateMyProfileRequest userUpdateProfileRequest) throws Exception {
 
-        UserDto.UpdateMyProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
-
-        return ResponseEntity.status(HttpStatus.OK).body(userUpdateProfileResponse); //200
-    }
 }

@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         //get equipment name from equipments
 
         return UserDto.ReadEquipmentsResponse.builder()
-                .equipmentNames(equipmentNames)
+                .equipments(equipmentNames)
                 .build();
     }
 
@@ -163,17 +163,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest) {
+    public UserDto.SignUpResponse signUp(UUID userId, UserDto.SignUpRequest signUpInfoRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        // GenreDto to UserGenre
         signUpInfoRequest.getGenres().stream()
                 .forEach(genreId -> {
                             // UserDto.GenreDto를 UserGenre로 변환
                             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
                                     .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
-
                             UserGenre userGenre = UserGenre.builder()
                                     .genre(genre)
                                     .build();
@@ -196,7 +194,7 @@ public class UserServiceImpl implements UserService {
                         }
                 );
 
-        return UserDto.SignUpInfoResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
+        return UserDto.SignUpResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
     }
 
     @Override
@@ -225,64 +223,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
+    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        ProfileImgUrl userProfileImgUrl = user.getProfileImgUrl();
+        user.setNickname(updateMyProfileRequest.getNickname());
+        user.setBiography(updateMyProfileRequest.getBiography());
 
-        ProfileImgUrl profileImgUrl;
+        List<UserDto.GenreDto> genreDtos = null;
 
-        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(userProfileImgUrl.getCloudfrontUrl())
-                .s3Url(userProfileImgUrl.getS3Url())
-                .build();
+        updateMyProfileRequest.getGenres().stream().forEach(genreId -> {
+            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
+                    .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
 
-        if (userProfileImgUrl.getCloudfrontUrl().equals("")) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl("")
-                    .s3Url("")
+            UserDto.GenreDto genreDto = new UserDto.GenreDto(genre.getGenreId(), genre.getGenreName());
+
+            genreDtos.add(genreDto);
+
+            UserGenre userGenre = UserGenre.builder()
+                    .genre(genre)
                     .build();
-        } else {
-            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
-        }
 
-        user.setProfileImgUrl(profileImgUrl);
+            userGenre.setUser(user);
 
-        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = UserDto.SetMyProfileImgResponse.builder()
+            userGenreRepository.save(userGenre);
+        });
+
+        updateMyProfileRequest.getEquipments().stream().forEach(equipmentName -> {
+            UserEquipment userEquipment = UserEquipment.builder()
+                    .equipmentName(equipmentName)
+                    .build();
+
+            userEquipment.setUser(user);
+
+            userEquipmentRepository.save(userEquipment);
+        });
+
+        UserDto.UpdateProfileResponse updateMyProfileResponse = UserDto.UpdateProfileResponse.builder()
                 .userId(user.getUserId().toString())
-                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .genres(genreDtos)
                 .updatedAt(user.getUpdatedAt().toString())
                 .build();
 
-        return setMyProfileImgResponse;
-    }
-
-    @Override
-    public UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest) {
-
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-
-        List<UserGenre> genres = updateMyProfileRequest.getGenres().stream()
-                .map(genre -> {
-                    // UserDto.GenreDto를 UserGenre로 변환
-                    UserGenre userGenre = UserGenre.builder()
-                            .user(user)
-                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
-                            .build();
-                    return userGenre;
-                })
-                .collect(Collectors.toList());
-
-        List<UserEquipment> equipments = updateMyProfileRequest.getEquipmentNames().stream()
-                .map(equipmentName -> UserEquipment.builder()
-                        .user(user)
-                        .equipmentName(equipmentName)
-                        .build())
-                .collect(Collectors.toList());
-
-        return UserDto.UpdateMyProfileResponse.builder().userId(user.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
+        return updateMyProfileResponse;
     }
 
 }

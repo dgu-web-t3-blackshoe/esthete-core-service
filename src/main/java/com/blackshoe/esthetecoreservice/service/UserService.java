@@ -30,11 +30,9 @@ public interface UserService {
 
     UserDto.DeleteResponse deleteUser(UUID userId);
 
-    UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest);
+    UserDto.SignUpResponse signUp(UUID userId, UserDto.SignUpRequest signUpInfoRequest);
 
     UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId);
 
-    UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg);
-
-    UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest);
+    UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest);
 }

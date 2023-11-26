@@ -21,7 +21,7 @@ public class UserDto {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReadEquipmentsResponse {
-        List<String> equipmentNames;
+        List<String> equipments;
     }
 
     @Data
@@ -122,7 +122,7 @@ public class UserDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class SignUpInfoRequest {
+    public static class SignUpRequest {
         private String nickname;
         private String biography;
         private List<String> genres;
@@ -135,7 +135,7 @@ public class UserDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class SignUpInfoResponse {
+    public static class SignUpResponse {
         private String userId;
         private String createdAt;
     }
@@ -150,7 +150,7 @@ public class UserDto {
         private String nickname;
         private String biography;
         private List<GenreDto> genres;
-        private List<String> equipmentNames;
+        private List<String> equipments;
     }
 
     @Data
@@ -163,7 +163,7 @@ public class UserDto {
         private String nickname;
         private String biography;
         private List<GenreDto> genres;
-        private List<String> equipmentNames;
+        private List<String> equipments;
     }
 
     @Data
@@ -188,7 +188,7 @@ public class UserDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class SetMyProfileImgRequest{
+    public static class UpdateProfileImgRequest{
         private String profileImg;
     }
     @Data
@@ -197,12 +197,10 @@ public class UserDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class SetMyProfileImgResponse{
-
+    public static class UpdateProfileImgResponse{
         private String userId;
         private String profileImg;
         private String updatedAt;
-
     }
 
     @Data
@@ -211,11 +209,11 @@ public class UserDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class UpdateMyProfileRequest{
+    public static class UpdateProfileRequest{
         private String nickname;
         private String biography;
-        private List<GenreDto> genres;
-        private List<String> equipmentNames;
+        private List<String> genres;
+        private List<String> equipments;
     }
 
     @Data
@@ -223,8 +221,10 @@ public class UserDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
-    public static class UpdateMyProfileResponse{
+    public static class UpdateProfileResponse{
         private String userId;
+        private String profileImg;
+        private List<GenreDto> genres;
         private String updatedAt;
     }
 }
