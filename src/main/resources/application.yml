@@ -92,3 +92,6 @@ logging:
       springfox: DEBUG
       esthete: DEBUG
       lombok: DEBUG
+servers:
+  - url: https://api.esthete.roberniro-projects.xyz
+    description: Production server
