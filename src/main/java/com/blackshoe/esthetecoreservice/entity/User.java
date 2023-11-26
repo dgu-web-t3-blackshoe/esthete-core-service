@@ -97,6 +97,18 @@ public class User {
         }
     }
 
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Builder(builderMethodName = "createUserFromKafka")
     public User(UUID userId, String email, Role role, ProfileImgUrl profileImgUrl) {
         this.userId = userId;
@@ -108,14 +120,6 @@ public class User {
     public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-    public void setBiography(String biography) {
-        this.biography = biography;
-    }
-
 
     public void addUserEquipment(UserEquipment userEquipment) {
         this.userEquipments.add(userEquipment);
