@@ -17,6 +17,7 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserId(UUID any);
 
+
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(u) " +
             "FROM User u " +
             "WHERE u.nickname like %:nickname% ")

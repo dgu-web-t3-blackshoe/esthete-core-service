@@ -109,6 +109,14 @@ public class User {
         this.profileImgUrl = profileImgUrl;
     }
 
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
+
+
     public void addUserEquipment(UserEquipment userEquipment) {
         this.userEquipments.add(userEquipment);
     }
