@@ -11,8 +11,9 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*");
+                .allowedOrigins("http://api.esthete.roberniro-projects.xyz", "http://localhost:8081")
+                .allowedMethods("*")
+                .allowCredentials(true);
     }
 
 }
