@@ -2,7 +2,7 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.service.UserService;
-import com.blackshoe.esthetecoreservice.vo.SortType;
+import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -13,24 +13,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
-import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.service.GuestBookService;
 import com.blackshoe.esthetecoreservice.service.SupportService;
-import com.blackshoe.esthetecoreservice.service.UserService;
-import com.blackshoe.esthetecoreservice.vo.SortType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -110,7 +102,7 @@ public class UserController {
     public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = SortType.convertParamToColumn(sort);
+        final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
         Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 
@@ -122,7 +114,7 @@ public class UserController {
                                                                                @RequestParam(defaultValue = "10") int size,
                                                                                @RequestParam(defaultValue = "0") int page,
                                                                                @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = SortType.convertParamToColumn(sort);
+        final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
         Page<ExhibitionDto.ReadResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
 
@@ -135,7 +127,7 @@ public class UserController {
                                                                              @RequestParam(defaultValue = "0") int page,
                                                                              @RequestParam(required = false, defaultValue = "recent") String sort) {
 
-        final Sort sortBy = SortType.convertParamToColumn(sort);
+        final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
         Page<GuestBookDto.ReadResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
 
@@ -148,7 +140,7 @@ public class UserController {
                                                                  @RequestParam(required = false, defaultValue = "0") Integer page,
                                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
 
-        final Sort sortBy = SortType.convertParamToColumn(sort);
+        final Sort sortBy = UserSortType.convertParamToColumn(sort);
         final Pageable pageable = PageRequest.of(page, size, sortBy);
 
         Page<UserDto.SearchResult> readAllNicknameContainingPage = Page.empty();

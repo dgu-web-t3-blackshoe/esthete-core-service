@@ -9,9 +9,17 @@ import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
+import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
+import com.blackshoe.esthetecoreservice.vo.PhotoAddressSearchType;
+import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class PhotoServiceImpl implements PhotoService{
+public class PhotoServiceImpl implements PhotoService {
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
@@ -102,7 +110,7 @@ public class PhotoServiceImpl implements PhotoService{
 
         List<PhotoGenre> photoGenres = new ArrayList<>();
 
-        for(String genreName : photoUploadRequest.getGenres()){
+        for (String genreName : photoUploadRequest.getGenres()) {
 
             Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
 
@@ -150,7 +158,7 @@ public class PhotoServiceImpl implements PhotoService{
         String[] userIdWithCondition;
         List<String[]> supporters = new ArrayList<>();
 
-        for(Support support : supports){
+        for (Support support : supports) {
             userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
             supporters.add(userIdWithCondition);
         }
@@ -159,20 +167,19 @@ public class PhotoServiceImpl implements PhotoService{
         redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
         redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
 
-        if(newWork == null){
+        if (newWork == null) {
             newWork = NewWork.builder()
                     .photo(uploadedPhoto)
                     .photographer(photographer)
                     .photographerId(UUID.fromString(photographer.getUserId().toString()))
                     .build();
-        }
-        else {
+        } else {
             newWork.setPhoto(uploadedPhoto);
         }
 
         newWorkRepository.save(newWork);
 
-        List<UUID> genreIds  = photoUploadRequest.getGenres()
+        List<UUID> genreIds = photoUploadRequest.getGenres()
                 .stream()
                 .map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND)).getGenreId())
                 .collect(Collectors.toList());
@@ -286,5 +293,50 @@ public class PhotoServiceImpl implements PhotoService{
                 .build();
 
         return photoDeleteResponse;
+    }
+
+    @Override
+    public Page<PhotoDto.ReadRegionGroupResponse> getTop10ByUserLocationGroupBy(PhotoPointFilter photoPointFilter,
+                                                                                LocationGroupType locationGroupType) {
+
+        final Page<PhotoDto.ReadRegionGroupResponse> photoReadRegionGroupResponse;
+
+        switch (locationGroupType) {
+            case STATE:
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByState(photoPointFilter);
+                return photoReadRegionGroupResponse;
+            case CITY:
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByCity(photoPointFilter);
+                return photoReadRegionGroupResponse;
+            case TOWN:
+                photoReadRegionGroupResponse = photoRepository.findTop10ByUserLocationGroupByTown(photoPointFilter);
+                return photoReadRegionGroupResponse;
+            default:
+                throw new PhotoException(PhotoErrorResult.INVALID_LOCATION_GROUP_TYPE);
+        }
+    }
+
+    @Override
+    public Page<PhotoDto.ReadResponse> readByAddress(PhotoAddressFilter photoAddressFilter, Integer page, Integer size, Sort sort) {
+
+        final Pageable pageable = PageRequest.of(page, size, sort);
+
+        final Page<PhotoDto.ReadResponse> photoReadByAddressResponse;
+
+        final PhotoAddressSearchType photoAddressSearchType = photoAddressFilter.getSearchType();
+
+        switch (photoAddressSearchType) {
+            case STATE:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationState(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            case CITY:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationStateAndCity(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            case TOWN:
+                photoReadByAddressResponse = photoRepository.findAllByPhotoLocationStateAndCityAndTown(photoAddressFilter, pageable);
+                return photoReadByAddressResponse;
+            default:
+                throw new PhotoException(PhotoErrorResult.INVALID_ADDRESS_FILTER);
+        }
     }
 }
