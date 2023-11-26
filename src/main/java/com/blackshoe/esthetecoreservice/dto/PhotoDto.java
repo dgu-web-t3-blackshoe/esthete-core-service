@@ -70,7 +70,7 @@ public class PhotoDto {
         private String town;
 
         @NotNull(message = "time is required")
-        private LocalDateTime time;
+        private String time;
 
         @NotNull(message = "equipments are required")
         private List<PhotoEquipmentDto> equipmentNames;
@@ -117,7 +117,7 @@ public class PhotoDto {
         private String photoId;
         private String title;
         private String description;
-        private LocalDateTime time;
+        private String time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
         private EquipmentIdsRequest equipmentNames;
@@ -189,6 +189,7 @@ public class PhotoDto {
         private String photoUrl;
         private String userId;
         private String nickname;
+        private String time;
         private String createdAt;
     }
 }

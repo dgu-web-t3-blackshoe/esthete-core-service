@@ -174,7 +174,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userDeleteResponse);
     }
 
-    @PostMapping("/{userId}/sign-up/info")
+    @PostMapping("/{userId}/sign-up/info") // SignUpInfoRequest -> SignUpRequest
     public ResponseEntity<UserDto.SignUpInfoResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpInfoRequest userSignUpRequest) {
 
         UserDto.SignUpInfoResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
@@ -190,14 +190,12 @@ public class UserController {
     }
 
     @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
-    public ResponseEntity<UserDto.SetMyProfileImgResponse> setProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+    public ResponseEntity<UserDto.SetMyProfileImgResponse> updateProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable(name = "user_id") UUID userId) throws Exception {
 
         UserDto.SetMyProfileImgResponse setMyProfileImgResponse = userService.setMyProfileImg(userId, profileImg);
 
-
         return ResponseEntity.status(HttpStatus.OK).body(setMyProfileImgResponse); //200
-
     }
 
     @PutMapping("/{user_id}/profile")

@@ -25,7 +25,7 @@ public class ExhibitionController {
 
     private final RoomPhotoService roomPhotoService;
 
-    @PostMapping
+    @PostMapping("/{userId}")
     public ResponseEntity<ExhibitionDto.CreateResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateRequest exhibitionCreateRequest) {
 
         final ExhibitionDto.CreateResponse exhibitionCreateResponse = exhibitionService.createExhibition(exhibitionCreateRequest);

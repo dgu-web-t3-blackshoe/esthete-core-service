@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         // GenreDto to UserGenre
-// GenreDto to UserGenre
+        // GenreDto to UserGenre
         List<UserGenre> genres = signUpInfoRequest.getGenres().stream()
                 .map(genre -> {
                     // UserDto.GenreDto를 UserGenre로 변환
@@ -221,7 +221,7 @@ public class UserServiceImpl implements UserService {
         return myProfileInfoResponse;
     }
 
-    @Override
+    @Override //@TODO: AWS에 저장하는 로직 추가
     public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
@@ -259,7 +259,7 @@ public class UserServiceImpl implements UserService {
         return setMyProfileImgResponse;
     }
 
-    @Override
+    @Override //@TODO: Wander Code 참고해서 수정, EquipmentNames -> Equipments로 수정
     public UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
