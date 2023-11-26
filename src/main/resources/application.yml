@@ -22,18 +22,20 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP-SERVERS}
   jpa:
+    defer-datasource-initialization: true
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     open-in-view: true
     generate-ddl: true
-    show-sql: false
+    show-sql: true
     hibernate:
-      ddl-auto: ${SPRING_DATASOURCE_DDL-AUTO}
+      #ddl-auto: ${SPRING_DATASOURCE_DDL-AUTO}
+      ddl-auto: create
     properties:
       hibernate:
         jdbc:
           time_zone: Asia/Seoul
-        show_sql: false
+        show_sql: true
         format_sql: true
     repositories:
       enabled: true
@@ -45,6 +47,7 @@ spring:
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
+
 springfox:
   documentation:
     swagger-ui:
@@ -77,3 +80,16 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
+    org:
+    springframework:
+      web: DEBUG
+      security: DEBUG
+      data: DEBUG
+      kafka: DEBUG
+      hibernate: DEBUG
+      jpa: DEBUG
+      oauth2: DEBUG
+      springframework: DEBUG
+      springfox: DEBUG
+      esthete: DEBUG
+      lombok: DEBUG
