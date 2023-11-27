@@ -230,10 +230,19 @@ public class PhotoServiceImpl implements PhotoService {
         log.info("photo.getPhotoGenres(): {}", photo.getPhotoGenres());
 
         //PhotoGenre to Long
-        List<String> genreIds = photoGenres
+        List<PhotoDto.GenreDto> genres = photoGenres
                 .stream()
-                .map(photoGenre -> String.valueOf(photoGenre.getGenre().getGenreId()))
+                .map(photoGenre -> PhotoDto.GenreDto.builder()
+                        .genreId(photoGenre.getGenre().getGenreId().toString())
+                        .genreName(photoGenre.getGenre().getGenreName())
+                        .build())
                 .collect(Collectors.toList());
+
+        List<String> equipments = photo.getPhotoEquipments()
+                .stream()
+                .map(photoEquipment -> photoEquipment.getPhotoEquipmentName())
+                .collect(Collectors.toList());
+
 
         PhotoDto.GetResponse getPhotoResponse = PhotoDto.GetResponse.builder()
                 .photoId(photo.getPhotoId().toString())
@@ -242,8 +251,8 @@ public class PhotoServiceImpl implements PhotoService {
                 .time(photo.getTime())
                 .photoUrl(urlRequest)
                 .photoLocation(locationRequest)
-                .equipmentNames(equipmentNames)
-                .genreIds(genreIds)
+                .equipments(equipments)
+                .genres(genres)
                 .viewCount(photo.getViewCount())
                 .createdAt(String.valueOf(photo.getCreatedAt()))
                 .build();
