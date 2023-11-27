@@ -186,9 +186,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(myProfileInfoResponse); //200
     }
 
-    @PutMapping("/{user_id}/profile")
-    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfile(@PathVariable UUID userId, @RequestPart(name = "profile_img", required = false) MultipartFile profileImg, @Valid @RequestBody UserDto.UpdateProfileRequest userUpdateProfileRequest) throws Exception {
+    @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfileInfo(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateProfileRequest userUpdateProfileRequest, @RequestPart(name = "profile_img", required = false) MultipartFile profileImg) throws Exception {
 
+        profileImgService.deleteProfileImg(userId);
         UserDto.UpdateProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
 
         ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
@@ -204,7 +205,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
-    public ResponseEntity<UserDto.UpdateProfileImgResponse> updateProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+    public ResponseEntity<UserDto.UpdateProfileImgResponse> uploadProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable(name = "user_id") UUID userId) throws Exception {
 
         ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);

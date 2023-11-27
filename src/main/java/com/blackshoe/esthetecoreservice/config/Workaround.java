@@ -28,7 +28,7 @@ public class Workaround implements WebMvcOpenApiTransformationFilter {
         Server prodServer = new Server();
         prodServer.setDescription("production");
         prodServer.setUrl("https://api.esthete.roberniro-projects.xyz");
-        openApi.setServers(Arrays.asList(localServer, prodServer));
+        openApi.setServers(Arrays.asList(localServer, testServer, prodServer));
         return openApi;
     }
 

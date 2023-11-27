@@ -122,7 +122,7 @@ public class ProfileImgServiceImpl implements ProfileImgService {
         String key = profileImgS3Url.substring(profileImgS3Url.indexOf(ROOT_DIRECTORY));
 
         try {
-            amazonS3Client.deleteObject(BUCKET,  key);
+            amazonS3Client.deleteObject(BUCKET, key);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new UserException(UserErrorResult.PROFILEIMG_DELETE_FAILED);

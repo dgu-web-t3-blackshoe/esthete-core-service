@@ -9,6 +9,5 @@ import java.util.UUID;
 public interface ProfileImgService {
     ProfileImgUrlDto uploadProfileImg(UUID userId, MultipartFile profileImg);
     void deleteProfileImg(UUID userId);
-
     ProfileImgUrlDto getUserPresentProfileImgUrlDto(UUID userId);
 }
