@@ -49,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}/basic-info")
+    @GetMapping("/{user_id}/basic-info")
     public ResponseEntity<UserDto.ReadBasicInfoResponse> getBasicInfo(@PathVariable(name = "user_id") UUID userId) {
 
         UserDto.ReadBasicInfoResponse userGetBasicInfoResponse = userService.readBasicInfo(userId);
@@ -57,7 +57,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userGetBasicInfoResponse);
     }
 
-    @GetMapping("/{userId}/exhibitions/current")
+    @GetMapping("/{user_id}/exhibitions/current")
     public ResponseEntity<ExhibitionDto.ReadCurrentOfUserResponse> getCurrentExhibitionOfUser(@PathVariable(name = "user_id") UUID userId) {
 
         ExhibitionDto.ReadCurrentOfUserResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
@@ -65,7 +65,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userReadCurrentExhibitionOfUserResponse);
     }
 
-    @PostMapping("/{photographerId}/guest-books")
+    @PostMapping("/{photographer_id}/guest-books")
     public ResponseEntity<GuestBookDto.CreateResponse> createGuestBook(@PathVariable(name = "photographer_id") UUID photographerId, @Valid @RequestBody GuestBookDto.CreateRequest guestBookCreateRequest) {
 
         GuestBookDto.CreateResponse guestBookCreateResponse = guestBookService.createGuestBook(photographerId, guestBookCreateRequest);
@@ -73,7 +73,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateResponse);
     }
 
-    @PostMapping("/{userId}/supports")
+    @PostMapping("/{user_id}/supports")
     public ResponseEntity<SupportDto.CreateResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateRequest supportCreateRequest) {
 
         SupportDto.CreateResponse supportCreateResponse = supportService.createSupport(userId, supportCreateRequest);
@@ -81,7 +81,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateResponse);
     }
 
-    @DeleteMapping("/{userId}/supports/{photographerId}")
+    @DeleteMapping("/{user_id}/supports/{photographerId}")
     public ResponseEntity<SupportDto.DeleteResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
 
         SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
@@ -89,7 +89,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(supportDeleteResponse);
     }
 
-    @GetMapping("/{userId}/supports/all")
+    @GetMapping("/{user_id}/supports/all")
     public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
             @PathVariable("userId") UUID userId,
             @RequestParam(required = false) String nickname,
@@ -103,7 +103,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readSupportingPhotographersPage);
     }
 
-    @GetMapping("/{userId}/photos")
+    @GetMapping("/{user_id}/photos")
     public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
@@ -114,7 +114,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readUserPhotos);
     }
 
-    @GetMapping("/{userId}/exhibitions")
+    @GetMapping("/{user_id}/exhibitions")
     public ResponseEntity<Page<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable(name = "user_id") UUID userId,
                                                                                @RequestParam(defaultValue = "10") int size,
                                                                                @RequestParam(defaultValue = "0") int page,
@@ -126,7 +126,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readUserExhibitions);
     }
 
-    @GetMapping("/{userId}/guest-books")
+    @GetMapping("/{user_id}/guest-books")
     public ResponseEntity<Page<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable(name = "user_id") UUID userId,
                                                                              @RequestParam(defaultValue = "10") int size,
                                                                              @RequestParam(defaultValue = "0") int page,
@@ -163,7 +163,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readAllNicknameContainingPage);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{user_id}")
     public ResponseEntity<UserDto.DeleteResponse> deleteUser(@PathVariable(name = "user_id") UUID userId) {
 
         UserDto.DeleteResponse userDeleteResponse = userService.deleteUser(userId);
@@ -171,7 +171,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userDeleteResponse);
     }
 
-    @PostMapping("/{userId}/sign-up/info") // SignUpInfoRequest -> SignUpRequest
+    @PostMapping(value = "/{user_id}/sign-up") // SignUpInfoRequest -> SignUpRequest
     public ResponseEntity<UserDto.SignUpResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpRequest userSignUpRequest) {
 
         UserDto.SignUpResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);

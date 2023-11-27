@@ -179,6 +179,7 @@ public class UserDto {
         private String biography;
         private List<GenreDto> genres;
         private List<HighlightDto> highlights;
+        private List<String> equipments;
         private String updatedAt;
     }
 

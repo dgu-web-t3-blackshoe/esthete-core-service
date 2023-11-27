@@ -38,11 +38,9 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
-    private final PhotoUrlRepository photoUrlRepository;
-    private final PhotoLocationRepository photoLocationRepository;
-    private final ViewRepository photoViewRepository;
     private final GenreRepository genreRepository;
     private final PhotoGenreRepository photoGenreRepository;
+    private final PhotoEquipmentRepository photoEquipmentRepository;
 
     //redis
     private final RedisTemplate redisTemplate;
@@ -63,15 +61,15 @@ public class PhotoServiceImpl implements PhotoService {
     //@TODO: user 포함한 로직
     @Transactional
     @Override
-    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest) {
+    public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
         if (photo == null) {
             throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
         }
 
-        User photographer = userRepository.findByUserId(photoUploadRequest.getUserId()).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+        User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        //String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
-        String s3FilePath = PHOTO_DIRECTORY;
+        String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
+        //String s3FilePath = PHOTO_DIRECTORY;
         String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
 
         UUID photoId = UUID.randomUUID();
@@ -108,16 +106,6 @@ public class PhotoServiceImpl implements PhotoService {
 
         PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
 
-        List<PhotoGenre> photoGenres = new ArrayList<>();
-
-        for (String genreName : photoUploadRequest.getGenres()) {
-
-            Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
-
-            photoGenres.add(PhotoGenre.builder()
-                    .genre(genre)
-                    .build());
-        }
         PhotoLocation photoLocation = PhotoLocation.builder()
                 .longitude(photoUploadRequest.getLongitude())
                 .latitude(photoUploadRequest.getLatitude())
@@ -127,13 +115,13 @@ public class PhotoServiceImpl implements PhotoService {
                 .build();
 
 
-        List<PhotoDto.PhotoEquipmentDto> equipmentDtos = photoUploadRequest.getEquipmentNames();
+        List<String> equipments = photoUploadRequest.getEquipments();
 
         List<PhotoEquipment> photoEquipments = new ArrayList<>();
 
-        equipmentDtos.forEach(equipment -> {
+        equipments.forEach(equipment -> {
             PhotoEquipment newEquipment = PhotoEquipment.builder()
-                    .photoEquipmentName(equipment.getEquipmentName())
+                    .photoEquipmentName(equipment)
                     .build();
             photoEquipments.add(newEquipment);
         });
@@ -144,13 +132,33 @@ public class PhotoServiceImpl implements PhotoService {
                 .title(photoUploadRequest.getTitle())
                 .description(photoUploadRequest.getDescription())
                 .createdAt(LocalDateTime.now())
-                .photoGenres(photoGenres)
                 .time(photoUploadRequest.getTime())
                 .photoLocation(photoLocation)
-                .photoEquipments(photoEquipments)
                 .build();
 
         photoRepository.save(uploadedPhoto);
+
+
+        photoUploadRequest.getGenreIds().forEach(genreId -> {
+            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId)).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+
+            PhotoGenre photoGenre = PhotoGenre.builder()
+                    .photo(uploadedPhoto)
+                    .genre(genre)
+                    .build();
+
+            photoGenreRepository.save(photoGenre);
+        });
+
+        photoUploadRequest.getEquipments().forEach(equipment -> {
+            PhotoEquipment photoEquipment = PhotoEquipment.builder()
+                    .photo(uploadedPhoto)
+                    .equipmentId(UUID.randomUUID())
+                    .photoEquipmentName(equipment)
+                    .build();
+
+            photoEquipmentRepository.save(photoEquipment);
+        });
 
         NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
         List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
@@ -163,7 +171,7 @@ public class PhotoServiceImpl implements PhotoService {
             supporters.add(userIdWithCondition);
         }
 
-        String hasNewRedisKey = "photographer_" + photoUploadRequest.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
+        String hasNewRedisKey = "photographer_" + userId.toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
         redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
         redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
 
@@ -179,22 +187,6 @@ public class PhotoServiceImpl implements PhotoService {
 
         newWorkRepository.save(newWork);
 
-        List<UUID> genreIds = photoUploadRequest.getGenres()
-                .stream()
-                .map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND)).getGenreId())
-                .collect(Collectors.toList());
-
-        for (UUID genreId : genreIds) {
-
-            Genre genre = genreRepository.findByGenreId(genreId).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
-
-            PhotoGenre photoGenre = PhotoGenre.builder()
-                    .photo(uploadedPhoto)
-                    .genre(genre)
-                    .build();
-
-            photoGenreRepository.save(photoGenre);
-        }
         PhotoDto photoDto = PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)

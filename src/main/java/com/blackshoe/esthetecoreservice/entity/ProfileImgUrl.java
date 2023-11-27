@@ -11,7 +11,7 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_profile_img_urls")
+@Table(name = "profile_img_urls")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @AllArgsConstructor
@@ -30,7 +30,8 @@ public class ProfileImgUrl {
     private String s3Url;
 
     @Builder
-    public ProfileImgUrl(String cloudfrontUrl, String s3Url) {
+    public ProfileImgUrl(UUID profileImgUrlId, String cloudfrontUrl, String s3Url) {
+        this.profileImgUrlId = profileImgUrlId;
         this.cloudfrontUrl = cloudfrontUrl;
         this.s3Url = s3Url;
     }

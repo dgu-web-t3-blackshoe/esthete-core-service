@@ -20,19 +20,19 @@ public class PhotoLocation {
     @Column(name = "photo_location_id")
     private Long id;
 
-    @Column(name = "longitude", nullable = false, length = 20)
+    @Column(name = "longitude",  length = 20)
     private Double longitude;
 
-    @Column(name = "latitude", nullable = false, length = 20)
+    @Column(name = "latitude",  length = 20)
     private Double latitude;
 
-    @Column(name = "state", nullable = false, length = 20)
+    @Column(name = "state",  length = 20)
     private String state;
 
-    @Column(name = "city", nullable = false, length = 20)
+    @Column(name = "city",  length = 20)
     private String city;
 
-    @Column(name = "town", nullable = false, length = 20)
+    @Column(name = "town",  length = 20)
     private String town;
 
 }

@@ -52,7 +52,7 @@ public class Photo {
     private PhotoLocation photoLocation;
     */
 
-    @Column(name = "photo_time", nullable = false, length = 20)
+    @Column(name = "photo_time", length = 20)
     private String time;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,7 +67,6 @@ public class Photo {
     private List<PhotoGenre> photoGenres = new ArrayList<>();
 
     @ColumnDefault("0")
-    @Column(nullable = false)
     private long viewCount;
 
     @CreatedDate

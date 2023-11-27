@@ -29,15 +29,17 @@ public class PhotoController {
 
     private final PhotoService photoService;
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PhotoDto.UploadResponse> uploadPhoto(@RequestPart(name = "photo") MultipartFile photo,
-                                                               @RequestPart(name = "photo_upload_request")
-                                                               PhotoDto.CreateRequest photoUploadRequest) {
+    @PostMapping(value = "/{user_id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PhotoDto.UploadResponse> uploadPhoto(
+            @PathVariable(name = "user_id") UUID userId,
+            @RequestPart(name = "photo") MultipartFile photo,
+            @RequestPart(name = "photo_upload_request") PhotoDto.CreatePhotoRequest photoUploadRequest) {
+
         //log all
         log.info("photoUploadRequest: {}", photoUploadRequest);
 
         //@TODO user 포함되게 수정
-        final PhotoDto photoDto = photoService.uploadPhotoToS3(photo, photoUploadRequest);
+        final PhotoDto photoDto = photoService.uploadPhotoToS3(userId, photo, photoUploadRequest);
 
 
         final PhotoDto.UploadResponse photoUploadResponse = PhotoDto.UploadResponse.builder()

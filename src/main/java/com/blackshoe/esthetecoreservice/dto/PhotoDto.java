@@ -33,44 +33,29 @@ public class PhotoDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @NoArgsConstructor @AllArgsConstructor
-    public static class CreateRequest {
+    public static class CreatePhotoRequest {
 
-        @NotNull(message = "userId is required")
-        private UUID userId;
-
-        @NotNull(message = "title is required")
         private String title;
 
-        @NotNull(message = "description is required")
         private String description;
 
-        @NotNull(message = "longitude is required")
         private double longitude;
 
-        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
-        private String isPublic;
-
-        //@TODO: genreIds ?
-        @NotNull(message = "genres are required")
-        List<String> genres;
-      
-        @NotNull(message = "latitude is required")
         private double latitude;
 
-        @NotNull(message = "state is required")
+        private String isPublic;
+
+        List<String> genreIds;
+
         private String state;
 
-        @NotNull(message = "city is required")
         private String city;
 
-        @NotNull(message = "town is required")
         private String town;
 
-        @NotNull(message = "time is required")
         private String time;
 
-        @NotNull(message = "equipments are required")
-        private List<PhotoEquipmentDto> equipmentNames;
+        private List<String> equipments;
     }
 
     @Data
@@ -131,15 +116,8 @@ public class PhotoDto {
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class PhotoEquipmentDto{
-        private String equipmentName;
-
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class GenreIdsRequest{
-        private List<Long> genreIds;
+        private List<String> genreIds;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor

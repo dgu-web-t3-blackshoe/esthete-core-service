@@ -169,14 +169,12 @@ public class UserServiceImpl implements UserService {
 
         signUpInfoRequest.getGenres().stream()
                 .forEach(genreId -> {
-                            // UserDto.GenreDto를 UserGenre로 변환
                             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
                                     .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
                             UserGenre userGenre = UserGenre.builder()
+                                    .user(user)
                                     .genre(genre)
                                     .build();
-
-                            userGenre.setUser(user);
 
                             userGenreRepository.save(userGenre);
                         }
@@ -185,10 +183,9 @@ public class UserServiceImpl implements UserService {
         signUpInfoRequest.getEquipments().stream()
                 .forEach(equipmentName -> {
                             UserEquipment userEquipment = UserEquipment.builder()
+                                    .user(user)
                                     .equipmentName(equipmentName)
                                     .build();
-
-                            userEquipment.setUser(user);
 
                             userEquipmentRepository.save(userEquipment);
                         }
@@ -202,21 +199,19 @@ public class UserServiceImpl implements UserService {
         log.info("getMyProfileInfo userId: {}", userId.toString());
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        //@TODO: kafka 활용 시 삭제할 block
-        if (user.getProfileImgUrl() == null) {
-            ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl("")
-                    .s3Url("")
-                    .build();
-            user.setProfileImgUrl(profileImgUrl);
-        }
-
         UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
                 .userId(user.getUserId().toString())
                 .nickname(user.getNickname())
                 .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
                 .biography(user.getBiography())
                 .updatedAt(user.getUpdatedAt().toString())
+                .genres(user.getUserGenres().stream()
+                        .map(userGenre -> new UserDto.GenreDto(userGenre.getGenre().getGenreId(), userGenre.getGenre().getGenreName()))
+                        .collect(Collectors.toList()))
+                .equipments(user.getUserEquipments().stream()
+                        .map(userEquipment -> userEquipment.getEquipmentName())
+                        .collect(Collectors.toList()))
+                //.highlights(user.getPhotos().stream()
                 .build();
 
         return myProfileInfoResponse;

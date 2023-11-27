@@ -9,6 +9,7 @@ import com.blackshoe.esthetecoreservice.entity.ProfileImgUrl;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
+import com.blackshoe.esthetecoreservice.repository.ProfileImgUrlRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +23,11 @@ import java.util.UUID;
 
 
 @Slf4j
-@Service
+@Service @RequiredArgsConstructor
 public class ProfileImgServiceImpl implements ProfileImgService {
     private final AmazonS3Client amazonS3Client;
     private final UserRepository userRepository;
-    @Autowired
-    public ProfileImgServiceImpl(AmazonS3Client amazonS3Client, UserRepository userRepository) {
-        this.amazonS3Client = amazonS3Client;
-        this.userRepository = userRepository;
-    }
+    private final ProfileImgUrlRepository profileImgUrlRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String BUCKET;
@@ -64,7 +61,10 @@ public class ProfileImgServiceImpl implements ProfileImgService {
 
         String fileExtension = profileImg.getOriginalFilename().substring(profileImg.getOriginalFilename().lastIndexOf("."));
 
-        String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
+        ProfileImgUrl profileImgUrl = null;
+        UUID profileImgUrlId = UUID.randomUUID();
+
+        String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + profileImgUrlId + fileExtension;
 
 //        if (!ContentType.isContentTypeValid(profileImg.getContentType())) {
 //            throw new UserException(UserErrorResult.INVALID_PROFILEIMG_TYPE);
@@ -91,6 +91,14 @@ public class ProfileImgServiceImpl implements ProfileImgService {
         }
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
+
+        profileImgUrl = ProfileImgUrl.builder()
+                .profileImgUrlId(profileImgUrlId)
+                .s3Url(s3Url)
+                .cloudfrontUrl(cloudFrontUrl)
+                .build();
+
+        user.setProfileImgUrl(profileImgUrl);
 
         profileImgUrlDto = ProfileImgUrlDto.builder()
                 .s3Url(s3Url)
