@@ -156,7 +156,10 @@ public class PhotoDto {
         private String genreName;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class ReadResponse{
         private String photoId;
@@ -173,6 +176,7 @@ public class PhotoDto {
             this.photoUrl = photo.getPhotoUrl() != null ? photo.getPhotoUrl().getCloudfrontUrl() : "";
             this.userId = photo.getUser() != null ? photo.getUser().getUserId().toString() : "";
             this.nickname = photo.getUser() != null ? photo.getUser().getNickname() : "";
+            this.time = photo.getUser() != null ? photo.getTime() : "";
             this.createdAt = photo.getCreatedAt() != null ? photo.getCreatedAt().toString() : "";
         }
     }

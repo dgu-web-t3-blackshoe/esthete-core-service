@@ -3,6 +3,7 @@ package com.blackshoe.esthetecoreservice.controller;
 import com.blackshoe.esthetecoreservice.dto.*;
 import com.blackshoe.esthetecoreservice.service.ProfileImgService;
 import com.blackshoe.esthetecoreservice.service.UserService;
+import com.blackshoe.esthetecoreservice.vo.PhotoSortType;
 import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -107,7 +108,7 @@ public class UserController {
     public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = UserSortType.convertParamToColumn(sort);
+        final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
         Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 

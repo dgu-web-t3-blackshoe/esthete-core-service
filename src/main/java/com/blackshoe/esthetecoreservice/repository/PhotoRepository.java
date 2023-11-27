@@ -24,7 +24,8 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     @EntityGraph(attributePaths = "photoGenres")
     Optional<Photo> findByPhotoId(UUID photoId);
 
-    Page<PhotoDto.ReadResponse> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) FROM Photo p WHERE p.user = :user ORDER BY p.createdAt DESC")
+    Page<PhotoDto.ReadResponse> findByUserOrderByCreatedAtDesc(@Param("user") User user, Pageable pageable);
 
 
     default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByState(PhotoPointFilter photoPointFilter) {

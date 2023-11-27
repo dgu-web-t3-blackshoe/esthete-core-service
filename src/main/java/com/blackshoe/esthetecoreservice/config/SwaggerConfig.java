@@ -23,9 +23,11 @@ public class SwaggerConfig {
     public Docket api() {
         Server serverLocal = new Server("local", "http://localhost:8080", "for local usages", Collections.emptyList(), Collections.emptyList());
         Server testingServer = new Server("test", "http://34.22.84.195", "for testing", Collections.emptyList(), Collections.emptyList());
+        Server httpProductionServer = new Server("production", "http://api.esthete.roberniro-projects.xyz", "for production", Collections.emptyList(), Collections.emptyList());
         Server productionServer = new Server("production", "https://api.esthete.roberniro-projects.xyz", "for production", Collections.emptyList(), Collections.emptyList());
+
         return new Docket(DocumentationType.OAS_30)
-                .servers(serverLocal, testingServer, productionServer)
+                .servers(serverLocal, testingServer, httpProductionServer, productionServer)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.any())

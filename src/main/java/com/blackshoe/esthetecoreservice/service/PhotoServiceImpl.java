@@ -127,6 +127,7 @@ public class PhotoServiceImpl implements PhotoService {
         });
 
         Photo uploadedPhoto = Photo.builder()
+                .user(photographer)
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
                 .title(photoUploadRequest.getTitle())
