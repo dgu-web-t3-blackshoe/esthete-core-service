@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
+import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -43,8 +44,8 @@ public class GuestBookDto {
 
     @Data
     @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReadGuestBookResponse {
@@ -54,5 +55,14 @@ public class GuestBookDto {
         private String userId;
         private String nickname;
         private String content;
+
+        public ReadGuestBookResponse(GuestBook guestBook) {
+            this.guestbookId = guestBook.getGuestBookId().toString();
+            this.createdAt = guestBook.getCreatedAt().toString();
+            this.photographerId = guestBook.getPhotographer().getUserId().toString();
+            this.userId = guestBook.getUser().getUserId().toString();
+            this.nickname = guestBook != null ? guestBook.getUser().getNickname() : "";
+            this.content = guestBook != null ? guestBook.getContent() : "";
+        }
     }
 }

@@ -11,7 +11,8 @@ import org.springframework.data.domain.Sort;
 public enum UserSortType {
     POPULAR("supportCount"),
     TRENDING("viewCount"),
-    RECENT("updatedAt");
+    RECENT("updatedAt"),
+    ;
 
     private final String sortType;
 

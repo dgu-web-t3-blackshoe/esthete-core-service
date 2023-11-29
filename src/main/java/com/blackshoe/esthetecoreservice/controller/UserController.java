@@ -107,6 +107,7 @@ public class UserController {
     public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
+
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
         Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
@@ -131,7 +132,6 @@ public class UserController {
                                                                                       @RequestParam(defaultValue = "10") int size,
                                                                                       @RequestParam(defaultValue = "0") int page,
                                                                                       @RequestParam(required = false, defaultValue = "recent") String sort) {
-
         final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
         Page<GuestBookDto.ReadGuestBookResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);

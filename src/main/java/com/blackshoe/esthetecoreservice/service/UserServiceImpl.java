@@ -9,6 +9,7 @@ import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
+import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -109,11 +110,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<GuestBookDto.ReadGuestBookResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+        //if sortBy is RECENT, then sortBy = createdAt
+        if (sortBy.toString().contains(UserSortType.RECENT.getSortType())) {
+            sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<GuestBookDto.ReadGuestBookResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<GuestBookDto.ReadGuestBookResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(userId, pageable);
 
         return guestBookReadResponses;
     }
