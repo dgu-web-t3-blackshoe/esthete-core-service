@@ -123,5 +123,14 @@ public class ExhibitionDto {
             this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
             this.thumbnail = exhibition.getThumbnail() != null ? exhibition.getThumbnail() : "";
         }
+
+        //get photo url from thumbnail(photoId)
+        public ReadExhibitionResponse(Exhibition exhibition, String photoUrl){
+            this.exhibitionId = exhibition.getExhibitionId().toString();
+            this.title = exhibition.getTitle() != null ? exhibition.getTitle() : "";
+            this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
+            this.thumbnail = photoUrl;
+        }
+
     }
 }

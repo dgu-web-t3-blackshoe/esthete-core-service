@@ -105,6 +105,14 @@ public class UserServiceImpl implements UserService {
 
         Page<ExhibitionDto.ReadExhibitionResponse> exhibitionReadResponses = exhibitionRepository.findByUser(user, pageable);
 
+        //get Thumbnail from exhibitionReadResponses
+        exhibitionReadResponses.stream().forEach(exhibitionReadResponse -> {
+            Photo photo = photoRepository.findByPhotoId(UUID.fromString(exhibitionReadResponse.getThumbnail()))
+                    .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
+            exhibitionReadResponse.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+        });
+
         return exhibitionReadResponses;
     }
 
