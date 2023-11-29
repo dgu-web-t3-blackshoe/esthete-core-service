@@ -13,6 +13,8 @@ import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
 import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
 import com.blackshoe.esthetecoreservice.vo.PhotoAddressSearchType;
 import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,35 +60,22 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("photo")
     private String PHOTO_DIRECTORY;
 
-    //@TODO: user 포함한 로직
     @Transactional
     @Override
     public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
-        if (photo == null) {
-            throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
-        }
-
+        validatePhoto(photo);
         User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
-        //String s3FilePath = PHOTO_DIRECTORY;
-        String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
 
         UUID photoId = UUID.randomUUID();
 
+        String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
+
+
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + photoId + fileExtension;
 
-
-        if (photo.getSize() > 52428800) {
-            throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
-        }
-
-        try {
-            amazonS3Client.putObject(BUCKET, key, photo.getInputStream(), null);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new PhotoException(PhotoErrorResult.PHOTO_UPLOAD_FAILED);
-        }
+        uploadToS3(photo, key);
 
         String s3Url;
 
@@ -99,48 +88,62 @@ public class PhotoServiceImpl implements PhotoService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        PhotoUrlDto photoUrlDto = PhotoUrlDto.builder()
+        PhotoUrlDto photoUrlDto = createPhotoUrlDto(s3Url, cloudFrontUrl);
+        PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
+
+        PhotoLocation photoLocation = createPhotoLocation(photoUploadRequest);
+        Photo uploadedPhoto = createPhoto(photographer, photoId, uploadedPhotoUrl, photoUploadRequest, photoLocation);
+
+        photoRepository.save(uploadedPhoto);
+
+        savePhotoGenres(uploadedPhoto, photoUploadRequest.getGenreIds());
+        savePhotoEquipments(uploadedPhoto, photoUploadRequest.getEquipments());
+
+        NewWork newWork = saveOrUpdateNewWork(photographer, uploadedPhoto);
+
+        newWorkRepository.save(newWork);
+
+        return createPhotoDto(photoId, uploadedPhotoUrl);
+    }
+
+    public void validatePhoto(MultipartFile photo) {
+        if (photo == null) {
+            throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
+        }
+
+        if (photo.getSize() > 52428800) {
+            throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
+        }
+    }
+
+    public void uploadToS3(MultipartFile photo, String key) {
+        try {
+            amazonS3Client.putObject(BUCKET, key, photo.getInputStream(), null);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new PhotoException(PhotoErrorResult.PHOTO_UPLOAD_FAILED);
+        }
+    }
+
+    public PhotoUrlDto createPhotoUrlDto(String s3Url, String cloudFrontUrl) {
+        return PhotoUrlDto.builder()
                 .s3Url(s3Url)
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
+    }
 
-        PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
-
-        PhotoLocation photoLocation = PhotoLocation.builder()
+    public PhotoLocation createPhotoLocation(PhotoDto.CreatePhotoRequest photoUploadRequest) {
+        return PhotoLocation.builder()
                 .longitude(photoUploadRequest.getLongitude())
                 .latitude(photoUploadRequest.getLatitude())
                 .state(photoUploadRequest.getState())
                 .city(photoUploadRequest.getCity())
                 .town(photoUploadRequest.getTown())
                 .build();
+    }
 
-
-        List<String> equipments = photoUploadRequest.getEquipments();
-
-        List<PhotoEquipment> photoEquipments = new ArrayList<>();
-
-        equipments.forEach(equipment -> {
-            PhotoEquipment newEquipment = PhotoEquipment.builder()
-                    .photoEquipmentName(equipment)
-                    .build();
-            photoEquipments.add(newEquipment);
-        });
-
-        Photo uploadedPhoto = Photo.builder()
-                .user(photographer)
-                .photoId(photoId)
-                .photoUrl(uploadedPhotoUrl)
-                .title(photoUploadRequest.getTitle())
-                .description(photoUploadRequest.getDescription())
-                .createdAt(LocalDateTime.now())
-                .time(photoUploadRequest.getTime())
-                .photoLocation(photoLocation)
-                .build();
-
-        photoRepository.save(uploadedPhoto);
-
-
-        photoUploadRequest.getGenreIds().forEach(genreId -> {
+    public void savePhotoGenres(Photo uploadedPhoto, List<String> genreIds) {
+        genreIds.forEach(genreId -> {
             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId)).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
 
             PhotoGenre photoGenre = PhotoGenre.builder()
@@ -150,8 +153,10 @@ public class PhotoServiceImpl implements PhotoService {
 
             photoGenreRepository.save(photoGenre);
         });
+    }
 
-        photoUploadRequest.getEquipments().forEach(equipment -> {
+    public void savePhotoEquipments(Photo uploadedPhoto, List<String> equipments) {
+        equipments.forEach(equipment -> {
             PhotoEquipment photoEquipment = PhotoEquipment.builder()
                     .photo(uploadedPhoto)
                     .equipmentId(UUID.randomUUID())
@@ -160,21 +165,41 @@ public class PhotoServiceImpl implements PhotoService {
 
             photoEquipmentRepository.save(photoEquipment);
         });
+    }
 
+    @Transactional
+    public NewWork saveOrUpdateNewWork(User photographer, Photo uploadedPhoto) throws RuntimeException {
         NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
+
         List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
 
         String[] userIdWithCondition;
         List<String[]> supporters = new ArrayList<>();
 
         for (Support support : supports) {
+            //[[userId, true], [userId, true], [userId, true]]
             userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
+
             supporters.add(userIdWithCondition);
         }
 
-        String hasNewRedisKey = "photographer_" + userId.toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
-        redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
+        String hasNewRedisKey = "photographer_" + photographer.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
+
+// JSON 변환을 위한 ObjectMapper 인스턴스 생성
+        ObjectMapper mapper = new ObjectMapper();
+
+// supporters 리스트를 JSON 문자열로 변환
+        String supportersJson;
+        try {
+            supportersJson = mapper.writeValueAsString(supporters);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 변환 실패", e);
+        }
+
+// Redis에 JSON 문자열 저장
+        redisTemplate.opsForValue().set(hasNewRedisKey, supportersJson);
         redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
 
         if (newWork == null) {
             newWork = NewWork.builder()
@@ -186,17 +211,29 @@ public class PhotoServiceImpl implements PhotoService {
             newWork.setPhoto(uploadedPhoto);
         }
 
-        newWorkRepository.save(newWork);
+        return newWork;
+    }
 
-        PhotoDto photoDto = PhotoDto.builder()
+    public Photo createPhoto(User photographer, UUID photoId, PhotoUrl uploadedPhotoUrl, PhotoDto.CreatePhotoRequest photoUploadRequest, PhotoLocation photoLocation) {
+        return Photo.builder()
+                .user(photographer)
+                .photoId(photoId)
+                .photoUrl(uploadedPhotoUrl)
+                .title(photoUploadRequest.getTitle())
+                .description(photoUploadRequest.getDescription())
+                .createdAt(LocalDateTime.now())
+                .time(photoUploadRequest.getTime())
+                .photoLocation(photoLocation)
+                .build();
+    }
+
+    public PhotoDto createPhotoDto(UUID photoId, PhotoUrl uploadedPhotoUrl) {
+        return PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
                 .createdAt(LocalDateTime.now())
                 .build();
-
-        return photoDto;
     }
-
 
     @Override
     @Transactional
