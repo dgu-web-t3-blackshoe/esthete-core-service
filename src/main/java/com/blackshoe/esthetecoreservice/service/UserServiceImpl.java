@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUser(user, pageable);
 
         return exhibitionReadResponses;
     }

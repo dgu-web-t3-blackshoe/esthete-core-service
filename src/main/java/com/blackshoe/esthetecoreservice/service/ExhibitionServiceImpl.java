@@ -45,6 +45,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                 .thumbnail(exhibitionCreateRequest.getThumbnail())
                 .build();
 
+        exhibition.setUser(photographer);
+
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
 
 

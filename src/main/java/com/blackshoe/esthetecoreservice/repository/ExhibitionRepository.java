@@ -25,5 +25,8 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
         return findTopByUserUserIdOrderByCreatedAtDesc(userId);
     };
 
-    Page<ExhibitionDto.ReadResponse> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    //@Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) FROM Photo p WHERE p.user = :user ORDER BY p.createdAt DESC")
+
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.ExhibitionDto$ReadResponse(e) FROM Exhibition e WHERE e.user = :user ORDER BY e.createdAt DESC")
+    Page<ExhibitionDto.ReadResponse> findByUser(@Param("user") User user, Pageable pageable);
 }

@@ -120,7 +120,7 @@ public class UserController {
                                                                                @RequestParam(defaultValue = "10") int size,
                                                                                @RequestParam(defaultValue = "0") int page,
                                                                                @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = UserSortType.convertParamToColumn(sort);
+        final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
         Page<ExhibitionDto.ReadResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
 
