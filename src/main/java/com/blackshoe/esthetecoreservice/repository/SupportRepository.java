@@ -31,52 +31,52 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     @Query("SELECT s.photographer FROM Support s " +
             "LEFT JOIN s.photographer.userGenres AS userGenres " +
             "LEFT JOIN userGenres.genre AS genre " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "AND (:genres IS NULL OR genre.genreName IN :genres) " +
             "GROUP BY s.photographer " +
             "ORDER BY COUNT(s.photographer) DESC")
-    Page<User> getPhotographersBySupportCountAndGenres(UUID userId, List<String> genres, Pageable pageable);
+    Page<User> getPhotographersBySupportCountAndGenres(@Param("userId") UUID userId, @Param("genres") List<String> genres, Pageable pageable);
 
     //Support하는 User들이 최근에 Support한 순 + List<Genre> genres 중 하나라도 가지고 있는 Photographers
     @Query("SELECT s.photographer FROM Support s " +
             "LEFT JOIN s.photographer.userGenres AS userGenres " +
             "LEFT JOIN userGenres.genre AS genre " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "AND (:genres IS NULL OR genre.genreName IN :genres) " +
             "GROUP BY s.photographer " +
             "ORDER BY MAX(s.createdAt) DESC")
-    Page<User> getPhotographersByRecentSupportAndGenres(UUID userId, List<String> genres, Pageable pageable);
+    Page<User> getPhotographersByRecentSupportAndGenres(@Param("userId") UUID userId, @Param("genres") List<String> genres, Pageable pageable);
 
     //Support하는 User들이 많은 순 Photographers
     @Query("SELECT s.photographer FROM Support s " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "GROUP BY s.photographer " +
             "ORDER BY COUNT(s.photographer) DESC")
-    Page<User> getPhotographersBySupportCount(UUID userId, Pageable pageable);
+    Page<User> getPhotographersBySupportCount(@Param("userId") UUID userId, Pageable pageable);
 
     //Support하는 User들이 최근에 Support한 순 Photographers
     @Query("SELECT s.photographer FROM Support s " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "GROUP BY s.photographer " +
             "ORDER BY MAX(s.createdAt) DESC")
-    Page<User> getPhotographersByRecentSupport(UUID userId, Pageable pageable);
+    Page<User> getPhotographersByRecentSupport(@Param("userId") UUID userId, Pageable pageable);
 
     //최근 7일간 Support한 유저들이 많은 순 Photographers
     @Query("SELECT s.photographer FROM Support s " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "AND s.createdAt >= CURRENT_DATE - 7 " +
             "GROUP BY s.photographer " +
             "ORDER BY COUNT(s.photographer) DESC")
-    Page<User> getPhotographersBySupportCountInAWeek(UUID userId, Pageable pageable);
+    Page<User> getPhotographersBySupportCountInAWeek(@Param("userId") UUID userId, Pageable pageable);
 
     //최근 7일간 Support한 유저들이 많은 순 + List<Genre> genres 중 하나라도 가지고 있는 Photographers
     @Query("SELECT s.photographer FROM Support s " +
             "LEFT JOIN s.photographer.userGenres AS userGenres " +
             "LEFT JOIN userGenres.genre AS genre " +
-            "WHERE (:userId IS NULL OR s.user.id = :userId) " +
+            "WHERE (:userId IS NULL OR s.supportId = :userId) " +
             "AND (:genres IS NULL OR genre.genreName IN :genres) " +
             "AND s.createdAt >= CURRENT_DATE - 7 " +
             "GROUP BY s.photographer " +
             "ORDER BY COUNT(s.photographer) DESC")
-    Page<User> getPhotographersBySupportCountInAWeekAndGenres(UUID userId, List<String> genres, Pageable pageable);
+    Page<User> getPhotographersBySupportCountInAWeekAndGenres(@Param("userId") UUID userId,@Param("genres") List<String> genres, Pageable pageable);
 }

@@ -81,6 +81,8 @@ public class SupportServiceImpl implements SupportService {
 
         Pageable pageable = PageRequest.of(page, size);
 
+        if(sort == null) sort = "recent";
+
         if(sort.equals("recent")){
             if(genres == null)
                 photographers = supportRepository.getPhotographersByRecentSupport(userId, pageable);
@@ -94,6 +96,7 @@ public class SupportServiceImpl implements SupportService {
             else
                 photographers = supportRepository.getPhotographersBySupportCountAndGenres(userId, genres, pageable);
         }
+
         else if(sort.equals("trending")){
             //최근 7일간 support를 많이 받은 순
             if(genres == null)

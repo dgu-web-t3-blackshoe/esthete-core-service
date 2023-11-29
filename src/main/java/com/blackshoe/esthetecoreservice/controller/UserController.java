@@ -91,7 +91,7 @@ public class UserController {
 
     @GetMapping("/{user_id}/supports/all")
     public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
-            @PathVariable("userId") UUID userId,
+            @PathVariable(name = "user_id") UUID userId,
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) List<String> genres,
