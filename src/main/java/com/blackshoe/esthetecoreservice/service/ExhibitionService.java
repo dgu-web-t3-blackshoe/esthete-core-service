@@ -1,14 +1,13 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.entity.User;
 
 import java.util.UUID;
 
 public interface ExhibitionService {
-    ExhibitionDto.CreateResponse createExhibition(ExhibitionDto.CreateRequest exhibitionCreateRequest);
+    ExhibitionDto.CreateExhibitionResponse createExhibition(ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest);
 
-    ExhibitionDto.DeleteResponse deleteExhibition(UUID exhibitionId);
+    ExhibitionDto.DeleteExhibitionResponse deleteExhibition(UUID exhibitionId);
 
-    ExhibitionDto.ReadRandomResponse readRandomExhibition();
+    ExhibitionDto.ReadRandomExhibitionResponse readRandomExhibition();
 }

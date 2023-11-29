@@ -11,7 +11,6 @@ import com.blackshoe.esthetecoreservice.service.SupportService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,14 +99,14 @@ public class UserControllerTest {
     @Test
     public void readCurrentExhibitionOfUser_whenSuccess_returns200() throws Exception {
         // given
-        final ExhibitionDto.ReadCurrentOfUserResponse exhibitionReadCurrentOfUserResponse = ExhibitionDto.ReadCurrentOfUserResponse.builder()
+        final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse = ExhibitionDto.ReadCurrentOfUserExhibitionResponse.builder()
                 .exhibitionId(UUID.randomUUID().toString())
                 .title("title")
                 .description("description")
                 .thumbnail("thumbnail")
                 .build();
 
-        when(userService.readCurrentExhibitionOfUser(any(UUID.class))).thenReturn(exhibitionReadCurrentOfUserResponse);
+        when(userService.readCurrentExhibitionOfUser(any(UUID.class))).thenReturn(exhibitionReadCurrentOfUserExhibitionResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -119,34 +118,34 @@ public class UserControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadCurrentOfUserResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadCurrentOfUserExhibitionResponse));
     }
 
     @Test
     public void createGuestBook_whenSuccess_returns200() throws Exception {
         // given
-        final GuestBookDto.CreateRequest guestBookCreateRequest = GuestBookDto.CreateRequest.builder()
+        final GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest = GuestBookDto.CreateGuestBookRequest.builder()
                 .userId(UUID.randomUUID().toString())
                 .content("content")
                 .build();
-        final GuestBookDto.CreateResponse guestBookCreateResponse = GuestBookDto.CreateResponse.builder()
+        final GuestBookDto.CreateGuestBookResponse guestBookCreateGuestBookResponse = GuestBookDto.CreateGuestBookResponse.builder()
                 .guestBookId(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
-        when(guestBookService.createGuestBook(any(UUID.class), any(GuestBookDto.CreateRequest.class))).thenReturn(guestBookCreateResponse);
+        when(guestBookService.createGuestBook(any(UUID.class), any(GuestBookDto.CreateGuestBookRequest.class))).thenReturn(guestBookCreateGuestBookResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
                         post("/core/users/{photographerId}/guest-books", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(guestBookCreateRequest))
+                                .content(objectMapper.writeValueAsString(guestBookCreateGuestBookRequest))
                 ).andExpect(status().isCreated())
                 .andReturn();
 
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(guestBookCreateResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(guestBookCreateGuestBookResponse));
     }
 
     @Test
@@ -157,7 +156,7 @@ public class UserControllerTest {
             content += "a";
         }
 
-        final GuestBookDto.CreateRequest guestBookCreateRequest = GuestBookDto.CreateRequest.builder()
+        final GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest = GuestBookDto.CreateGuestBookRequest.builder()
                 .userId(UUID.randomUUID().toString())
                 .content(content)
                 .build();
@@ -166,7 +165,7 @@ public class UserControllerTest {
         final MvcResult mvcResult = mockMvc.perform(
                         post("/core/users/{photographerId}/guest-books", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(guestBookCreateRequest))
+                                .content(objectMapper.writeValueAsString(guestBookCreateGuestBookRequest))
                 ).andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -180,40 +179,40 @@ public class UserControllerTest {
     @Test
     public void createSupport_whenSuccess_returns201() throws Exception {
         // given
-        final SupportDto.CreateRequest supportCreateRequest = SupportDto.CreateRequest.builder()
+        final SupportDto.CreateSupportRequest supportCreateSupportRequest = SupportDto.CreateSupportRequest.builder()
                 .photographerId(UUID.randomUUID().toString())
                 .build();
 
-        final SupportDto.CreateResponse supportCreateResponse = SupportDto.CreateResponse.builder()
+        final SupportDto.CreateSupportResponse supportCreateSupportResponse = SupportDto.CreateSupportResponse.builder()
                 .supportId(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
 
-        when(supportService.createSupport(any(UUID.class), any(SupportDto.CreateRequest.class))).thenReturn(supportCreateResponse);
+        when(supportService.createSupport(any(UUID.class), any(SupportDto.CreateSupportRequest.class))).thenReturn(supportCreateSupportResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
                         post("/core/users/{userId}/supports", UUID.randomUUID().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(supportCreateRequest)))
+                                .content(objectMapper.writeValueAsString(supportCreateSupportRequest)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportCreateResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportCreateSupportResponse));
     }
 
     @Test
     public void deleteSupport_whenSuccess_returns200() throws Exception {
         // given
-        final SupportDto.DeleteResponse supportDeleteResponse = SupportDto.DeleteResponse.builder()
+        final SupportDto.DeleteSupportResponse supportDeleteSupportResponse = SupportDto.DeleteSupportResponse.builder()
                 .supportId(UUID.randomUUID().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        when(supportService.deleteSupport(any(UUID.class), any(UUID.class))).thenReturn(supportDeleteResponse);
+        when(supportService.deleteSupport(any(UUID.class), any(UUID.class))).thenReturn(supportDeleteSupportResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -225,7 +224,7 @@ public class UserControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportDeleteResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(supportDeleteSupportResponse));
     }
 
     @Test

@@ -19,7 +19,7 @@ public class RoomPhotoServiceImpl implements RoomPhotoService {
     private final RoomPhotoRepository roomPhotoRepository;
 
     @Override
-    public RoomPhotoDto.ReadListResponse readRoomPhotoList(UUID roomId) {
+    public RoomPhotoDto.ReadRoomPhotoListResponse readRoomPhotoList(UUID roomId) {
 
         final List<RoomPhotoDto> roomPhotos = roomPhotoRepository.findAllByRoomId(roomId);
 
@@ -27,11 +27,11 @@ public class RoomPhotoServiceImpl implements RoomPhotoService {
             throw new ExhibitionException(ExhibitionErrorResult.ROOM_PHOTO_NOT_FOUND);
         }
 
-        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse
-                = RoomPhotoDto.ReadListResponse.builder()
+        final RoomPhotoDto.ReadRoomPhotoListResponse roomPhotoReadRoomPhotoListResponse
+                = RoomPhotoDto.ReadRoomPhotoListResponse.builder()
                 .roomPhotos(roomPhotos)
                 .build();
 
-        return roomPhotoReadListResponse;
+        return roomPhotoReadRoomPhotoListResponse;
     }
 }

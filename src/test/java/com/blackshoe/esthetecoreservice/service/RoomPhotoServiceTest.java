@@ -5,7 +5,6 @@ import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
 import com.blackshoe.esthetecoreservice.entity.Room;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.repository.RoomPhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,16 +53,16 @@ public class RoomPhotoServiceTest {
         when(roomPhotoRepository.findAllByRoomId(any(UUID.class))).thenReturn(roomPhotos);
 
         // when
-        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse = roomPhotoService.readRoomPhotoList(UUID.randomUUID());
+        final RoomPhotoDto.ReadRoomPhotoListResponse roomPhotoReadRoomPhotoListResponse = roomPhotoService.readRoomPhotoList(UUID.randomUUID());
 
         // then
         verify(roomPhotoRepository, times(1)).findAllByRoomId(any(UUID.class));
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getRoomId()).isEqualTo(roomPhotoDto.getRoomId());
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getPhotoId()).isEqualTo(roomPhotoDto.getPhotoId());
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getTitle()).isEqualTo(roomPhotoDto.getTitle());
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getPhoto()).isEqualTo(roomPhotoDto.getPhoto());
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getUserId()).isEqualTo(roomPhotoDto.getUserId());
-        assertThat(roomPhotoReadListResponse.getRoomPhotos().get(0).getNickname()).isEqualTo(roomPhotoDto.getNickname());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getRoomId()).isEqualTo(roomPhotoDto.getRoomId());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getPhotoId()).isEqualTo(roomPhotoDto.getPhotoId());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getTitle()).isEqualTo(roomPhotoDto.getTitle());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getPhoto()).isEqualTo(roomPhotoDto.getPhoto());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getUserId()).isEqualTo(roomPhotoDto.getUserId());
+        assertThat(roomPhotoReadRoomPhotoListResponse.getRoomPhotos().get(0).getNickname()).isEqualTo(roomPhotoDto.getNickname());
     }
 
     @Test

@@ -54,7 +54,7 @@ public class ExhibitionServiceTest {
 
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    private final ExhibitionDto.CreateRequest exhibitionCreateRequest = ExhibitionDto.CreateRequest.builder()
+    private final ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest = ExhibitionDto.CreateExhibitionRequest.builder()
             .title("test")
             .description("test")
             .thumbnail("thumbnail")
@@ -68,12 +68,12 @@ public class ExhibitionServiceTest {
         when(exhibition.getCreatedAt()).thenReturn(createdAt);
 
         // when
-        final ExhibitionDto.CreateResponse exhibitionCreateResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
+        final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
 
         // then
         verify(exhibitionRepository, times(1)).save(any(Exhibition.class));
-        assertThat(exhibitionCreateResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
-        assertThat(exhibitionCreateResponse.getCreatedAt()).isEqualTo(createdAt.toString());
+        assertThat(exhibitionCreateExhibitionResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionCreateExhibitionResponse.getCreatedAt()).isEqualTo(createdAt.toString());
     }
 
     @Test
@@ -83,13 +83,13 @@ public class ExhibitionServiceTest {
         when(exhibition.getExhibitionId()).thenReturn(exhibitionId);
 
         // when
-        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = exhibitionService.deleteExhibition(exhibitionId);
+        final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = exhibitionService.deleteExhibition(exhibitionId);
 
         // then
         verify(exhibitionRepository, times(1)).findByExhibitionId(any(UUID.class));
         verify(exhibitionRepository, times(1)).delete(any(Exhibition.class));
-        assertThat(exhibitionDeleteResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
-        assertThat(exhibitionDeleteResponse.getDeletedAt()).isNotNull();
+        assertThat(exhibitionDeleteExhibitionResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionDeleteExhibitionResponse.getDeletedAt()).isNotNull();
     }
 
     @Test
@@ -102,16 +102,16 @@ public class ExhibitionServiceTest {
         when(exhibition.getUser().getUserId()).thenReturn(userId);
 
         // when
-        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = exhibitionService.readRandomExhibition();
+        final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = exhibitionService.readRandomExhibition();
 
         // then
         verify(exhibitionRepository).findById(any(Long.class));
-        assertThat(exhibitionReadRandomResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
-        assertThat(exhibitionReadRandomResponse.getTitle()).isEqualTo(exhibition.getTitle());
-        assertThat(exhibitionReadRandomResponse.getDescription()).isEqualTo(exhibition.getDescription());
-        assertThat(exhibitionReadRandomResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
-        assertThat(exhibitionReadRandomResponse.getUserId()).isEqualTo(userId.toString());
-        assertThat(exhibitionReadRandomResponse.getNickname()).isEqualTo(user.getNickname());
-        assertThat(exhibitionReadRandomResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
+        assertThat(exhibitionReadRandomExhibitionResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionReadRandomExhibitionResponse.getTitle()).isEqualTo(exhibition.getTitle());
+        assertThat(exhibitionReadRandomExhibitionResponse.getDescription()).isEqualTo(exhibition.getDescription());
+        assertThat(exhibitionReadRandomExhibitionResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
+        assertThat(exhibitionReadRandomExhibitionResponse.getUserId()).isEqualTo(userId.toString());
+        assertThat(exhibitionReadRandomExhibitionResponse.getNickname()).isEqualTo(user.getNickname());
+        assertThat(exhibitionReadRandomExhibitionResponse.getProfileImg()).isEqualTo(user.getProfileImgUrl().getCloudfrontUrl());
     }
 }

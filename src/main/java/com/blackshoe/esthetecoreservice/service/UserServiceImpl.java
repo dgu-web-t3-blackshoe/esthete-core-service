@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -71,19 +70,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ExhibitionDto.ReadCurrentOfUserResponse readCurrentExhibitionOfUser(UUID userId) {
+    public ExhibitionDto.ReadCurrentOfUserExhibitionResponse readCurrentExhibitionOfUser(UUID userId) {
 
         Exhibition exhibition = exhibitionRepository.findMostRecentExhibitionOfUser(userId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
 
-        final ExhibitionDto.ReadCurrentOfUserResponse exhibitionReadCurrentOfUserResponse = ExhibitionDto.ReadCurrentOfUserResponse.builder()
+        final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse = ExhibitionDto.ReadCurrentOfUserExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
                 .title(exhibition.getTitle())
                 .description(exhibition.getDescription())
                 .thumbnail(exhibition.getThumbnail())
                 .build();
 
-        return exhibitionReadCurrentOfUserResponse;
+        return exhibitionReadCurrentOfUserExhibitionResponse;
     }
 
     @Override
@@ -98,23 +97,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
+    public Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUser(user, pageable);
+        Page<ExhibitionDto.ReadExhibitionResponse> exhibitionReadResponses = exhibitionRepository.findByUser(user, pageable);
 
         return exhibitionReadResponses;
     }
 
     @Override
-    public Page<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
+    public Page<GuestBookDto.ReadGuestBookResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<GuestBookDto.ReadResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<GuestBookDto.ReadGuestBookResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 
         return guestBookReadResponses;
     }

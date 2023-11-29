@@ -20,7 +20,7 @@ public class GuestBookDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateRequest {
+    public static class CreateGuestBookRequest {
         @NotNull(message = "방명록 작성자를 입력해주세요.")
         @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
                 message = "올바른 사용자 ID 형식이 아닙니다.")
@@ -36,7 +36,7 @@ public class GuestBookDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateResponse {
+    public static class CreateGuestBookResponse {
         private String guestBookId;
         private String createdAt;
     }
@@ -47,7 +47,7 @@ public class GuestBookDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadResponse {
+    public static class ReadGuestBookResponse {
         private String guestbookId;
         private String createdAt;
         private String photographerId;

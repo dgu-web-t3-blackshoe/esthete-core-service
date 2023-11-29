@@ -9,10 +9,8 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import java.util.Collections;
-
 @Configuration
 public class SwaggerConfig {
     private static final String API_NAME = "Esthete Core Service API 명세서";
@@ -35,6 +33,7 @@ public class SwaggerConfig {
                 .build();
     }
 
+
     public ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title(API_NAME)
@@ -48,4 +47,5 @@ public class SwaggerConfig {
     public Docket disable() {
         return new Docket(DocumentationType.OAS_30).enable(false);
     }
+
 }

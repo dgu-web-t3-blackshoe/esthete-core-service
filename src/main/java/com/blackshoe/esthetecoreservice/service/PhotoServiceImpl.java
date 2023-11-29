@@ -242,7 +242,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         List<PhotoGenre> photoGenres = photoGenreRepository.findByPhoto(photo).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_GENRE_NOT_FOUND));
 
-        PhotoDto.EquipmentIdsRequest equipmentNames = PhotoDto.EquipmentIdsRequest.builder()
+        PhotoDto.EquipmentNamesRequest equipmentNames = PhotoDto.EquipmentNamesRequest.builder()
                 .equipmentNames(
                         photo.getPhotoEquipments()
                                 .stream()
@@ -320,15 +320,16 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     @Transactional
-    public PhotoDto.DeleteResponse deletePhoto(UUID photoId) {
+    public PhotoDto.DeletePhotoResponse deletePhoto(UUID photoId) {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         photoRepository.delete(photo);
 
         redisTemplate.delete("*" + photoId.toString());
 
-        PhotoDto.DeleteResponse photoDeleteResponse = PhotoDto.DeleteResponse.builder()
+        PhotoDto.DeletePhotoResponse photoDeleteResponse = PhotoDto.DeletePhotoResponse.builder()
                 .photoId(photo.getPhotoId().toString())
+                .deletedAt(LocalDateTime.now().toString())
                 .build();
 
         return photoDeleteResponse;

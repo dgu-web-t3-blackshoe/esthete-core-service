@@ -146,7 +146,7 @@ public class UserDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class UpdateRequest {
+    public static class UpdateUserRequest {
         private String nickname;
         private String biography;
         private List<GenreDto> genres;

@@ -1,9 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.NewWorkDto;
-import com.blackshoe.esthetecoreservice.entity.NewWork;
 import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.Support;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
@@ -12,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -26,9 +23,9 @@ public class NewWorkServiceImpl implements NewWorkService{
     private final ExhibitionRepository exhibitionRepository;
 
     @Override
-    public List<NewWorkDto.ReadResponse> readNewWork(UUID userId) {
+    public List<NewWorkDto.ReadNewWorkResponse> readNewWork(UUID userId) {
 
-        List<NewWorkDto.ReadResponse> newWorkReadResponses = new ArrayList<>();
+        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponsNewWorks = new ArrayList<>();
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         boolean hasNewPhoto = false;
@@ -39,34 +36,34 @@ public class NewWorkServiceImpl implements NewWorkService{
 
         for (String key : keys) {
             String[] splitKey = key.split("_");
-            NewWorkDto.ReadResponse newWorkReadResponse = null;
+            NewWorkDto.ReadNewWorkResponse newWorkReadNewWorkResponse = null;
 
             if(splitKey[2] == "photo") {
                 hasNewPhoto = "true".equals(redisTemplate.opsForValue().get(key));
-                newWorkReadResponse = NewWorkDto.ReadResponse.builder()
+                newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
                         .photoId(splitKey[3])
                         .hasNewPhoto(hasNewPhoto)
                         .build();
             }
             else {
                 hasNewExhibition = "true".equals(redisTemplate.opsForValue().get(key));
-                newWorkReadResponse = NewWorkDto.ReadResponse.builder()
+                newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
                         .exhibitionId(splitKey[3])
                         .hasNewExhibition(hasNewExhibition)
                         .build();
             }
-            newWorkReadResponse.setProfileImg(user.getProfileImgUrl().getCloudfrontUrl());
-            newWorkReadResponse.setNickname(user.getNickname());
-            newWorkReadResponse.setPhotographerId(userId.toString());
+            newWorkReadNewWorkResponse.setProfileImg(user.getProfileImgUrl().getCloudfrontUrl());
+            newWorkReadNewWorkResponse.setNickname(user.getNickname());
+            newWorkReadNewWorkResponse.setPhotographerId(userId.toString());
 
-            newWorkReadResponses.add(newWorkReadResponse);
+            newWorkReadResponsNewWorks.add(newWorkReadNewWorkResponse);
         }
 
-        return newWorkReadResponses;
+        return newWorkReadResponsNewWorks;
     }
 
     @Override
-    public NewWorkDto.UpdateResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest) {
+    public NewWorkDto.UpdateNewWorkResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest) {
 
         String userId = updateRequest.getUserId();
         String photoId = updateRequest.getPhotoId();
@@ -84,14 +81,14 @@ public class NewWorkServiceImpl implements NewWorkService{
             }
         }
 
-        NewWorkDto.UpdateResponse newWorkUpdateResponse = NewWorkDto.UpdateResponse.builder()
+        NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = NewWorkDto.UpdateNewWorkResponse.builder()
                 .updatedAt(LocalDateTime.now().toString())
                 .build();
-        return newWorkUpdateResponse;
+        return newWorkUpdateNewWorkResponse;
     }
 
     @Override
-    public NewWorkDto.UpdateResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest) {
+    public NewWorkDto.UpdateNewWorkResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest) {
 
             String userId = updateRequest.getUserId();
             String exhibitionId = updateRequest.getExhibitionId();
@@ -109,9 +106,9 @@ public class NewWorkServiceImpl implements NewWorkService{
                 }
             }
 
-            NewWorkDto.UpdateResponse newWorkUpdateResponse = NewWorkDto.UpdateResponse.builder()
+            NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = NewWorkDto.UpdateNewWorkResponse.builder()
                     .updatedAt(LocalDateTime.now().toString())
                     .build();
-            return newWorkUpdateResponse;
+            return newWorkUpdateNewWorkResponse;
     }
 }

@@ -9,7 +9,6 @@ import com.blackshoe.esthetecoreservice.vo.PhotoSortType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,7 +29,7 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @PostMapping(value = "/{user_id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PhotoDto.UploadResponse> uploadPhoto(
+    public ResponseEntity<PhotoDto.CreatePhotoResponse> uploadPhoto(
             @PathVariable(name = "user_id") UUID userId,
             @RequestPart(name = "photo") MultipartFile photo,
             @RequestPart(name = "photo_upload_request") PhotoDto.CreatePhotoRequest photoUploadRequest) {
@@ -42,12 +41,12 @@ public class PhotoController {
         final PhotoDto photoDto = photoService.uploadPhotoToS3(userId, photo, photoUploadRequest);
 
 
-        final PhotoDto.UploadResponse photoUploadResponse = PhotoDto.UploadResponse.builder()
+        final PhotoDto.CreatePhotoResponse photoCreatePhotoResponse = PhotoDto.CreatePhotoResponse.builder()
                 .photoId(photoDto.getPhotoId().toString())
                 .createdAt(photoDto.getCreatedAt().toString())
                 .build();
 
-        return ResponseEntity.ok(photoUploadResponse);
+        return ResponseEntity.ok(photoCreatePhotoResponse);
     }
 
     @GetMapping({"/{photo_id}"})
@@ -106,4 +105,10 @@ public class PhotoController {
         return ResponseEntity.status(HttpStatus.OK).body(photoReadByAddressResponse);
     }
 
+    @DeleteMapping("/{photo_id}")
+    public ResponseEntity<PhotoDto.DeletePhotoResponse> deletePhoto(@PathVariable(name = "photo_id") UUID photoId) {
+        final PhotoDto.DeletePhotoResponse photoDeleteResponse = photoService.deletePhoto(photoId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(photoDeleteResponse);
+    }
 }

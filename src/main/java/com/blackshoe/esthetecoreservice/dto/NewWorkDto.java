@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDateTime;
 
 public class NewWorkDto {
 
@@ -20,7 +17,7 @@ public class NewWorkDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class ReadResponse {
+    public static class ReadNewWorkResponse {
         private String photographerId;
         private String profileImg;
         private String nickname;
@@ -54,7 +51,7 @@ public class NewWorkDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class UpdateResponse {
+    public static class UpdateNewWorkResponse {
         private String updatedAt;
     }
 }

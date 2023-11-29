@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -59,35 +58,35 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}/exhibitions/current")
-    public ResponseEntity<ExhibitionDto.ReadCurrentOfUserResponse> getCurrentExhibitionOfUser(@PathVariable(name = "user_id") UUID userId) {
+    public ResponseEntity<ExhibitionDto.ReadCurrentOfUserExhibitionResponse> getCurrentExhibitionOfUser(@PathVariable(name = "user_id") UUID userId) {
 
-        ExhibitionDto.ReadCurrentOfUserResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
+        ExhibitionDto.ReadCurrentOfUserExhibitionResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(userReadCurrentExhibitionOfUserResponse);
     }
 
     @PostMapping("/{photographer_id}/guest-books")
-    public ResponseEntity<GuestBookDto.CreateResponse> createGuestBook(@PathVariable(name = "photographer_id") UUID photographerId, @Valid @RequestBody GuestBookDto.CreateRequest guestBookCreateRequest) {
+    public ResponseEntity<GuestBookDto.CreateGuestBookResponse> createGuestBook(@PathVariable(name = "photographer_id") UUID photographerId, @Valid @RequestBody GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest) {
 
-        GuestBookDto.CreateResponse guestBookCreateResponse = guestBookService.createGuestBook(photographerId, guestBookCreateRequest);
+        GuestBookDto.CreateGuestBookResponse guestBookCreateGuestBookResponse = guestBookService.createGuestBook(photographerId, guestBookCreateGuestBookRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateGuestBookResponse);
     }
 
     @PostMapping("/{user_id}/supports")
-    public ResponseEntity<SupportDto.CreateResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateRequest supportCreateRequest) {
+    public ResponseEntity<SupportDto.CreateSupportResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateSupportRequest supportCreateSupportRequest) {
 
-        SupportDto.CreateResponse supportCreateResponse = supportService.createSupport(userId, supportCreateRequest);
+        SupportDto.CreateSupportResponse supportCreateSupportResponse = supportService.createSupport(userId, supportCreateSupportRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateSupportResponse);
     }
 
     @DeleteMapping("/{user_id}/supports/{photographerId}")
-    public ResponseEntity<SupportDto.DeleteResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
+    public ResponseEntity<SupportDto.DeleteSupportResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
 
-        SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
+        SupportDto.DeleteSupportResponse supportDeleteSupportResponse = supportService.deleteSupport(userId, photographerId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(supportDeleteResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(supportDeleteSupportResponse);
     }
 
     @GetMapping("/{user_id}/supports/all")
@@ -116,26 +115,26 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}/exhibitions")
-    public ResponseEntity<Page<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable(name = "user_id") UUID userId,
-                                                                               @RequestParam(defaultValue = "10") int size,
-                                                                               @RequestParam(defaultValue = "0") int page,
-                                                                               @RequestParam(required = false, defaultValue = "recent") String sort) {
+    public ResponseEntity<Page<ExhibitionDto.ReadExhibitionResponse>> getUserExhibitions(@PathVariable(name = "user_id") UUID userId,
+                                                                                         @RequestParam(defaultValue = "10") int size,
+                                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                                         @RequestParam(required = false, defaultValue = "recent") String sort) {
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        Page<ExhibitionDto.ReadResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
+        Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserExhibitions);
     }
 
     @GetMapping("/{user_id}/guest-books")
-    public ResponseEntity<Page<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable(name = "user_id") UUID userId,
-                                                                             @RequestParam(defaultValue = "10") int size,
-                                                                             @RequestParam(defaultValue = "0") int page,
-                                                                             @RequestParam(required = false, defaultValue = "recent") String sort) {
+    public ResponseEntity<Page<GuestBookDto.ReadGuestBookResponse>> getUserGuestBooks(@PathVariable(name = "user_id") UUID userId,
+                                                                                      @RequestParam(defaultValue = "10") int size,
+                                                                                      @RequestParam(defaultValue = "0") int page,
+                                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
 
         final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
-        Page<GuestBookDto.ReadResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
+        Page<GuestBookDto.ReadGuestBookResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserGuestBooksPage);
     }

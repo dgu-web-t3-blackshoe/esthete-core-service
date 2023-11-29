@@ -3,7 +3,6 @@ package com.blackshoe.esthetecoreservice.controller;
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
 import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
-import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
@@ -58,18 +57,18 @@ public class ExhibitionControllerTest {
     @Test
     public void createExhibition_whenSuccess_returns201() throws Exception {
         // given
-        final ExhibitionDto.CreateRequest exhibitonCreateRequest = ExhibitionDto.CreateRequest.builder()
+        final ExhibitionDto.CreateExhibitionRequest exhibitonCreateRequest = ExhibitionDto.CreateExhibitionRequest.builder()
                 .title("title")
                 .description("description")
                 .thumbnail(UUID.randomUUID().toString())
                 .build();
 
-        final ExhibitionDto.CreateResponse exhibitionCreateResponse = ExhibitionDto.CreateResponse.builder()
+        final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = ExhibitionDto.CreateExhibitionResponse.builder()
                 .exhibitionId(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
 
-        when(exhibitionService.createExhibition(any(ExhibitionDto.CreateRequest.class))).thenReturn(exhibitionCreateResponse);
+        when(exhibitionService.createExhibition(any(ExhibitionDto.CreateExhibitionRequest.class))).thenReturn(exhibitionCreateExhibitionResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -82,13 +81,13 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionCreateResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionCreateExhibitionResponse));
     }
 
     @Test
     public void createExhibition_whenInvalidParam_returns400() throws Exception {
         // given
-        final ExhibitionDto.CreateRequest exhibitonCreateRequest = ExhibitionDto.CreateRequest.builder()
+        final ExhibitionDto.CreateExhibitionRequest exhibitonCreateRequest = ExhibitionDto.CreateExhibitionRequest.builder()
                 .title("title")
                 .description("description")
                 .thumbnail("thumbnail")
@@ -111,12 +110,12 @@ public class ExhibitionControllerTest {
     @Test
     public void deleteExhibition_whenSuccess_returns200() throws Exception {
         // given
-        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = ExhibitionDto.DeleteResponse.builder()
+        final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = ExhibitionDto.DeleteExhibitionResponse.builder()
                 .exhibitionId(UUID.randomUUID().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        when(exhibitionService.deleteExhibition(any(UUID.class))).thenReturn(exhibitionDeleteResponse);
+        when(exhibitionService.deleteExhibition(any(UUID.class))).thenReturn(exhibitionDeleteExhibitionResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -128,7 +127,7 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionDeleteResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionDeleteExhibitionResponse));
     }
 
     @Test
@@ -154,38 +153,38 @@ public class ExhibitionControllerTest {
     @Test
     public void createRoom_whenSuccess_returns201() throws Exception {
         // given
-        final RoomDto.CreateRequest roomCreateRequest = RoomDto.CreateRequest.builder()
+        final RoomDto.CreateRoomRequest roomCreateRoomRequest = RoomDto.CreateRoomRequest.builder()
                 .title("title")
                 .description("description")
                 .thumbnail(UUID.randomUUID().toString())
                 .photos(List.of(UUID.randomUUID().toString()))
                 .build();
 
-        final RoomDto.CreateResponse roomCreateResponse = RoomDto.CreateResponse.builder()
+        final RoomDto.CreateRoomResponse roomCreateRoomResponse = RoomDto.CreateRoomResponse.builder()
                 .roomId(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
 
-        when(roomService.createRoom(any(RoomDto.CreateRequest.class), any(UUID.class))).thenReturn(roomCreateResponse);
+        when(roomService.createRoom(any(RoomDto.CreateRoomRequest.class), any(UUID.class))).thenReturn(roomCreateRoomResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
                         post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
+                                .content(new ObjectMapper().writeValueAsString(roomCreateRoomRequest)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomCreateResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomCreateRoomResponse));
     }
 
     @Test
     public void createRoom_whenInvalidParam_returns400() throws Exception {
         // given
-        final RoomDto.CreateRequest roomCreateRequest = RoomDto.CreateRequest.builder()
+        final RoomDto.CreateRoomRequest roomCreateRoomRequest = RoomDto.CreateRoomRequest.builder()
                 .title("title")
                 .description("description")
                 .thumbnail(UUID.randomUUID().toString())
@@ -196,7 +195,7 @@ public class ExhibitionControllerTest {
         final MvcResult mvcResult = mockMvc.perform(
                         post("/core/exhibitions/{exhibitionId}/rooms", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(roomCreateRequest)))
+                                .content(new ObjectMapper().writeValueAsString(roomCreateRoomRequest)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -210,12 +209,12 @@ public class ExhibitionControllerTest {
     @Test
     public void deleteRoom_whenSuccess_returns200() throws Exception {
         // given
-        final RoomDto.DeleteResponse roomDeleteResponse = RoomDto.DeleteResponse.builder()
+        final RoomDto.DeleteRoomResponse roomDeleteRoomResponse = RoomDto.DeleteRoomResponse.builder()
                 .roomId(UUID.randomUUID().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        when(roomService.deleteRoom(any(UUID.class))).thenReturn(roomDeleteResponse);
+        when(roomService.deleteRoom(any(UUID.class))).thenReturn(roomDeleteRoomResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -227,7 +226,7 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomDeleteResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomDeleteRoomResponse));
     }
 
     @Test
@@ -253,7 +252,7 @@ public class ExhibitionControllerTest {
     @Test
     public void readRandomExhibition_whenSuccess_returns200() throws Exception {
         // given
-        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = ExhibitionDto.ReadRandomResponse.builder()
+        final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = ExhibitionDto.ReadRandomExhibitionResponse.builder()
                 .exhibitionId(UUID.randomUUID().toString())
                 .title("title")
                 .description("description")
@@ -263,7 +262,7 @@ public class ExhibitionControllerTest {
                 .profileImg("profileImg")
                 .build();
 
-        when(exhibitionService.readRandomExhibition()).thenReturn(exhibitionReadRandomResponse);
+        when(exhibitionService.readRandomExhibition()).thenReturn(exhibitionReadRandomExhibitionResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -275,7 +274,7 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadRandomResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(exhibitionReadRandomExhibitionResponse));
     }
 
     @Test
@@ -288,11 +287,11 @@ public class ExhibitionControllerTest {
                 .thumbnail("thumbnail")
                 .build();
 
-        final RoomDto.ReadListResponse roomReadListResponse = RoomDto.ReadListResponse.builder()
+        final RoomDto.ReadRoomListResponse roomReadRoomListResponse = RoomDto.ReadRoomListResponse.builder()
                 .rooms(List.of(roomDto))
                 .build();
 
-        when(roomService.readExhibitionRoomList(any(UUID.class))).thenReturn(roomReadListResponse);
+        when(roomService.readExhibitionRoomList(any(UUID.class))).thenReturn(roomReadRoomListResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -304,17 +303,17 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomReadListResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomReadRoomListResponse));
     }
 
     @Test
     public void readExhibitionRoomPhotoList_whenSuccess_returns200() throws Exception {
         // given
-        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse = RoomPhotoDto.ReadListResponse.builder()
+        final RoomPhotoDto.ReadRoomPhotoListResponse roomPhotoReadRoomPhotoListResponse = RoomPhotoDto.ReadRoomPhotoListResponse.builder()
                 .roomPhotos(List.of())
                 .build();
 
-        when(roomPhotoService.readRoomPhotoList(any(UUID.class))).thenReturn(roomPhotoReadListResponse);
+        when(roomPhotoService.readRoomPhotoList(any(UUID.class))).thenReturn(roomPhotoReadRoomPhotoListResponse);
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
@@ -326,6 +325,6 @@ public class ExhibitionControllerTest {
         // then
         final MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomPhotoReadListResponse));
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(roomPhotoReadRoomPhotoListResponse));
     }
 }

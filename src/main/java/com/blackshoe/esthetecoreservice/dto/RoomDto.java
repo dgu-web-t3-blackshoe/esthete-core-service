@@ -1,8 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.Room;
-import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -10,14 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -45,7 +39,7 @@ public class RoomDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateRequest {
+    public static class CreateRoomRequest {
         @NotNull(message = "전시실 제목을 입력해주세요.")
         private String title;
         @NotNull(message = "전시실 설명을 입력해주세요.")
@@ -67,7 +61,7 @@ public class RoomDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateResponse {
+    public static class CreateRoomResponse {
         private String roomId;
         private String createdAt;
     }
@@ -78,7 +72,7 @@ public class RoomDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class DeleteResponse {
+    public static class DeleteRoomResponse {
         private String roomId;
         private String deletedAt;
     }
@@ -89,7 +83,7 @@ public class RoomDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadListResponse {
+    public static class ReadRoomListResponse {
         private List<RoomDto> rooms;
     }
 }

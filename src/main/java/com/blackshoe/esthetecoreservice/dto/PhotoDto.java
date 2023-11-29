@@ -7,11 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.asm.Advice;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +58,7 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class UploadResponse {
+    public static class CreatePhotoResponse {
         private String photoId;
         private String createdAt;
     }
@@ -79,7 +76,7 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class DeleteRequest{
+    public static class DeletePhotoRequest {
 
         @NotNull(message = "userId is required")
         private UUID userId;
@@ -89,8 +86,9 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class DeleteResponse {
+    public static class DeletePhotoResponse {
         private String photoId;
+        private String deletedAt;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -110,19 +108,7 @@ public class PhotoDto {
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class GenreIdDto{
-        private UUID genreId;
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class GenreIdsRequest{
-        private List<String> genreIds;
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class EquipmentIdsRequest{
+    public static class EquipmentNamesRequest {
         private List<String> equipmentNames;
     }
 
