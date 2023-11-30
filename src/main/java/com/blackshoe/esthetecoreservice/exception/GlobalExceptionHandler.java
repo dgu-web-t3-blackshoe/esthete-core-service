@@ -66,4 +66,40 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(e.getUserErrorResult().getHttpStatus()).body(errorDto);
     }
+
+    @ExceptionHandler(AbusingReportException.class)
+    public ResponseEntity<ErrorDto> handleAbusingReportException(AbusingReportException e) {
+
+        log.error("AbusingReportException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getAbusingReportErrorResult().getMessage())
+                .build();
+
+        return ResponseEntity.status(e.getAbusingReportErrorResult().getHttpStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(PhotoException.class)
+    public ResponseEntity<ErrorDto> handlePhotoException(PhotoException e) {
+
+        log.error("PhotoException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getPhotoErrorResult().getMessage())
+                .build();
+
+        return ResponseEntity.status(e.getPhotoErrorResult().getHttpStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorDto> handleRuntimeException(RuntimeException e) {
+
+        log.error("RuntimeException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto);
+    }
 }

@@ -117,7 +117,7 @@ public class PhotoDto {
         private String  time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
-        private EquipmentIdsRequest equipmentNames;
+        private List<String> equipmentNames;
         private List<String> genreIds;
         private Long viewCount;
         private String createdAt;

@@ -17,10 +17,10 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_INITIAL_DB}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
-
     driver-class-name: com.mysql.cj.jdbc.Driver
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP-SERVERS}
+
   jpa:
     open-in-view: true
     generate-ddl: true
@@ -73,3 +73,6 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
+
+services:
+  admin-service: ${ADMIN_SERVICE_URL}
