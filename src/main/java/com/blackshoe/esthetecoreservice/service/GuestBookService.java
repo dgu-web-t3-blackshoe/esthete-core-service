@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface GuestBookService {
 
-    GuestBookDto.CreateResponse createGuestBook(UUID photographerId, GuestBookDto.CreateRequest guestBookCreateRequest);
+    GuestBookDto.CreateGuestBookResponse createGuestBook(UUID photographerId, GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest);
 }

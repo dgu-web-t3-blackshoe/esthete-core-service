@@ -37,22 +37,22 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public RoomDto.CreateResponse createRoom(RoomDto.CreateRequest roomCreateRequest, UUID exhibitionId) {
+    public RoomDto.CreateRoomResponse createRoom(RoomDto.CreateRoomRequest roomCreateRoomRequest, UUID exhibitionId) {
 
         final Exhibition exhibition = exhibitionRepository.findByExhibitionId(exhibitionId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
 
         final Room room = Room.builder()
-                .title(roomCreateRequest.getTitle())
-                .description(roomCreateRequest.getDescription())
-                .thumbnail(roomCreateRequest.getThumbnail())
+                .title(roomCreateRoomRequest.getTitle())
+                .description(roomCreateRoomRequest.getDescription())
+                .thumbnail(roomCreateRoomRequest.getThumbnail())
                 .build();
 
         room.setExhibition(exhibition);
 
         final Room savedRoom = roomRepository.save(room);
 
-        final List<String> roomPhotoIds = roomCreateRequest.getPhotos();
+        final List<String> roomPhotoIds = roomCreateRoomRequest.getPhotos();
 
         roomPhotoIds.stream().forEach(roomPhotoId -> {
 
@@ -69,40 +69,40 @@ public class RoomServiceImpl implements RoomService {
 
         });
 
-        final RoomDto.CreateResponse roomCreateResponseDto = RoomDto.CreateResponse.builder()
+        final RoomDto.CreateRoomResponse roomCreateRoomResponseDto = RoomDto.CreateRoomResponse.builder()
                 .roomId(savedRoom.getRoomId().toString())
                 .createdAt(savedRoom.getCreatedAt().toString())
                 .build();
 
-        return roomCreateResponseDto;
+        return roomCreateRoomResponseDto;
     }
 
     @Override
     @Transactional
-    public RoomDto.DeleteResponse deleteRoom(UUID roomId) {
+    public RoomDto.DeleteRoomResponse deleteRoom(UUID roomId) {
 
         final Room room = roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.ROOM_NOT_FOUND));
 
         roomRepository.delete(room);
 
-        final RoomDto.DeleteResponse roomDeleteResponseDto = RoomDto.DeleteResponse.builder()
+        final RoomDto.DeleteRoomResponse roomDeleteRoomResponseDto = RoomDto.DeleteRoomResponse.builder()
                 .roomId(room.getRoomId().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        return roomDeleteResponseDto;
+        return roomDeleteRoomResponseDto;
     }
 
     @Override
-    public RoomDto.ReadListResponse readExhibitionRoomList(UUID exhibitionId) {
+    public RoomDto.ReadRoomListResponse readExhibitionRoomList(UUID exhibitionId) {
 
         final List<RoomDto> roomDtoList = roomRepository.findAllByExhibitionId(exhibitionId);
 
-        final RoomDto.ReadListResponse roomReadListResponseDto = RoomDto.ReadListResponse.builder()
+        final RoomDto.ReadRoomListResponse roomReadRoomListResponseDto = RoomDto.ReadRoomListResponse.builder()
                 .rooms(roomDtoList)
                 .build();
 
-        return roomReadListResponseDto;
+        return roomReadRoomListResponseDto;
     }
 }

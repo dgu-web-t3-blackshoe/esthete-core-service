@@ -12,9 +12,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PhotoService {
-    PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest);
+    PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest);
 
-    PhotoDto.DeleteResponse deletePhoto(UUID photoId);
+    PhotoDto.DeletePhotoResponse deletePhoto(UUID photoId);
   
     PhotoDto.GetResponse getPhoto(UUID photoId);
   
@@ -24,4 +24,6 @@ public interface PhotoService {
                                                                          LocationGroupType locationGroupType);
 
     Page<PhotoDto.ReadResponse> readByAddress(PhotoAddressFilter photoAddressFilter, Integer page, Integer size, Sort sort);
+
+
 }

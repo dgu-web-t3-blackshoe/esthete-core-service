@@ -12,7 +12,7 @@ import org.springframework.data.domain.Sort;
 @RequiredArgsConstructor
 public enum PhotoSortType {
     TRENDING("viewCount"),
-    RECENT("createAt");
+    RECENT("createdAt");
 
     private final String sortType;
 

@@ -83,15 +83,15 @@ public class UserServiceTest {
         when(exhibition.getExhibitionId()).thenReturn(exhibitionId);
 
         // when
-        final ExhibitionDto.ReadCurrentOfUserResponse exhibitionReadCurrentOfUserResponse
+        final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse
                 = userService.readCurrentExhibitionOfUser(userId);
 
         // then
         verify(exhibitionRepository).findMostRecentExhibitionOfUser(any(UUID.class));
-        assertThat(exhibitionReadCurrentOfUserResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
-        assertThat(exhibitionReadCurrentOfUserResponse.getTitle()).isEqualTo(exhibition.getTitle());
-        assertThat(exhibitionReadCurrentOfUserResponse.getDescription()).isEqualTo(exhibition.getDescription());
-        assertThat(exhibitionReadCurrentOfUserResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
+        assertThat(exhibitionReadCurrentOfUserExhibitionResponse.getExhibitionId()).isEqualTo(exhibitionId.toString());
+        assertThat(exhibitionReadCurrentOfUserExhibitionResponse.getTitle()).isEqualTo(exhibition.getTitle());
+        assertThat(exhibitionReadCurrentOfUserExhibitionResponse.getDescription()).isEqualTo(exhibition.getDescription());
+        assertThat(exhibitionReadCurrentOfUserExhibitionResponse.getThumbnail()).isEqualTo(exhibition.getThumbnail());
     }
 
     @Test

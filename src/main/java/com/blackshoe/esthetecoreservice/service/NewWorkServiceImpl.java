@@ -1,22 +1,23 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.NewWorkDto;
-import com.blackshoe.esthetecoreservice.entity.NewWork;
 import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.Support;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Service @RequiredArgsConstructor
+@Service @RequiredArgsConstructor @Slf4j
 public class NewWorkServiceImpl implements NewWorkService{
     private final NewWorkRepository newWorkRepository;
     private final RedisTemplate redisTemplate;
@@ -26,47 +27,54 @@ public class NewWorkServiceImpl implements NewWorkService{
     private final ExhibitionRepository exhibitionRepository;
 
     @Override
-    public List<NewWorkDto.ReadResponse> readNewWork(UUID userId) {
-
-        List<NewWorkDto.ReadResponse> newWorkReadResponses = new ArrayList<>();
+    public List<NewWorkDto.ReadNewWorkResponse> readNewWork(UUID userId) {
+        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponsNewWorks = new ArrayList<>();
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        boolean hasNewPhoto = false;
-        boolean hasNewExhibition = false;
+        ObjectMapper objectMapper = new ObjectMapper(); // JSON 파싱을 위한 ObjectMapper
 
-        String hasNewRedisKey = userId.toString() + "*";
+        String hasNewRedisKey = "photographer_" + userId.toString() + "*";
         Set<String> keys = redisTemplate.keys(hasNewRedisKey);
 
         for (String key : keys) {
-            String[] splitKey = key.split("_");
-            NewWorkDto.ReadResponse newWorkReadResponse = null;
+            try {
+                String jsonValue = (String) redisTemplate.opsForValue().get(key); // Object를 String으로 캐스팅
+                List<List<String>> values = objectMapper.readValue(jsonValue, new TypeReference<List<List<String>>>() {});
 
-            if(splitKey[2] == "photo") {
-                hasNewPhoto = "true".equals(redisTemplate.opsForValue().get(key));
-                newWorkReadResponse = NewWorkDto.ReadResponse.builder()
-                        .photoId(splitKey[3])
-                        .hasNewPhoto(hasNewPhoto)
-                        .build();
-            }
-            else {
-                hasNewExhibition = "true".equals(redisTemplate.opsForValue().get(key));
-                newWorkReadResponse = NewWorkDto.ReadResponse.builder()
-                        .exhibitionId(splitKey[3])
-                        .hasNewExhibition(hasNewExhibition)
-                        .build();
-            }
-            newWorkReadResponse.setProfileImg(user.getProfileImgUrl().getCloudfrontUrl());
-            newWorkReadResponse.setNickname(user.getNickname());
-            newWorkReadResponse.setPhotographerId(userId.toString());
+                boolean hasNew = values.stream().anyMatch(pair -> "true".equals(pair.get(1)));
 
-            newWorkReadResponses.add(newWorkReadResponse);
+                String[] splitKey = key.split("_");
+                NewWorkDto.ReadNewWorkResponse newWorkReadNewWorkResponse = null;
+
+                if ("photo".equals(splitKey[2])) {
+                    newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
+                            .photoId(splitKey[3])
+                            .hasNewPhoto(hasNew)
+                            .build();
+                } else {
+                    newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
+                            .exhibitionId(splitKey[3])
+                            .hasNewExhibition(hasNew)
+                            .build();
+                }
+
+                newWorkReadNewWorkResponse.setUpdatedAt(LocalDateTime.now().toString());
+                newWorkReadNewWorkResponse.setProfileImg(user.getProfileImgUrl().getCloudfrontUrl());
+                newWorkReadNewWorkResponse.setNickname(user.getNickname());
+                newWorkReadNewWorkResponse.setPhotographerId(userId.toString());
+
+                newWorkReadResponsNewWorks.add(newWorkReadNewWorkResponse);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                log.info("JSON 파싱에 실패했습니다.");
+            }
         }
 
-        return newWorkReadResponses;
+        return newWorkReadResponsNewWorks;
     }
 
     @Override
-    public NewWorkDto.UpdateResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest) {
+    public NewWorkDto.UpdateNewWorkResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest) {
 
         String userId = updateRequest.getUserId();
         String photoId = updateRequest.getPhotoId();
@@ -84,14 +92,14 @@ public class NewWorkServiceImpl implements NewWorkService{
             }
         }
 
-        NewWorkDto.UpdateResponse newWorkUpdateResponse = NewWorkDto.UpdateResponse.builder()
+        NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = NewWorkDto.UpdateNewWorkResponse.builder()
                 .updatedAt(LocalDateTime.now().toString())
                 .build();
-        return newWorkUpdateResponse;
+        return newWorkUpdateNewWorkResponse;
     }
 
     @Override
-    public NewWorkDto.UpdateResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest) {
+    public NewWorkDto.UpdateNewWorkResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest) {
 
             String userId = updateRequest.getUserId();
             String exhibitionId = updateRequest.getExhibitionId();
@@ -109,9 +117,9 @@ public class NewWorkServiceImpl implements NewWorkService{
                 }
             }
 
-            NewWorkDto.UpdateResponse newWorkUpdateResponse = NewWorkDto.UpdateResponse.builder()
+            NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = NewWorkDto.UpdateNewWorkResponse.builder()
                     .updatedAt(LocalDateTime.now().toString())
                     .build();
-            return newWorkUpdateResponse;
+            return newWorkUpdateNewWorkResponse;
     }
 }

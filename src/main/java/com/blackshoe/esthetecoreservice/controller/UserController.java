@@ -1,7 +1,9 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.*;
+import com.blackshoe.esthetecoreservice.service.ProfileImgService;
 import com.blackshoe.esthetecoreservice.service.UserService;
+import com.blackshoe.esthetecoreservice.vo.PhotoSortType;
 import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +39,8 @@ public class UserController {
 
     private final SupportService supportService;
 
+    private final ProfileImgService profileImgService;
+
     @GetMapping("/{user_id}/equipments")
     ResponseEntity<UserDto.ReadEquipmentsResponse> getEquipments(@PathVariable(name = "user_id") UUID userId) {
         //getEquipmentsForUser
@@ -44,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}/basic-info")
+    @GetMapping("/{user_id}/basic-info")
     public ResponseEntity<UserDto.ReadBasicInfoResponse> getBasicInfo(@PathVariable(name = "user_id") UUID userId) {
 
         UserDto.ReadBasicInfoResponse userGetBasicInfoResponse = userService.readBasicInfo(userId);
@@ -52,41 +57,41 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userGetBasicInfoResponse);
     }
 
-    @GetMapping("/{userId}/exhibitions/current")
-    public ResponseEntity<ExhibitionDto.ReadCurrentOfUserResponse> getCurrentExhibitionOfUser(@PathVariable(name = "user_id") UUID userId) {
+    @GetMapping("/{user_id}/exhibitions/current")
+    public ResponseEntity<ExhibitionDto.ReadCurrentOfUserExhibitionResponse> getCurrentExhibitionOfUser(@PathVariable(name = "user_id") UUID userId) {
 
-        ExhibitionDto.ReadCurrentOfUserResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
+        ExhibitionDto.ReadCurrentOfUserExhibitionResponse userReadCurrentExhibitionOfUserResponse = userService.readCurrentExhibitionOfUser(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(userReadCurrentExhibitionOfUserResponse);
     }
 
-    @PostMapping("/{photographerId}/guest-books")
-    public ResponseEntity<GuestBookDto.CreateResponse> createGuestBook(@PathVariable(name = "photographer_id") UUID photographerId, @Valid @RequestBody GuestBookDto.CreateRequest guestBookCreateRequest) {
+    @PostMapping("/{photographer_id}/guest-books")
+    public ResponseEntity<GuestBookDto.CreateGuestBookResponse> createGuestBook(@PathVariable(name = "photographer_id") UUID photographerId, @Valid @RequestBody GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest) {
 
-        GuestBookDto.CreateResponse guestBookCreateResponse = guestBookService.createGuestBook(photographerId, guestBookCreateRequest);
+        GuestBookDto.CreateGuestBookResponse guestBookCreateGuestBookResponse = guestBookService.createGuestBook(photographerId, guestBookCreateGuestBookRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guestBookCreateGuestBookResponse);
     }
 
-    @PostMapping("/{userId}/supports")
-    public ResponseEntity<SupportDto.CreateResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateRequest supportCreateRequest) {
+    @PostMapping("/{user_id}/supports")
+    public ResponseEntity<SupportDto.CreateSupportResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateSupportRequest supportCreateSupportRequest) {
 
-        SupportDto.CreateResponse supportCreateResponse = supportService.createSupport(userId, supportCreateRequest);
+        SupportDto.CreateSupportResponse supportCreateSupportResponse = supportService.createSupport(userId, supportCreateSupportRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateSupportResponse);
     }
 
-    @DeleteMapping("/{userId}/supports/{photographerId}")
-    public ResponseEntity<SupportDto.DeleteResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
+    @DeleteMapping("/{user_id}/supports/{photographerId}")
+    public ResponseEntity<SupportDto.DeleteSupportResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
 
-        SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
+        SupportDto.DeleteSupportResponse supportDeleteSupportResponse = supportService.deleteSupport(userId, photographerId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(supportDeleteResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(supportDeleteSupportResponse);
     }
 
-    @GetMapping("/{userId}/supports/all")
+    @GetMapping("/{user_id}/supports/all")
     public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
-            @PathVariable("userId") UUID userId,
+            @PathVariable(name = "user_id") UUID userId,
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) List<String> genres,
@@ -98,38 +103,38 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readSupportingPhotographersPage);
     }
 
-    @GetMapping("/{userId}/photos")
+    @GetMapping("/{user_id}/photos")
     public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = UserSortType.convertParamToColumn(sort);
+
+        final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
         Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserPhotos);
     }
 
-    @GetMapping("/{userId}/exhibitions")
-    public ResponseEntity<Page<ExhibitionDto.ReadResponse>> getUserExhibitions(@PathVariable(name = "user_id") UUID userId,
-                                                                               @RequestParam(defaultValue = "10") int size,
-                                                                               @RequestParam(defaultValue = "0") int page,
-                                                                               @RequestParam(required = false, defaultValue = "recent") String sort) {
-        final Sort sortBy = UserSortType.convertParamToColumn(sort);
+    @GetMapping("/{user_id}/exhibitions")
+    public ResponseEntity<Page<ExhibitionDto.ReadExhibitionResponse>> getUserExhibitions(@PathVariable(name = "user_id") UUID userId,
+                                                                                         @RequestParam(defaultValue = "10") int size,
+                                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                                         @RequestParam(required = false, defaultValue = "recent") String sort) {
+        final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        Page<ExhibitionDto.ReadResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
+        Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions = userService.readUserExhibitions(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserExhibitions);
     }
 
-    @GetMapping("/{userId}/guest-books")
-    public ResponseEntity<Page<GuestBookDto.ReadResponse>> getUserGuestBooks(@PathVariable(name = "user_id") UUID userId,
-                                                                             @RequestParam(defaultValue = "10") int size,
-                                                                             @RequestParam(defaultValue = "0") int page,
-                                                                             @RequestParam(required = false, defaultValue = "recent") String sort) {
-
+    @GetMapping("/{user_id}/guest-books")
+    public ResponseEntity<Page<GuestBookDto.ReadGuestBookResponse>> getUserGuestBooks(@PathVariable(name = "user_id") UUID userId,
+                                                                                      @RequestParam(defaultValue = "10") int size,
+                                                                                      @RequestParam(defaultValue = "0") int page,
+                                                                                      @RequestParam(required = false, defaultValue = "recent") String sort) {
         final Sort sortBy = UserSortType.convertParamToColumn(sort);
 
-        Page<GuestBookDto.ReadResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
+        Page<GuestBookDto.ReadGuestBookResponse> readUserGuestBooksPage = userService.readUserGuestbooks(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserGuestBooksPage);
     }
@@ -158,7 +163,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(readAllNicknameContainingPage);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{user_id}")
     public ResponseEntity<UserDto.DeleteResponse> deleteUser(@PathVariable(name = "user_id") UUID userId) {
 
         UserDto.DeleteResponse userDeleteResponse = userService.deleteUser(userId);
@@ -166,10 +171,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userDeleteResponse);
     }
 
-    @PostMapping("/{userId}/sign-up/info")
-    public ResponseEntity<UserDto.SignUpInfoResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpInfoRequest userSignUpRequest) {
+    @PostMapping(value = "/{user_id}/sign-up") // SignUpInfoRequest -> SignUpRequest
+    public ResponseEntity<UserDto.SignUpResponse> signUp(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody UserDto.SignUpRequest userSignUpRequest) {
 
-        UserDto.SignUpInfoResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
+        UserDto.SignUpResponse userSignUpResponse = userService.signUp(userId, userSignUpRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userSignUpResponse);
     }
@@ -181,22 +186,38 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(myProfileInfoResponse); //200
     }
 
+    @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfileInfo(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateProfileRequest userUpdateProfileRequest, @RequestPart(name = "profile_img", required = false) MultipartFile profileImg) throws Exception {
+
+        profileImgService.deleteProfileImg(userId);
+        UserDto.UpdateProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
+
+        ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
+
+        UserDto.UpdateProfileResponse updateProfileResponse = UserDto.UpdateProfileResponse.builder()
+                .userId(userId.toString())
+                .profileImg(profileImgUrlDto.getCloudfrontUrl())
+                .genres(userUpdateProfileResponse.getGenres())
+                .updatedAt(String.valueOf(LocalDateTime.now()))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(updateProfileResponse); //200
+    }
+
     @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
-    public ResponseEntity<UserDto.SetMyProfileImgResponse> setProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+    public ResponseEntity<UserDto.UpdateProfileImgResponse> uploadProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable(name = "user_id") UUID userId) throws Exception {
 
-        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = userService.setMyProfileImg(userId, profileImg);
+        ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
 
+        UserDto.UpdateProfileImgResponse updateProfileImgResponse = UserDto.UpdateProfileImgResponse.builder()
+                .userId(userId.toString())
+                .profileImg(profileImgUrlDto.getCloudfrontUrl())
+                .updatedAt(String.valueOf(LocalDateTime.now()))
+                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(setMyProfileImgResponse); //200
-
+        return ResponseEntity.status(HttpStatus.OK).body(updateProfileImgResponse); //200
     }
 
-    @PutMapping("/{user_id}/profile")
-    public ResponseEntity<UserDto.UpdateMyProfileResponse> updateProfile(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateMyProfileRequest userUpdateProfileRequest) throws Exception {
 
-        UserDto.UpdateMyProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
-
-        return ResponseEntity.status(HttpStatus.OK).body(userUpdateProfileResponse); //200
-    }
 }

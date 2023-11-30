@@ -18,35 +18,35 @@ public class NewWorkController {
     private final NewWorkService newWorkService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<NewWorkDto.ReadResponse>> readNewWork(@PathVariable UUID userId) {
-        List<NewWorkDto.ReadResponse> newWorkReadResponses = newWorkService.readNewWork(userId);
+    public ResponseEntity<List<NewWorkDto.ReadNewWorkResponse>> readNewWork(@PathVariable UUID userId) {
+        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponsNewWorks = newWorkService.readNewWork(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(newWorkReadResponses);
+        return ResponseEntity.status(HttpStatus.OK).body(newWorkReadResponsNewWorks);
     }
 
     @PostMapping("/{userId}/photos/{photoId}")
-    public ResponseEntity<NewWorkDto.UpdateResponse> viewNewPhoto(@PathVariable UUID userId, @PathVariable UUID photoId) {
+    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewPhoto(@PathVariable UUID userId, @PathVariable UUID photoId) {
 
         NewWorkDto.UpdateViewOfPhotoRequest updateRequest = NewWorkDto.UpdateViewOfPhotoRequest.builder()
                 .userId(String.valueOf(userId))
                 .photoId(String.valueOf(photoId))
                 .build();
 
-        NewWorkDto.UpdateResponse newWorkUpdateResponse = newWorkService.viewNewPhoto(updateRequest);
+        NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = newWorkService.viewNewPhoto(updateRequest);
 
-        return ResponseEntity.status(HttpStatus.OK).body(newWorkUpdateResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(newWorkUpdateNewWorkResponse);
     }
 
     @PostMapping("/{userId}/exhibitions/{exhibitionId}")
-    public ResponseEntity<NewWorkDto.UpdateResponse> viewNewExhibition(@PathVariable UUID userId, @PathVariable UUID exhibitionId) {
+    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewExhibition(@PathVariable UUID userId, @PathVariable UUID exhibitionId) {
 
         NewWorkDto.UpdateViewOfExhibitionRequest updateRequest = NewWorkDto.UpdateViewOfExhibitionRequest.builder()
                 .userId(String.valueOf(userId))
                 .exhibitionId(String.valueOf(exhibitionId))
                 .build();
 
-        NewWorkDto.UpdateResponse newWorkUpdateResponse = newWorkService.viewNewExhibition(updateRequest);
+        NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = newWorkService.viewNewExhibition(updateRequest);
 
-        return ResponseEntity.status(HttpStatus.OK).body(newWorkUpdateResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(newWorkUpdateNewWorkResponse);
     }
 }

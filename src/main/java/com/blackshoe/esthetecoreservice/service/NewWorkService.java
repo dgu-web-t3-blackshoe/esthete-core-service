@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NewWorkService {
-    List<NewWorkDto.ReadResponse> readNewWork(UUID userId);
-    NewWorkDto.UpdateResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest);
-    NewWorkDto.UpdateResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest);
+    List<NewWorkDto.ReadNewWorkResponse> readNewWork(UUID userId);
+    NewWorkDto.UpdateNewWorkResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest);
+    NewWorkDto.UpdateNewWorkResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest);
 }

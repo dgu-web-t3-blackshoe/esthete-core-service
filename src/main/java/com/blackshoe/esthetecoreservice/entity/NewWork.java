@@ -66,4 +66,7 @@ public class NewWork {
         }
     }
 
+    public void setPhotographer(User user) {
+        this.photographer = user;
+    }
 }

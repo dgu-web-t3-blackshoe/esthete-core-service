@@ -55,7 +55,7 @@ public class SupportServiceTest {
     @Test
     public void createSupport_whenSuccess_returnsSupportCreateResponse() {
         // given
-        final SupportDto.CreateRequest supportCreateRequest = SupportDto.CreateRequest.builder()
+        final SupportDto.CreateSupportRequest supportCreateSupportRequest = SupportDto.CreateSupportRequest.builder()
                 .photographerId(photographerId.toString())
                 .build();
 
@@ -68,12 +68,12 @@ public class SupportServiceTest {
         when(support.getCreatedAt()).thenReturn(LocalDateTime.now());
 
         // when
-        final SupportDto.CreateResponse supportCreateResponse = supportService.createSupport(userId, supportCreateRequest);
+        final SupportDto.CreateSupportResponse supportCreateSupportResponse = supportService.createSupport(userId, supportCreateSupportRequest);
 
         // then
-        assertThat(supportCreateResponse).isNotNull();
-        assertThat(supportCreateResponse.getSupportId()).isNotNull();
-        assertThat(supportCreateResponse.getCreatedAt()).isNotNull();
+        assertThat(supportCreateSupportResponse).isNotNull();
+        assertThat(supportCreateSupportResponse.getSupportId()).isNotNull();
+        assertThat(supportCreateSupportResponse.getCreatedAt()).isNotNull();
     }
 
     @Test
@@ -84,11 +84,11 @@ public class SupportServiceTest {
         doNothing().when(support).unsetUser();
 
         // when
-        final SupportDto.DeleteResponse supportDeleteResponse = supportService.deleteSupport(userId, photographerId);
+        final SupportDto.DeleteSupportResponse supportDeleteSupportResponse = supportService.deleteSupport(userId, photographerId);
 
         // then
-        assertThat(supportDeleteResponse).isNotNull();
-        assertThat(supportDeleteResponse.getSupportId()).isNotNull();
-        assertThat(supportDeleteResponse.getDeletedAt()).isNotNull();
+        assertThat(supportDeleteSupportResponse).isNotNull();
+        assertThat(supportDeleteSupportResponse.getSupportId()).isNotNull();
+        assertThat(supportDeleteSupportResponse.getDeletedAt()).isNotNull();
     }
 }

@@ -76,20 +76,20 @@ public class GuestBookServiceTest {
         when(guestBookRepository.save(any(GuestBook.class))).thenReturn(guestbook);
         when(guestbook.getGuestBookId()).thenReturn(guestbookId);
         when(guestbook.getCreatedAt()).thenReturn(createdAt);
-        GuestBookDto.CreateRequest guestBookCreateRequest = GuestBookDto.CreateRequest.builder()
+        GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest = GuestBookDto.CreateGuestBookRequest.builder()
                 .userId(userId.toString())
                 .content("content")
                 .build();
 
         // when
-        final GuestBookDto.CreateResponse guestBookCreateResponse = guestBookService.createGuestBook(photographerId, guestBookCreateRequest);
+        final GuestBookDto.CreateGuestBookResponse guestBookCreateGuestBookResponse = guestBookService.createGuestBook(photographerId, guestBookCreateGuestBookRequest);
 
         // then
         verify(userRepository, times(1)).findByUserId(photographerId);
         verify(userRepository, times(1)).findByUserId(userId);
         verify(guestBookRepository, times(1)).save(any(GuestBook.class));
-        assertThat(guestBookCreateResponse).isNotNull();
-        assertThat(guestBookCreateResponse.getGuestBookId()).isNotNull();
-        assertThat(guestBookCreateResponse.getCreatedAt()).isNotNull();
+        assertThat(guestBookCreateGuestBookResponse).isNotNull();
+        assertThat(guestBookCreateGuestBookResponse.getGuestBookId()).isNotNull();
+        assertThat(guestBookCreateGuestBookResponse.getCreatedAt()).isNotNull();
     }
 }

@@ -26,59 +26,59 @@ public class ExhibitionController {
     private final RoomPhotoService roomPhotoService;
 
     @PostMapping
-    public ResponseEntity<ExhibitionDto.CreateResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateRequest exhibitionCreateRequest) {
+    public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
 
-        final ExhibitionDto.CreateResponse exhibitionCreateResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
+        final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(exhibitionCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(exhibitionCreateExhibitionResponse);
     }
 
     @DeleteMapping("/{exhibitionId}")
-    public ResponseEntity<ExhibitionDto.DeleteResponse> deleteExhibition(@PathVariable UUID exhibitionId) {
+    public ResponseEntity<ExhibitionDto.DeleteExhibitionResponse> deleteExhibition(@PathVariable UUID exhibitionId) {
 
-        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = exhibitionService.deleteExhibition(exhibitionId);
+        final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = exhibitionService.deleteExhibition(exhibitionId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(exhibitionDeleteResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionDeleteExhibitionResponse);
     }
 
     @PostMapping("/{exhibitionId}/rooms")
-    public ResponseEntity<RoomDto.CreateResponse> createRoom(@RequestBody @Valid RoomDto.CreateRequest roomCreateRequest,
-                                                             @PathVariable UUID exhibitionId) {
+    public ResponseEntity<RoomDto.CreateRoomResponse> createRoom(@RequestBody @Valid RoomDto.CreateRoomRequest roomCreateRoomRequest,
+                                                                 @PathVariable UUID exhibitionId) {
 
-        final RoomDto.CreateResponse roomCreateResponse = roomService.createRoom(roomCreateRequest, exhibitionId);
+        final RoomDto.CreateRoomResponse roomCreateRoomResponse = roomService.createRoom(roomCreateRoomRequest, exhibitionId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(roomCreateResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomCreateRoomResponse);
     }
 
     @DeleteMapping("/{exhibitionId}/rooms/{roomId}")
-    public ResponseEntity<RoomDto.DeleteResponse> deleteRoom(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
+    public ResponseEntity<RoomDto.DeleteRoomResponse> deleteRoom(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
 
-        final RoomDto.DeleteResponse roomDeleteResponse = roomService.deleteRoom(roomId);
+        final RoomDto.DeleteRoomResponse roomDeleteRoomResponse = roomService.deleteRoom(roomId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(roomDeleteResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(roomDeleteRoomResponse);
     }
 
     @GetMapping("/random")
-    public ResponseEntity<ExhibitionDto.ReadRandomResponse> getRandomExhibition() {
+    public ResponseEntity<ExhibitionDto.ReadRandomExhibitionResponse> getRandomExhibition() {
 
-        final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = exhibitionService.readRandomExhibition();
+        final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = exhibitionService.readRandomExhibition();
 
-        return ResponseEntity.status(HttpStatus.OK).body(exhibitionReadRandomResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(exhibitionReadRandomExhibitionResponse);
     }
 
     @GetMapping("/{exhibitionId}/rooms")
-    public ResponseEntity<RoomDto.ReadListResponse> getExhibitionRoomList(@PathVariable UUID exhibitionId) {
+    public ResponseEntity<RoomDto.ReadRoomListResponse> getExhibitionRoomList(@PathVariable UUID exhibitionId) {
 
-        final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(exhibitionId);
+        final RoomDto.ReadRoomListResponse roomReadRoomListResponse = roomService.readExhibitionRoomList(exhibitionId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(roomReadListResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(roomReadRoomListResponse);
     }
 
     @GetMapping("/{exhibitionId}/rooms/{roomId}")
-    public ResponseEntity<RoomPhotoDto.ReadListResponse> getExhibitionRoomPhoto(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
+    public ResponseEntity<RoomPhotoDto.ReadRoomPhotoListResponse> getExhibitionRoomPhoto(@PathVariable UUID exhibitionId, @PathVariable UUID roomId) {
 
-        final RoomPhotoDto.ReadListResponse roomPhotoReadListResponse = roomPhotoService.readRoomPhotoList(roomId);
+        final RoomPhotoDto.ReadRoomPhotoListResponse roomPhotoReadRoomPhotoListResponse = roomPhotoService.readRoomPhotoList(roomId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadListResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadRoomPhotoListResponse);
     }
 }

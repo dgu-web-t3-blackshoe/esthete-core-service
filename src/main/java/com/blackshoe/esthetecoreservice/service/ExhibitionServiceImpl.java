@@ -11,9 +11,7 @@ import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import com.blackshoe.esthetecoreservice.repository.NewWorkRepository;
 import com.blackshoe.esthetecoreservice.repository.SupportRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     private final SupportRepository supportRepository;
     @Override
     @Transactional
-    public ExhibitionDto.CreateResponse createExhibition(ExhibitionDto.CreateRequest exhibitionCreateRequest) {
+    public ExhibitionDto.CreateExhibitionResponse createExhibition(ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
 
         final User photographer = userRepository.findByUserId(UUID.fromString(exhibitionCreateRequest.getUserId()))
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));
@@ -44,6 +42,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                 .description(exhibitionCreateRequest.getDescription())
                 .thumbnail(exhibitionCreateRequest.getThumbnail())
                 .build();
+
+        exhibition.setUser(photographer);
 
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
 
@@ -76,17 +76,17 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         newWorkRepository.save(newWork);
 
-        final ExhibitionDto.CreateResponse exhibitionCreateResponse = ExhibitionDto.CreateResponse.builder()
+        final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = ExhibitionDto.CreateExhibitionResponse.builder()
                 .exhibitionId(savedExhibition.getExhibitionId().toString())
                 .createdAt(savedExhibition.getCreatedAt().toString())
                 .build();
 
-        return exhibitionCreateResponse;
+        return exhibitionCreateExhibitionResponse;
     }
 
     @Override
     @Transactional
-    public ExhibitionDto.DeleteResponse deleteExhibition(UUID exhibitionId) {
+    public ExhibitionDto.DeleteExhibitionResponse deleteExhibition(UUID exhibitionId) {
 
         final Exhibition exhibition = exhibitionRepository.findByExhibitionId(exhibitionId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
@@ -95,16 +95,16 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         redisTemplate.delete("*" + exhibitionId.toString());
 
-        final ExhibitionDto.DeleteResponse exhibitionDeleteResponse = ExhibitionDto.DeleteResponse.builder()
+        final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = ExhibitionDto.DeleteExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        return exhibitionDeleteResponse;
+        return exhibitionDeleteExhibitionResponse;
     }
 
     @Override
-    public ExhibitionDto.ReadRandomResponse readRandomExhibition() {
+    public ExhibitionDto.ReadRandomExhibitionResponse readRandomExhibition() {
 
             Optional<Exhibition> optionalExhibition = Optional.empty();
 
@@ -115,7 +115,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
             final Exhibition exhibition = optionalExhibition.get();
 
-            final ExhibitionDto.ReadRandomResponse exhibitionReadRandomResponse = ExhibitionDto.ReadRandomResponse.builder()
+            final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = ExhibitionDto.ReadRandomExhibitionResponse.builder()
                     .exhibitionId(exhibition.getExhibitionId().toString())
                     .title(exhibition.getTitle())
                     .description(exhibition.getDescription())
@@ -125,6 +125,6 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                     .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
                     .build();
 
-            return exhibitionReadRandomResponse;
+            return exhibitionReadRandomExhibitionResponse;
     }
 }

@@ -6,7 +6,6 @@ import com.blackshoe.esthetecoreservice.dto.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +14,13 @@ public interface UserService {
     UserDto.ReadEquipmentsResponse getEquipmentsForUser(UUID userId);
     UserDto.ReadBasicInfoResponse readBasicInfo(UUID userId);
 
-    ExhibitionDto.ReadCurrentOfUserResponse readCurrentExhibitionOfUser(UUID userId);
+    ExhibitionDto.ReadCurrentOfUserExhibitionResponse readCurrentExhibitionOfUser(UUID userId);
 
     Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size);
 
-    Page<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size);
+    Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size);
 
-    Page<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size);
+    Page<GuestBookDto.ReadGuestBookResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size);
     Page<UserDto.SearchResult> readAllNicknameContaining(String nickname, Pageable pageable);
 
     Page<UserDto.SearchResult> readAllGenresContaining(List<UUID> genres, Pageable pageable);
@@ -30,11 +29,9 @@ public interface UserService {
 
     UserDto.DeleteResponse deleteUser(UUID userId);
 
-    UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest);
+    UserDto.SignUpResponse signUp(UUID userId, UserDto.SignUpRequest signUpInfoRequest);
 
     UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId);
 
-    UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg);
-
-    UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest);
+    UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest);
 }

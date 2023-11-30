@@ -61,7 +61,7 @@ public class RoomServiceTest {
 
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    private final RoomDto.CreateRequest roomCreateRequest = RoomDto.CreateRequest.builder()
+    private final RoomDto.CreateRoomRequest roomCreateRoomRequest = RoomDto.CreateRoomRequest.builder()
             .title("test")
             .description("test")
             .thumbnail("thumbnail")
@@ -78,15 +78,15 @@ public class RoomServiceTest {
         when(room.getCreatedAt()).thenReturn(createdAt);
 
         // when
-        final RoomDto.CreateResponse roomCreateResponse = roomService.createRoom(roomCreateRequest, UUID.randomUUID());
+        final RoomDto.CreateRoomResponse roomCreateRoomResponse = roomService.createRoom(roomCreateRoomRequest, UUID.randomUUID());
 
         // then
         verify(exhibitionRepository, times(1)).findByExhibitionId(any(UUID.class));
         verify(roomRepository, times(1)).save(any(Room.class));
-        verify(photoRepository, times(roomCreateRequest.getPhotos().size())).findByPhotoId(any(UUID.class));
-        verify(roomPhotoRepository, times(roomCreateRequest.getPhotos().size())).save(any(RoomPhoto.class));
-        assertThat(roomCreateResponse.getRoomId()).isEqualTo(roomId.toString());
-        assertThat(roomCreateResponse.getCreatedAt()).isEqualTo(createdAt.toString());
+        verify(photoRepository, times(roomCreateRoomRequest.getPhotos().size())).findByPhotoId(any(UUID.class));
+        verify(roomPhotoRepository, times(roomCreateRoomRequest.getPhotos().size())).save(any(RoomPhoto.class));
+        assertThat(roomCreateRoomResponse.getRoomId()).isEqualTo(roomId.toString());
+        assertThat(roomCreateRoomResponse.getCreatedAt()).isEqualTo(createdAt.toString());
     }
 
     @Test
@@ -96,13 +96,13 @@ public class RoomServiceTest {
         when(room.getRoomId()).thenReturn(roomId);
 
         // when
-        final RoomDto.DeleteResponse roomDeleteResponse = roomService.deleteRoom(roomId);
+        final RoomDto.DeleteRoomResponse roomDeleteRoomResponse = roomService.deleteRoom(roomId);
 
         // then
         verify(roomRepository, times(1)).findByRoomId(any(UUID.class));
         verify(roomRepository, times(1)).delete(any(Room.class));
-        assertThat(roomDeleteResponse.getRoomId()).isEqualTo(roomId.toString());
-        assertThat(roomDeleteResponse.getDeletedAt()).isNotNull();
+        assertThat(roomDeleteRoomResponse.getRoomId()).isEqualTo(roomId.toString());
+        assertThat(roomDeleteRoomResponse.getDeletedAt()).isNotNull();
     }
 
     @Test
@@ -117,13 +117,13 @@ public class RoomServiceTest {
         when(roomRepository.findAllByExhibitionId(any(UUID.class))).thenReturn(List.of(roomDto));
 
         // when
-        final RoomDto.ReadListResponse roomReadListResponse = roomService.readExhibitionRoomList(UUID.randomUUID());
+        final RoomDto.ReadRoomListResponse roomReadRoomListResponse = roomService.readExhibitionRoomList(UUID.randomUUID());
 
         // then
         verify(roomRepository, times(1)).findAllByExhibitionId(any(UUID.class));
-        assertThat(roomReadListResponse.getRooms()).isNotNull();
-        assertThat(roomReadListResponse.getRooms().get(0).getRoomId()).isEqualTo(roomId.toString());
-        assertThat(roomReadListResponse.getRooms().get(0).getTitle()).isEqualTo(room.getTitle());
-        assertThat(roomReadListResponse.getRooms().get(0).getThumbnail()).isEqualTo(room.getThumbnail());
+        assertThat(roomReadRoomListResponse.getRooms()).isNotNull();
+        assertThat(roomReadRoomListResponse.getRooms().get(0).getRoomId()).isEqualTo(roomId.toString());
+        assertThat(roomReadRoomListResponse.getRooms().get(0).getTitle()).isEqualTo(room.getTitle());
+        assertThat(roomReadRoomListResponse.getRooms().get(0).getThumbnail()).isEqualTo(room.getThumbnail());
     }
 }

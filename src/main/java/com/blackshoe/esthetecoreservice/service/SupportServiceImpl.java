@@ -19,7 +19,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,12 +30,12 @@ public class SupportServiceImpl implements SupportService {
     private final ViewRepository viewRepository;
     @Override
     @Transactional
-    public SupportDto.CreateResponse createSupport(UUID userId, SupportDto.CreateRequest supportCreateRequest) {
+    public SupportDto.CreateSupportResponse createSupport(UUID userId, SupportDto.CreateSupportRequest supportCreateSupportRequest) {
 
         final User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        final UUID photographerId = UUID.fromString(supportCreateRequest.getPhotographerId());
+        final UUID photographerId = UUID.fromString(supportCreateSupportRequest.getPhotographerId());
         final User photographer = userRepository.findByUserId(photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
@@ -48,17 +47,17 @@ public class SupportServiceImpl implements SupportService {
 
         final Support savedSupport = supportRepository.save(support);
 
-        final SupportDto.CreateResponse supportCreateResponse = SupportDto.CreateResponse.builder()
+        final SupportDto.CreateSupportResponse supportCreateSupportResponse = SupportDto.CreateSupportResponse.builder()
                 .supportId(savedSupport.getSupportId().toString())
                 .createdAt(savedSupport.getCreatedAt().toString())
                 .build();
 
-        return supportCreateResponse;
+        return supportCreateSupportResponse;
     }
 
     @Override
     @Transactional
-    public SupportDto.DeleteResponse deleteSupport(UUID userId, UUID photographerId) {
+    public SupportDto.DeleteSupportResponse deleteSupport(UUID userId, UUID photographerId) {
 
         final Support support = supportRepository.findByUserIdAndPhotographerId(userId, photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.SUPPORT_NOT_FOUND));
@@ -67,12 +66,12 @@ public class SupportServiceImpl implements SupportService {
 
         supportRepository.delete(support);
 
-        final SupportDto.DeleteResponse supportDeleteResponse = SupportDto.DeleteResponse.builder()
+        final SupportDto.DeleteSupportResponse supportDeleteSupportResponse = SupportDto.DeleteSupportResponse.builder()
                 .supportId(support.getSupportId().toString())
                 .deletedAt(LocalDateTime.now().toString())
                 .build();
 
-        return supportDeleteResponse;
+        return supportDeleteSupportResponse;
     }
 
     @Override
@@ -81,6 +80,8 @@ public class SupportServiceImpl implements SupportService {
         Page<User> photographers = null;
 
         Pageable pageable = PageRequest.of(page, size);
+
+        if(sort == null) sort = "recent";
 
         if(sort.equals("recent")){
             if(genres == null)
@@ -95,6 +96,7 @@ public class SupportServiceImpl implements SupportService {
             else
                 photographers = supportRepository.getPhotographersBySupportCountAndGenres(userId, genres, pageable);
         }
+
         else if(sort.equals("trending")){
             //최근 7일간 support를 많이 받은 순
             if(genres == null)

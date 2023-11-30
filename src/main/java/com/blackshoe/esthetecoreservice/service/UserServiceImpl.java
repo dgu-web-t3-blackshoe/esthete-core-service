@@ -9,6 +9,7 @@ import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.*;
+import com.blackshoe.esthetecoreservice.vo.UserSortType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         //get equipment name from equipments
 
         return UserDto.ReadEquipmentsResponse.builder()
-                .equipmentNames(equipmentNames)
+                .equipments(equipmentNames)
                 .build();
     }
 
@@ -71,19 +71,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ExhibitionDto.ReadCurrentOfUserResponse readCurrentExhibitionOfUser(UUID userId) {
+    public ExhibitionDto.ReadCurrentOfUserExhibitionResponse readCurrentExhibitionOfUser(UUID userId) {
 
         Exhibition exhibition = exhibitionRepository.findMostRecentExhibitionOfUser(userId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
 
-        final ExhibitionDto.ReadCurrentOfUserResponse exhibitionReadCurrentOfUserResponse = ExhibitionDto.ReadCurrentOfUserResponse.builder()
+        final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse = ExhibitionDto.ReadCurrentOfUserExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
                 .title(exhibition.getTitle())
                 .description(exhibition.getDescription())
                 .thumbnail(exhibition.getThumbnail())
                 .build();
 
-        return exhibitionReadCurrentOfUserResponse;
+        return exhibitionReadCurrentOfUserExhibitionResponse;
     }
 
     @Override
@@ -98,23 +98,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<ExhibitionDto.ReadResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
+    public Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<ExhibitionDto.ReadResponse> exhibitionReadResponses = exhibitionRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<ExhibitionDto.ReadExhibitionResponse> exhibitionReadResponses = exhibitionRepository.findByUser(user, pageable);
+
+        //get Thumbnail from exhibitionReadResponses
+        exhibitionReadResponses.stream().forEach(exhibitionReadResponse -> {
+            Photo photo = photoRepository.findByPhotoId(UUID.fromString(exhibitionReadResponse.getThumbnail()))
+                    .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
+            exhibitionReadResponse.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+        });
 
         return exhibitionReadResponses;
     }
 
     @Override
-    public Page<GuestBookDto.ReadResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+    public Page<GuestBookDto.ReadGuestBookResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size) {
+        //if sortBy is RECENT, then sortBy = createdAt
+        if (sortBy.toString().contains(UserSortType.RECENT.getSortType())) {
+            sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<GuestBookDto.ReadResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<GuestBookDto.ReadGuestBookResponse> guestBookReadResponses = guestBookRepository.findByUserOrderByCreatedAtDesc(userId, pageable);
 
         return guestBookReadResponses;
     }
@@ -163,22 +174,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto.SignUpInfoResponse signUp(UUID userId, UserDto.SignUpInfoRequest signUpInfoRequest) {
+    public UserDto.SignUpResponse signUp(UUID userId, UserDto.SignUpRequest signUpInfoRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        // GenreDto to UserGenre
         signUpInfoRequest.getGenres().stream()
                 .forEach(genreId -> {
-                            // UserDto.GenreDto를 UserGenre로 변환
                             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
                                     .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
-
                             UserGenre userGenre = UserGenre.builder()
+                                    .user(user)
                                     .genre(genre)
                                     .build();
-
-                            userGenre.setUser(user);
 
                             userGenreRepository.save(userGenre);
                         }
@@ -187,16 +194,15 @@ public class UserServiceImpl implements UserService {
         signUpInfoRequest.getEquipments().stream()
                 .forEach(equipmentName -> {
                             UserEquipment userEquipment = UserEquipment.builder()
+                                    .user(user)
                                     .equipmentName(equipmentName)
                                     .build();
-
-                            userEquipment.setUser(user);
 
                             userEquipmentRepository.save(userEquipment);
                         }
                 );
 
-        return UserDto.SignUpInfoResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
+        return UserDto.SignUpResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
     }
 
     @Override
@@ -204,85 +210,68 @@ public class UserServiceImpl implements UserService {
         log.info("getMyProfileInfo userId: {}", userId.toString());
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        //@TODO: kafka 활용 시 삭제할 block
-        if (user.getProfileImgUrl() == null) {
-            ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl("")
-                    .s3Url("")
-                    .build();
-            user.setProfileImgUrl(profileImgUrl);
-        }
-
         UserDto.MyProfileInfoResponse myProfileInfoResponse = UserDto.MyProfileInfoResponse.builder()
                 .userId(user.getUserId().toString())
                 .nickname(user.getNickname())
                 .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
                 .biography(user.getBiography())
                 .updatedAt(user.getUpdatedAt().toString())
+                .genres(user.getUserGenres().stream()
+                        .map(userGenre -> new UserDto.GenreDto(userGenre.getGenre().getGenreId(), userGenre.getGenre().getGenreName()))
+                        .collect(Collectors.toList()))
+                .equipments(user.getUserEquipments().stream()
+                        .map(userEquipment -> userEquipment.getEquipmentName())
+                        .collect(Collectors.toList()))
+                //.highlights(user.getPhotos().stream()
                 .build();
 
         return myProfileInfoResponse;
     }
 
     @Override
-    @Transactional
-    public UserDto.SetMyProfileImgResponse setMyProfileImg(UUID userId, MultipartFile profileImg) {
+    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        ProfileImgUrl userProfileImgUrl = user.getProfileImgUrl();
+        user.setNickname(updateMyProfileRequest.getNickname());
+        user.setBiography(updateMyProfileRequest.getBiography());
 
-        ProfileImgUrl profileImgUrl;
+        List<UserDto.GenreDto> genreDtos = null;
 
-        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(userProfileImgUrl.getCloudfrontUrl())
-                .s3Url(userProfileImgUrl.getS3Url())
-                .build();
+        updateMyProfileRequest.getGenres().stream().forEach(genreId -> {
+            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
+                    .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
 
-        if (userProfileImgUrl.getCloudfrontUrl().equals("")) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl("")
-                    .s3Url("")
+            UserDto.GenreDto genreDto = new UserDto.GenreDto(genre.getGenreId(), genre.getGenreName());
+
+            genreDtos.add(genreDto);
+
+            UserGenre userGenre = UserGenre.builder()
+                    .genre(genre)
                     .build();
-        } else {
-            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
-        }
 
-        user.setProfileImgUrl(profileImgUrl);
+            userGenre.setUser(user);
 
-        UserDto.SetMyProfileImgResponse setMyProfileImgResponse = UserDto.SetMyProfileImgResponse.builder()
+            userGenreRepository.save(userGenre);
+        });
+
+        updateMyProfileRequest.getEquipments().stream().forEach(equipmentName -> {
+            UserEquipment userEquipment = UserEquipment.builder()
+                    .equipmentName(equipmentName)
+                    .build();
+
+            userEquipment.setUser(user);
+
+            userEquipmentRepository.save(userEquipment);
+        });
+
+        UserDto.UpdateProfileResponse updateMyProfileResponse = UserDto.UpdateProfileResponse.builder()
                 .userId(user.getUserId().toString())
-                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .genres(genreDtos)
                 .updatedAt(user.getUpdatedAt().toString())
                 .build();
 
-        return setMyProfileImgResponse;
-    }
-
-    @Override
-    public UserDto.UpdateMyProfileResponse updateMyProfile(UUID userId, UserDto.UpdateMyProfileRequest updateMyProfileRequest) {
-
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-
-        List<UserGenre> genres = updateMyProfileRequest.getGenres().stream()
-                .map(genre -> {
-                    // UserDto.GenreDto를 UserGenre로 변환
-                    UserGenre userGenre = UserGenre.builder()
-                            .user(user)
-                            .genre(new Genre(UUID.fromString(genre.getGenreId()), genre.getGenre()))
-                            .build();
-                    return userGenre;
-                })
-                .collect(Collectors.toList());
-
-        List<UserEquipment> equipments = updateMyProfileRequest.getEquipmentNames().stream()
-                .map(equipmentName -> UserEquipment.builder()
-                        .user(user)
-                        .equipmentName(equipmentName)
-                        .build())
-                .collect(Collectors.toList());
-
-        return UserDto.UpdateMyProfileResponse.builder().userId(user.getUserId().toString()).updatedAt(String.valueOf(LocalDateTime.now())).build();
+        return updateMyProfileResponse;
     }
 
 }

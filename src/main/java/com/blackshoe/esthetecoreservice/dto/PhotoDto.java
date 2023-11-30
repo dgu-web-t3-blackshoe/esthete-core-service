@@ -7,11 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.asm.Advice;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -33,50 +30,35 @@ public class PhotoDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @NoArgsConstructor @AllArgsConstructor
-    public static class CreateRequest {
+    public static class CreatePhotoRequest {
 
-        @NotNull(message = "userId is required")
-        private UUID userId;
-
-        @NotNull(message = "title is required")
         private String title;
 
-        @NotNull(message = "description is required")
         private String description;
 
-        @NotNull(message = "longitude is required")
         private double longitude;
 
-        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
-        private String isPublic;
-
-        //@TODO: genreIds ?
-        @NotNull(message = "genres are required")
-        List<String> genres;
-      
-        @NotNull(message = "latitude is required")
         private double latitude;
 
-        @NotNull(message = "state is required")
+        private String isPublic;
+
+        List<String> genreIds;
+
         private String state;
 
-        @NotNull(message = "city is required")
         private String city;
 
-        @NotNull(message = "town is required")
         private String town;
 
-        @NotNull(message = "time is required")
         private String time;
 
-        @NotNull(message = "equipments are required")
-        private List<PhotoEquipmentDto> equipmentNames;
+        private List<String> equipments;
     }
 
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class UploadResponse {
+    public static class CreatePhotoResponse {
         private String photoId;
         private String createdAt;
     }
@@ -94,7 +76,7 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class DeleteRequest{
+    public static class DeletePhotoRequest {
 
         @NotNull(message = "userId is required")
         private UUID userId;
@@ -104,8 +86,9 @@ public class PhotoDto {
     @Data
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class DeleteResponse {
+    public static class DeletePhotoResponse {
         private String photoId;
+        private String deletedAt;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -114,37 +97,18 @@ public class PhotoDto {
         private String photoId;
         private String title;
         private String description;
-        private String  time;
+        private String time;
         private LocationRequest photoLocation;
         private UrlRequest photoUrl;
-        private List<String> equipmentNames;
-        private List<String> genreIds;
+        private List<String> equipments;
+        private List<GenreDto> genres;
         private Long viewCount;
         private String createdAt;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class GenreIdDto{
-        private UUID genreId;
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class PhotoEquipmentDto{
-        private String equipmentName;
-
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class GenreIdsRequest{
-        private List<Long> genreIds;
-    }
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class EquipmentIdsRequest{
+    public static class EquipmentNamesRequest {
         private List<String> equipmentNames;
     }
 
@@ -178,7 +142,10 @@ public class PhotoDto {
         private String genreName;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class ReadResponse{
         private String photoId;
@@ -186,6 +153,7 @@ public class PhotoDto {
         private String photoUrl;
         private String userId;
         private String nickname;
+        private String time;
         private String createdAt;
 
         public ReadResponse(Photo photo){
@@ -194,6 +162,7 @@ public class PhotoDto {
             this.photoUrl = photo.getPhotoUrl() != null ? photo.getPhotoUrl().getCloudfrontUrl() : "";
             this.userId = photo.getUser() != null ? photo.getUser().getUserId().toString() : "";
             this.nickname = photo.getUser() != null ? photo.getUser().getNickname() : "";
+            this.time = photo.getUser() != null ? photo.getTime() : "";
             this.createdAt = photo.getCreatedAt() != null ? photo.getCreatedAt().toString() : "";
         }
     }

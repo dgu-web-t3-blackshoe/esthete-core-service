@@ -13,6 +13,8 @@ import com.blackshoe.esthetecoreservice.vo.LocationGroupType;
 import com.blackshoe.esthetecoreservice.vo.PhotoAddressFilter;
 import com.blackshoe.esthetecoreservice.vo.PhotoAddressSearchType;
 import com.blackshoe.esthetecoreservice.vo.PhotoPointFilter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,11 +40,9 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final AmazonS3Client amazonS3Client;
     private final PhotoRepository photoRepository;
-    private final PhotoUrlRepository photoUrlRepository;
-    private final PhotoLocationRepository photoLocationRepository;
-    private final ViewRepository photoViewRepository;
     private final GenreRepository genreRepository;
     private final PhotoGenreRepository photoGenreRepository;
+    private final PhotoEquipmentRepository photoEquipmentRepository;
 
     //redis
     private final RedisTemplate redisTemplate;
@@ -60,35 +60,22 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("photo")
     private String PHOTO_DIRECTORY;
 
-    //@TODO: user 포함한 로직
     @Transactional
     @Override
-    public PhotoDto uploadPhotoToS3(MultipartFile photo, PhotoDto.CreateRequest photoUploadRequest) {
-        if (photo == null) {
-            throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
-        }
+    public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
+        validatePhoto(photo);
+        User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        User photographer = userRepository.findByUserId(photoUploadRequest.getUserId()).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-
-        //String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
-        String s3FilePath = PHOTO_DIRECTORY;
-        String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
+        String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
 
         UUID photoId = UUID.randomUUID();
 
+        String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
+
+
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + photoId + fileExtension;
 
-
-        if (photo.getSize() > 52428800) {
-            throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
-        }
-
-        try {
-            amazonS3Client.putObject(BUCKET, key, photo.getInputStream(), null);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new PhotoException(PhotoErrorResult.PHOTO_UPLOAD_FAILED);
-        }
+        uploadToS3(photo, key);
 
         String s3Url;
 
@@ -101,92 +88,62 @@ public class PhotoServiceImpl implements PhotoService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        PhotoUrlDto photoUrlDto = PhotoUrlDto.builder()
+        PhotoUrlDto photoUrlDto = createPhotoUrlDto(s3Url, cloudFrontUrl);
+        PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
+
+        PhotoLocation photoLocation = createPhotoLocation(photoUploadRequest);
+        Photo uploadedPhoto = createPhoto(photographer, photoId, uploadedPhotoUrl, photoUploadRequest, photoLocation);
+        photoRepository.save(uploadedPhoto);
+
+        savePhotoGenres(uploadedPhoto, photoUploadRequest.getGenreIds());
+        savePhotoEquipments(uploadedPhoto, photoUploadRequest.getEquipments());
+
+        UUID photographerId = UUID.fromString(photographer.getUserId().toString());
+
+        saveOrUpdateNewWork(photographerId, uploadedPhoto);
+
+        return createPhotoDto(photoId, uploadedPhotoUrl);
+    }
+
+    public void validatePhoto(MultipartFile photo) {
+        if (photo == null) {
+            throw new PhotoException(PhotoErrorResult.EMPTY_PHOTO);
+        }
+
+        if (photo.getSize() > 52428800) {
+            throw new PhotoException(PhotoErrorResult.INVALID_PHOTO_SIZE);
+        }
+    }
+
+    public void uploadToS3(MultipartFile photo, String key) {
+        try {
+            amazonS3Client.putObject(BUCKET, key, photo.getInputStream(), null);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new PhotoException(PhotoErrorResult.PHOTO_UPLOAD_FAILED);
+        }
+    }
+
+    public PhotoUrlDto createPhotoUrlDto(String s3Url, String cloudFrontUrl) {
+        return PhotoUrlDto.builder()
                 .s3Url(s3Url)
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
+    }
 
-        PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
-
-        List<PhotoGenre> photoGenres = new ArrayList<>();
-
-        for (String genreName : photoUploadRequest.getGenres()) {
-
-            Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
-
-            photoGenres.add(PhotoGenre.builder()
-                    .genre(genre)
-                    .build());
-        }
-        PhotoLocation photoLocation = PhotoLocation.builder()
+    public PhotoLocation createPhotoLocation(PhotoDto.CreatePhotoRequest photoUploadRequest) {
+        return PhotoLocation.builder()
                 .longitude(photoUploadRequest.getLongitude())
                 .latitude(photoUploadRequest.getLatitude())
                 .state(photoUploadRequest.getState())
                 .city(photoUploadRequest.getCity())
                 .town(photoUploadRequest.getTown())
                 .build();
+    }
 
-
-        List<PhotoDto.PhotoEquipmentDto> equipmentDtos = photoUploadRequest.getEquipmentNames();
-
-        List<PhotoEquipment> photoEquipments = new ArrayList<>();
-
-        equipmentDtos.forEach(equipment -> {
-            PhotoEquipment newEquipment = PhotoEquipment.builder()
-                    .photoEquipmentName(equipment.getEquipmentName())
-                    .build();
-            photoEquipments.add(newEquipment);
-        });
-
-        Photo uploadedPhoto = Photo.builder()
-                .photoId(photoId)
-                .photoUrl(uploadedPhotoUrl)
-                .title(photoUploadRequest.getTitle())
-                .description(photoUploadRequest.getDescription())
-                .createdAt(LocalDateTime.now())
-                .photoGenres(photoGenres)
-                .time(photoUploadRequest.getTime())
-                .photoLocation(photoLocation)
-                .photoEquipments(photoEquipments)
-                .build();
-
-        photoRepository.save(uploadedPhoto);
-
-        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
-        List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
-
-        String[] userIdWithCondition;
-        List<String[]> supporters = new ArrayList<>();
-
-        for (Support support : supports) {
-            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
-            supporters.add(userIdWithCondition);
-        }
-
-        String hasNewRedisKey = "photographer_" + photoUploadRequest.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
-        redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
-        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
-
-        if (newWork == null) {
-            newWork = NewWork.builder()
-                    .photo(uploadedPhoto)
-                    .photographer(photographer)
-                    .photographerId(UUID.fromString(photographer.getUserId().toString()))
-                    .build();
-        } else {
-            newWork.setPhoto(uploadedPhoto);
-        }
-
-        newWorkRepository.save(newWork);
-
-        List<UUID> genreIds = photoUploadRequest.getGenres()
-                .stream()
-                .map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND)).getGenreId())
-                .collect(Collectors.toList());
-
-        for (UUID genreId : genreIds) {
-
-            Genre genre = genreRepository.findByGenreId(genreId).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+    public void savePhotoGenres(Photo uploadedPhoto, List<String> genreIds) {
+        genreIds.forEach(genreId -> {
+            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId)).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
 
             PhotoGenre photoGenre = PhotoGenre.builder()
                     .photo(uploadedPhoto)
@@ -194,16 +151,86 @@ public class PhotoServiceImpl implements PhotoService {
                     .build();
 
             photoGenreRepository.save(photoGenre);
+        });
+    }
+
+    public void savePhotoEquipments(Photo uploadedPhoto, List<String> equipments) {
+        equipments.forEach(equipment -> {
+            PhotoEquipment photoEquipment = PhotoEquipment.builder()
+                    .photo(uploadedPhoto)
+                    .equipmentId(UUID.randomUUID())
+                    .photoEquipmentName(equipment)
+                    .build();
+
+            photoEquipmentRepository.save(photoEquipment);
+        });
+    }
+
+    @Transactional
+    public void saveOrUpdateNewWork(UUID photographerId, Photo uploadedPhoto) throws RuntimeException {
+        List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
+
+        String[] userIdWithCondition;
+        List<String[]> supporters = new ArrayList<>();
+
+        for (Support support : supports) {
+            //[[userId, true], [userId, true], [userId, true]]
+            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
+
+            supporters.add(userIdWithCondition);
         }
-        PhotoDto photoDto = PhotoDto.builder()
+
+        String hasNewRedisKey = "photographer_" + photographerId + "_photo_" + uploadedPhoto.getPhotoId().toString();
+
+// JSON 변환을 위한 ObjectMapper 인스턴스 생성
+        ObjectMapper mapper = new ObjectMapper();
+
+// supporters 리스트를 JSON 문자열로 변환
+        String supportersJson;
+        try {
+            supportersJson = mapper.writeValueAsString(supporters);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 변환 실패", e);
+        }
+
+// Redis에 JSON 문자열 저장
+        redisTemplate.opsForValue().set(hasNewRedisKey, supportersJson);
+        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
+
+        User photographer = userRepository.findByUserId(photographerId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        NewWork newWork = NewWork.builder()
+                .photo(uploadedPhoto)
+                .photographerId(photographerId)
+                .build();
+
+        newWork.setPhotographer(photographer);
+        newWork.setPhoto(uploadedPhoto);
+
+        newWorkRepository.save(newWork);
+    }
+
+    public Photo createPhoto(User photographer, UUID photoId, PhotoUrl uploadedPhotoUrl, PhotoDto.CreatePhotoRequest photoUploadRequest, PhotoLocation photoLocation) {
+        return Photo.builder()
+                .user(photographer)
+                .photoId(photoId)
+                .photoUrl(uploadedPhotoUrl)
+                .title(photoUploadRequest.getTitle())
+                .description(photoUploadRequest.getDescription())
+                .createdAt(LocalDateTime.now())
+                .time(photoUploadRequest.getTime())
+                .photoLocation(photoLocation)
+                .build();
+    }
+
+    public PhotoDto createPhotoDto(UUID photoId, PhotoUrl uploadedPhotoUrl) {
+        return PhotoDto.builder()
                 .photoId(photoId)
                 .photoUrl(uploadedPhotoUrl)
                 .createdAt(LocalDateTime.now())
                 .build();
-
-        return photoDto;
     }
-
 
     @Override
     @Transactional
@@ -212,7 +239,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         List<PhotoGenre> photoGenres = photoGenreRepository.findByPhoto(photo).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_GENRE_NOT_FOUND));
 
-        PhotoDto.EquipmentIdsRequest equipmentNames = PhotoDto.EquipmentIdsRequest.builder()
+        PhotoDto.EquipmentNamesRequest equipmentNames = PhotoDto.EquipmentNamesRequest.builder()
                 .equipmentNames(
                         photo.getPhotoEquipments()
                                 .stream()
@@ -237,10 +264,19 @@ public class PhotoServiceImpl implements PhotoService {
         log.info("photo.getPhotoGenres(): {}", photo.getPhotoGenres());
 
         //PhotoGenre to Long
-        List<String> genreIds = photoGenres
+        List<PhotoDto.GenreDto> genres = photoGenres
                 .stream()
-                .map(photoGenre -> String.valueOf(photoGenre.getGenre().getGenreId()))
+                .map(photoGenre -> PhotoDto.GenreDto.builder()
+                        .genreId(photoGenre.getGenre().getGenreId().toString())
+                        .genreName(photoGenre.getGenre().getGenreName())
+                        .build())
                 .collect(Collectors.toList());
+
+        List<String> equipments = photo.getPhotoEquipments()
+                .stream()
+                .map(photoEquipment -> photoEquipment.getPhotoEquipmentName())
+                .collect(Collectors.toList());
+
 
         PhotoDto.GetResponse getPhotoResponse = PhotoDto.GetResponse.builder()
                 .photoId(photo.getPhotoId().toString())
@@ -249,8 +285,8 @@ public class PhotoServiceImpl implements PhotoService {
                 .time(photo.getTime())
                 .photoUrl(urlRequest)
                 .photoLocation(locationRequest)
-                .equipmentNames(equipmentNames)
-                .genreIds(genreIds)
+                .equipments(equipments)
+                .genres(genres)
                 .viewCount(photo.getViewCount())
                 .createdAt(String.valueOf(photo.getCreatedAt()))
                 .build();
@@ -281,15 +317,16 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     @Transactional
-    public PhotoDto.DeleteResponse deletePhoto(UUID photoId) {
+    public PhotoDto.DeletePhotoResponse deletePhoto(UUID photoId) {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         photoRepository.delete(photo);
 
         redisTemplate.delete("*" + photoId.toString());
 
-        PhotoDto.DeleteResponse photoDeleteResponse = PhotoDto.DeleteResponse.builder()
+        PhotoDto.DeletePhotoResponse photoDeleteResponse = PhotoDto.DeletePhotoResponse.builder()
                 .photoId(photo.getPhotoId().toString())
+                .deletedAt(LocalDateTime.now().toString())
                 .build();
 
         return photoDeleteResponse;

@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
+import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -20,7 +21,7 @@ public class GuestBookDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateRequest {
+    public static class CreateGuestBookRequest {
         @NotNull(message = "방명록 작성자를 입력해주세요.")
         @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
                 message = "올바른 사용자 ID 형식이 아닙니다.")
@@ -36,23 +37,32 @@ public class GuestBookDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateResponse {
+    public static class CreateGuestBookResponse {
         private String guestBookId;
         private String createdAt;
     }
 
     @Data
     @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadResponse {
+    public static class ReadGuestBookResponse {
         private String guestbookId;
         private String createdAt;
         private String photographerId;
         private String userId;
         private String nickname;
         private String content;
+
+        public ReadGuestBookResponse(GuestBook guestBook) {
+            this.guestbookId = guestBook.getGuestBookId().toString();
+            this.createdAt = guestBook.getCreatedAt().toString();
+            this.photographerId = guestBook.getPhotographer().getUserId().toString();
+            this.userId = guestBook.getUser().getUserId().toString();
+            this.nickname = guestBook != null ? guestBook.getUser().getNickname() : "";
+            this.content = guestBook != null ? guestBook.getContent() : "";
+        }
     }
 }

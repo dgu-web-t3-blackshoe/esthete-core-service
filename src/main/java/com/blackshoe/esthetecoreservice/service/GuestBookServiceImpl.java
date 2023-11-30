@@ -25,28 +25,28 @@ public class GuestBookServiceImpl implements GuestBookService {
 
     @Override
     @Transactional
-    public GuestBookDto.CreateResponse createGuestBook(UUID photographerId, GuestBookDto.CreateRequest guestBookCreateRequest) {
+    public GuestBookDto.CreateGuestBookResponse createGuestBook(UUID photographerId, GuestBookDto.CreateGuestBookRequest guestBookCreateGuestBookRequest) {
         final User photographer = userRepository.findByUserId(photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        final UUID userId = UUID.fromString(guestBookCreateRequest.getUserId());
+        final UUID userId = UUID.fromString(guestBookCreateGuestBookRequest.getUserId());
         final User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         final GuestBook guestBook = GuestBook.builder()
                 .user(user)
-                .content(guestBookCreateRequest.getContent())
+                .content(guestBookCreateGuestBookRequest.getContent())
                 .build();
 
         guestBook.setPhotographer(photographer);
 
         final GuestBook savedGuestBook = guestBookRepository.save(guestBook);
 
-        final GuestBookDto.CreateResponse guestBookCreateResponse = GuestBookDto.CreateResponse.builder()
+        final GuestBookDto.CreateGuestBookResponse guestBookCreateGuestBookResponse = GuestBookDto.CreateGuestBookResponse.builder()
                 .guestBookId(savedGuestBook.getGuestBookId().toString())
                 .createdAt(savedGuestBook.getCreatedAt().toString())
                 .build();
 
-        return guestBookCreateResponse;
+        return guestBookCreateGuestBookResponse;
     }
 }

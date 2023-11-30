@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -41,7 +40,7 @@ public class RoomPhotoDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadListResponse {
+    public static class ReadRoomPhotoListResponse {
         private List<RoomPhotoDto> roomPhotos;
     }
 }

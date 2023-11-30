@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.dto;
 
+import com.blackshoe.esthetecoreservice.entity.Exhibition;
 import com.blackshoe.esthetecoreservice.entity.Room;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -36,12 +37,13 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateRequest {
+    public static class CreateExhibitionRequest {
+
         @NotNull(message = "사용자 ID를 입력해주세요.")
-        @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-" +
-                "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                message = "올바른 사용자 ID 형식이 아닙니다.")
+        @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-" +
+                "[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "올바른 사용자 ID 형식이 아닙니다.")
         private String userId;
+
         @NotNull(message = "전시 제목을 입력해주세요.")
         private String title;
         @NotNull(message = "전시 설명을 입력해주세요.")
@@ -58,7 +60,7 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CreateResponse {
+    public static class CreateExhibitionResponse {
         private String exhibitionId;
         private String createdAt;
     }
@@ -69,7 +71,7 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class DeleteResponse {
+    public static class DeleteExhibitionResponse {
         private String exhibitionId;
         private String deletedAt;
     }
@@ -80,7 +82,7 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadRandomResponse {
+    public static class ReadRandomExhibitionResponse {
         private String exhibitionId;
         private String title;
         private String description;
@@ -96,7 +98,7 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadCurrentOfUserResponse {
+    public static class ReadCurrentOfUserExhibitionResponse {
         private String exhibitionId;
         private String title;
         private String description;
@@ -109,10 +111,26 @@ public class ExhibitionDto {
     @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ReadResponse {
+    public static class ReadExhibitionResponse {
         private String exhibitionId;
         private String title;
         private String description;
         private String thumbnail;
+
+        public ReadExhibitionResponse(Exhibition exhibition){
+            this.exhibitionId = exhibition.getExhibitionId().toString();
+            this.title = exhibition.getTitle() != null ? exhibition.getTitle() : "";
+            this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
+            this.thumbnail = exhibition.getThumbnail() != null ? exhibition.getThumbnail() : "";
+        }
+
+        //get photo url from thumbnail(photoId)
+        public ReadExhibitionResponse(Exhibition exhibition, String photoUrl){
+            this.exhibitionId = exhibition.getExhibitionId().toString();
+            this.title = exhibition.getTitle() != null ? exhibition.getTitle() : "";
+            this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
+            this.thumbnail = photoUrl;
+        }
+
     }
 }
