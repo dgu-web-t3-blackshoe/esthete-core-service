@@ -12,8 +12,7 @@ public class NewWorkDto {
     /*
      ”photographer_id” : “” ”profile_img” : “”, ”nickname” : “”, ”has_new” : boolean,
      */
-    @Data
-    @Builder
+    @Data @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

@@ -93,15 +93,14 @@ public class PhotoServiceImpl implements PhotoService {
 
         PhotoLocation photoLocation = createPhotoLocation(photoUploadRequest);
         Photo uploadedPhoto = createPhoto(photographer, photoId, uploadedPhotoUrl, photoUploadRequest, photoLocation);
-
         photoRepository.save(uploadedPhoto);
 
         savePhotoGenres(uploadedPhoto, photoUploadRequest.getGenreIds());
         savePhotoEquipments(uploadedPhoto, photoUploadRequest.getEquipments());
 
-        NewWork newWork = saveOrUpdateNewWork(photographer, uploadedPhoto);
+        UUID photographerId = UUID.fromString(photographer.getUserId().toString());
 
-        newWorkRepository.save(newWork);
+        saveOrUpdateNewWork(photographerId, uploadedPhoto);
 
         return createPhotoDto(photoId, uploadedPhotoUrl);
     }
@@ -168,10 +167,8 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Transactional
-    public NewWork saveOrUpdateNewWork(User photographer, Photo uploadedPhoto) throws RuntimeException {
-        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
-
-        List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
+    public void saveOrUpdateNewWork(UUID photographerId, Photo uploadedPhoto) throws RuntimeException {
+        List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
 
         String[] userIdWithCondition;
         List<String[]> supporters = new ArrayList<>();
@@ -183,7 +180,7 @@ public class PhotoServiceImpl implements PhotoService {
             supporters.add(userIdWithCondition);
         }
 
-        String hasNewRedisKey = "photographer_" + photographer.getUserId().toString() + "_photo_" + uploadedPhoto.getPhotoId().toString();
+        String hasNewRedisKey = "photographer_" + photographerId + "_photo_" + uploadedPhoto.getPhotoId().toString();
 
 // JSON 변환을 위한 ObjectMapper 인스턴스 생성
         ObjectMapper mapper = new ObjectMapper();
@@ -201,17 +198,17 @@ public class PhotoServiceImpl implements PhotoService {
         redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
 
 
-        if (newWork == null) {
-            newWork = NewWork.builder()
-                    .photo(uploadedPhoto)
-                    .photographer(photographer)
-                    .photographerId(UUID.fromString(photographer.getUserId().toString()))
-                    .build();
-        } else {
-            newWork.setPhoto(uploadedPhoto);
-        }
+        User photographer = userRepository.findByUserId(photographerId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        return newWork;
+        NewWork newWork = NewWork.builder()
+                .photo(uploadedPhoto)
+                .photographerId(photographerId)
+                .build();
+
+        newWork.setPhotographer(photographer);
+        newWork.setPhoto(uploadedPhoto);
+
+        newWorkRepository.save(newWork);
     }
 
     public Photo createPhoto(User photographer, UUID photoId, PhotoUrl uploadedPhotoUrl, PhotoDto.CreatePhotoRequest photoUploadRequest, PhotoLocation photoLocation) {
