@@ -3,6 +3,7 @@ package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.NewWorkDto;
 import com.blackshoe.esthetecoreservice.service.NewWorkService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class NewWorkController {
     }
 
     @PostMapping("/{userId}/photos/{photoId}")
-    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewPhoto(@PathVariable UUID userId, @PathVariable UUID photoId) {
+    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewPhoto(@PathVariable UUID userId, @PathVariable UUID photoId) throws JsonProcessingException {
 
         NewWorkDto.UpdateViewOfPhotoRequest updateRequest = NewWorkDto.UpdateViewOfPhotoRequest.builder()
                 .userId(String.valueOf(userId))
@@ -38,7 +39,7 @@ public class NewWorkController {
     }
 
     @PostMapping("/{userId}/exhibitions/{exhibitionId}")
-    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewExhibition(@PathVariable UUID userId, @PathVariable UUID exhibitionId) {
+    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewExhibition(@PathVariable UUID userId, @PathVariable UUID exhibitionId) throws JsonProcessingException {
 
         NewWorkDto.UpdateViewOfExhibitionRequest updateRequest = NewWorkDto.UpdateViewOfExhibitionRequest.builder()
                 .userId(String.valueOf(userId))

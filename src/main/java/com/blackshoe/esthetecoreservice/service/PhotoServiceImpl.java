@@ -203,6 +203,7 @@ public class PhotoServiceImpl implements PhotoService {
         NewWork newWork = NewWork.builder()
                 .photo(uploadedPhoto)
                 .photographerId(photographerId)
+                .photoId(uploadedPhoto.getPhotoId())
                 .build();
 
         newWork.setPhotographer(photographer);

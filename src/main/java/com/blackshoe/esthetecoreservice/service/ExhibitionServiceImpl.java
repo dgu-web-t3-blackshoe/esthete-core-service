@@ -48,7 +48,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
 
 
-        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId());
+        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId()).orElse(null);
+
         List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
 
         String[] userIdWithCondition;
@@ -68,6 +69,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                     .exhibition(savedExhibition)
                     .photographer(photographer)
                     .photographerId(UUID.fromString(exhibitionCreateRequest.getUserId()))
+                    .exhibitionId(savedExhibition.getExhibitionId())
                     .build();
         }
         else {
