@@ -12,9 +12,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public interface GuestBookRepository extends JpaRepository<GuestBook, Long> {
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.GuestBookDto$ReadGuestBookResponse(g) FROM GuestBook g WHERE g.photographer.userId = :userId ORDER BY g.createdAt DESC")
     Page<GuestBookDto.ReadGuestBookResponse> findByUserOrderByCreatedAtDesc(@Param("userId") UUID userId, Pageable pageable);
+
+    Optional<GuestBook> findByGuestBookId(UUID guestBookId);
 }
