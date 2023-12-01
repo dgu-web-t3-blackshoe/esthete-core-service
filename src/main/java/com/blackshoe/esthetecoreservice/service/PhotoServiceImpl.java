@@ -355,11 +355,11 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public Page<PhotoDto.ReadResponse> readByAddress(PhotoAddressFilter photoAddressFilter, Integer page, Integer size, Sort sort) {
+    public Page<PhotoDto.ReadPhotoResponse> readByAddress(PhotoAddressFilter photoAddressFilter, Integer page, Integer size, Sort sort) {
 
         final Pageable pageable = PageRequest.of(page, size, sort);
 
-        final Page<PhotoDto.ReadResponse> photoReadByAddressResponse;
+        final Page<PhotoDto.ReadPhotoResponse> photoReadByAddressResponse;
 
         final PhotoAddressSearchType photoAddressSearchType = photoAddressFilter.getSearchType();
 

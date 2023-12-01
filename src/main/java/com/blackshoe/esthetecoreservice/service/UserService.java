@@ -16,7 +16,7 @@ public interface UserService {
 
     ExhibitionDto.ReadCurrentOfUserExhibitionResponse readCurrentExhibitionOfUser(UUID userId);
 
-    Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size);
+    Page<PhotoDto.ReadPhotoResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size);
 
     Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size);
 

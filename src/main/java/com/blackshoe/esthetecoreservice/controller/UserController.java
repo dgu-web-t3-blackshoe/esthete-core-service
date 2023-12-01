@@ -104,13 +104,13 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}/photos")
-    public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
-                                                                     @RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(required = false, defaultValue = "recent") String sort) {
+    public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(required = false, defaultValue = "recent") String sort) {
 
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
+        Page<PhotoDto.ReadPhotoResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserPhotos);
     }

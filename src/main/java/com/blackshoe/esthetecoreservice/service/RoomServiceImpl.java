@@ -1,25 +1,21 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.Room;
-import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
-import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomPhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomRepository;
+import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -34,6 +30,8 @@ public class RoomServiceImpl implements RoomService {
     private final PhotoRepository photoRepository;
 
     private final RoomPhotoRepository roomPhotoRepository;
+
+    private final GenreRepository genreRepository;
 
     @Override
     @Transactional
@@ -54,6 +52,8 @@ public class RoomServiceImpl implements RoomService {
 
         final List<String> roomPhotoIds = roomCreateRoomRequest.getPhotos();
 
+        Set<String> genreIds = new HashSet<>();
+
         roomPhotoIds.stream().forEach(roomPhotoId -> {
 
             final Photo photo = photoRepository.findByPhotoId(UUID.fromString(roomPhotoId))
@@ -67,7 +67,13 @@ public class RoomServiceImpl implements RoomService {
 
             roomPhotoRepository.save(roomPhoto);
 
+            //add genreID in PhotoGenres into Set<String> genreIds
+            photo.getPhotoGenres().stream().forEach(photoGenre -> {
+                genreIds.add(photoGenre.getGenre().getGenreId().toString());
+            });
         });
+        //saveExhibitionGenres ( Set To List )
+        saveExhibitionGenres(exhibition, (List<String>) genreIds);
 
         final RoomDto.CreateRoomResponse roomCreateRoomResponseDto = RoomDto.CreateRoomResponse.builder()
                 .roomId(savedRoom.getRoomId().toString())
@@ -104,5 +110,20 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         return roomReadRoomListResponseDto;
+    }
+
+    public void saveExhibitionGenres(Exhibition savedExhibition, List<String> genreIds) {
+        genreIds.forEach(genreId -> {
+            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId)).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+
+            ExhibitionGenre exhibitionGenre = ExhibitionGenre.builder()
+                    .genre(genre)
+                    .build();
+
+            exhibitionGenre.setExhibition(savedExhibition);
+
+            savedExhibition.addExhibitionGenre(exhibitionGenre);
+
+        });
     }
 }

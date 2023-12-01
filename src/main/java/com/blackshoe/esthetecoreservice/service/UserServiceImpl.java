@@ -87,12 +87,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
+    public Page<PhotoDto.ReadPhotoResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<PhotoDto.ReadResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<PhotoDto.ReadPhotoResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 
         return photoReadResponses;
     }

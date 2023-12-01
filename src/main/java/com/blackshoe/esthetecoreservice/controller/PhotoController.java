@@ -83,7 +83,7 @@ public class PhotoController {
     }
 
     @GetMapping("/locations")
-    public ResponseEntity<Page<PhotoDto.ReadResponse>> readByAddress (
+    public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> readByAddress (
             @RequestParam(name = "state", required = true) Optional<String> state,
             @RequestParam(name = "city", required = false) Optional<String> city,
             @RequestParam(name = "town", required = false) Optional<String> town,
@@ -99,7 +99,7 @@ public class PhotoController {
 
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        final Page<PhotoDto.ReadResponse> photoReadByAddressResponse
+        final Page<PhotoDto.ReadPhotoResponse> photoReadByAddressResponse
                 = photoService.readByAddress(photoAddressFilter, page, size, sortBy);
 
         return ResponseEntity.status(HttpStatus.OK).body(photoReadByAddressResponse);

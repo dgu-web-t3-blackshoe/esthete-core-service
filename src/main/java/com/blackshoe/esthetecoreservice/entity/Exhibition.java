@@ -47,6 +47,13 @@ public class Exhibition {
     @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
 
+    @Column(name = "view_count")
+    private Long viewCount;
+
+    @Column(name = "exhibition_genres")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExhibitionGenre> exhibitionGenres = new ArrayList<>();
+
     @Builder
     public Exhibition(String title, String description, String thumbnail) {
         this.title = title;
@@ -70,4 +77,13 @@ public class Exhibition {
     public void addRoom(Room room) {
         rooms.add(room);
     }
+
+    public void addExhibitionGenre(ExhibitionGenre exhibitionGenre) {
+        exhibitionGenres.add(exhibitionGenre);
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
 }

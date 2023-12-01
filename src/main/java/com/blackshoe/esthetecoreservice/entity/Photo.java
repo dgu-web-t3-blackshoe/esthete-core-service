@@ -67,6 +67,7 @@ public class Photo {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoGenre> photoGenres = new ArrayList<>();
 
+    @Column(name = "view_count")
     @ColumnDefault("0")
     private long viewCount;
 

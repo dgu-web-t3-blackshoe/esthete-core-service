@@ -1,16 +1,12 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.NewWork;
-import com.blackshoe.esthetecoreservice.entity.Support;
-import com.blackshoe.esthetecoreservice.entity.User;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
-import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
-import com.blackshoe.esthetecoreservice.repository.NewWorkRepository;
-import com.blackshoe.esthetecoreservice.repository.SupportRepository;
-import com.blackshoe.esthetecoreservice.repository.UserRepository;
+import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
+import com.blackshoe.esthetecoreservice.exception.PhotoException;
+import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +26,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     private final UserRepository userRepository;
     private final RedisTemplate redisTemplate;
     private final SupportRepository supportRepository;
+    private final GenreRepository genreRepository;
+
     @Override
     @Transactional
     public ExhibitionDto.CreateExhibitionResponse createExhibition(ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
@@ -46,7 +44,6 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         exhibition.setUser(photographer);
 
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
-
 
         NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId()).orElse(null);
 

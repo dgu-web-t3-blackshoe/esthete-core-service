@@ -150,4 +150,7 @@ public class User {
         this.supportCount--;
     }
 
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
