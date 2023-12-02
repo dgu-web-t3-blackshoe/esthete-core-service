@@ -52,7 +52,11 @@ public class RoomServiceImpl implements RoomService {
 
         final List<String> roomPhotoIds = roomCreateRoomRequest.getPhotos();
 
-        Set<String> genreIds = new HashSet<>();
+        Set<Long> genreIds = new HashSet<>();
+
+        exhibition.getExhibitionGenres().stream().forEach(exhibitionGenre -> {
+            genreIds.add(exhibitionGenre.getGenre().getId());
+        });
 
         roomPhotoIds.stream().forEach(roomPhotoId -> {
 
@@ -69,11 +73,12 @@ public class RoomServiceImpl implements RoomService {
 
             //add genreID in PhotoGenres into Set<String> genreIds
             photo.getPhotoGenres().stream().forEach(photoGenre -> {
-                genreIds.add(photoGenre.getGenre().getGenreId().toString());
+                genreIds.add(photoGenre.getGenre().getId());
             });
         });
         //saveExhibitionGenres ( Set To List )
-        saveExhibitionGenres(exhibition, (List<String>) genreIds);
+
+        saveExhibitionGenres(exhibition, (List<Long>) genreIds);
 
         final RoomDto.CreateRoomResponse roomCreateRoomResponseDto = RoomDto.CreateRoomResponse.builder()
                 .roomId(savedRoom.getRoomId().toString())
@@ -112,9 +117,10 @@ public class RoomServiceImpl implements RoomService {
         return roomReadRoomListResponseDto;
     }
 
-    public void saveExhibitionGenres(Exhibition savedExhibition, List<String> genreIds) {
+    public void saveExhibitionGenres(Exhibition savedExhibition, List<Long> genreIds) {
         genreIds.forEach(genreId -> {
-            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId)).orElseThrow(() -> new PhotoException(PhotoErrorResult.GENRE_NOT_FOUND));
+            final Genre genre = genreRepository.findById(genreId)
+                    .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.GENRE_NOT_FOUND));
 
             ExhibitionGenre exhibitionGenre = ExhibitionGenre.builder()
                     .genre(genre)

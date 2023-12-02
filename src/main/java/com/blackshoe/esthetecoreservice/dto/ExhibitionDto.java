@@ -131,6 +131,31 @@ public class ExhibitionDto {
             this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
             this.thumbnail = photoUrl;
         }
-
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class ReadRecommendedExhibitionResponse {
+        private String exhibitionId;
+        private String title;
+        private String description;
+        private String thumbnail;
+        private String userId;
+        private String nickname;
+        private String profileImg;
+
+        public ReadRecommendedExhibitionResponse(Exhibition exhibition){
+            this.exhibitionId = exhibition.getExhibitionId().toString();
+            this.title = exhibition.getTitle() != null ? exhibition.getTitle() : "";
+            this.description = exhibition.getDescription() != null ? exhibition.getDescription() : "";
+            this.thumbnail = exhibition.getThumbnail() != null ? exhibition.getThumbnail() : "";
+            this.userId = exhibition.getUser().getUserId().toString();
+            this.nickname = exhibition.getUser().getNickname();
+            this.profileImg = exhibition.getUser().getProfileImgUrl().getCloudfrontUrl();
+        }
+    }
+
 }

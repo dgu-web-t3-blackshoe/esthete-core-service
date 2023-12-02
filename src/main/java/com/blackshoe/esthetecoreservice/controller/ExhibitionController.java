@@ -4,6 +4,7 @@ import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
 import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
+import com.blackshoe.esthetecoreservice.service.RecommendationService;
 import com.blackshoe.esthetecoreservice.service.RoomPhotoService;
 import com.blackshoe.esthetecoreservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +26,7 @@ public class ExhibitionController {
     private final RoomService roomService;
 
     private final RoomPhotoService roomPhotoService;
+
 
     @PostMapping
     public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
@@ -81,4 +84,5 @@ public class ExhibitionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadRoomPhotoListResponse);
     }
+
 }
