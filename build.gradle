@@ -63,10 +63,6 @@ dependencies {
         exclude group: 'log4j', module: 'log4j'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    implementation 'org.apache.mahout:mahout-math:0.13.0'
-    implementation 'org.apache.mahout:mahout-core:0.13.0'
-    implementation 'org.apache.mahout:mahout-hdfs:0.13.0'
-    implementation 'org.apache.mahout:mahout-mr:0.13.0'
 }
 
 tasks.named('test') {
