@@ -72,9 +72,14 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
 
+    @Column(name = "support_count")
     private Long supportCount;
 
+    @Column(name = "view_count")
     private Long viewCount;
+
+    @Column(name = "provider", length = 20)
+    private String provider;
 
     @Builder
     public User(String nickname, String biography) {

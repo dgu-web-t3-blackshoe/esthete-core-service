@@ -42,6 +42,7 @@ public class Exhibition {
     private String thumbnail;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL, orphanRemoval = true)
