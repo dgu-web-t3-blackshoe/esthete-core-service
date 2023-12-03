@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -77,8 +74,9 @@ public class RoomServiceImpl implements RoomService {
             });
         });
         //saveExhibitionGenres ( Set To List )
+        List<Long> genreIdList = new ArrayList<>(genreIds);
 
-        saveExhibitionGenres(exhibition, (List<Long>) genreIds);
+        saveExhibitionGenres(exhibition, genreIdList);
 
         final RoomDto.CreateRoomResponse roomCreateRoomResponseDto = RoomDto.CreateRoomResponse.builder()
                 .roomId(savedRoom.getRoomId().toString())
