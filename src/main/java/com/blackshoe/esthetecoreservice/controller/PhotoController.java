@@ -46,14 +46,14 @@ public class PhotoController {
                 .createdAt(photoDto.getCreatedAt().toString())
                 .build();
 
-        return ResponseEntity.ok(photoCreatePhotoResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(photoCreatePhotoResponse);
     }
 
     @GetMapping({"/{photo_id}"})
     public ResponseEntity<PhotoDto.GetResponse> getPhoto(@PathVariable(name = "photo_id") UUID photoId) {
         final PhotoDto.GetResponse photoGetResponse = photoService.getPhoto(photoId);
 
-        return ResponseEntity.ok(photoGetResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(photoGetResponse);
     }
 
     @GetMapping({"/genres"})
