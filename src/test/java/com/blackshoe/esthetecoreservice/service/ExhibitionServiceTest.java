@@ -61,7 +61,7 @@ public class ExhibitionServiceTest {
             .build();
 
     @Test
-    public void createExhibition_whenSuccess_returnsExhibitionCreateResponse() {
+    public void createExhibition_whenSuccess_returnsExhibitionCreateResponse() throws Exception{
         // given
         when(exhibitionRepository.save(any(Exhibition.class))).thenReturn(exhibition);
         when(exhibition.getExhibitionId()).thenReturn(exhibitionId);

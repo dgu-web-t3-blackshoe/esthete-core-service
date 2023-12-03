@@ -7,6 +7,7 @@ import com.blackshoe.esthetecoreservice.service.ExhibitionService;
 import com.blackshoe.esthetecoreservice.service.RecommendationService;
 import com.blackshoe.esthetecoreservice.service.RoomPhotoService;
 import com.blackshoe.esthetecoreservice.service.RoomService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class ExhibitionController {
 
 
     @PostMapping
-    public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
+    public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) throws JsonProcessingException{
 
         final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
 

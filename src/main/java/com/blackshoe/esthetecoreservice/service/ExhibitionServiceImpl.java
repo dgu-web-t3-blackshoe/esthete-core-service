@@ -7,6 +7,8 @@ import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,7 +32,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
     @Override
     @Transactional
-    public ExhibitionDto.CreateExhibitionResponse createExhibition(ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
+    public ExhibitionDto.CreateExhibitionResponse createExhibition(ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) throws JsonProcessingException {
 
         final User photographer = userRepository.findByUserId(UUID.fromString(exhibitionCreateRequest.getUserId()))
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));
@@ -45,35 +47,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         final Exhibition savedExhibition = exhibitionRepository.save(exhibition);
 
-        NewWork newWork = newWorkRepository.findByPhotographerId(photographer.getUserId()).orElse(null);
-
-        List<Support> supports = supportRepository.findAllByPhotographerId(photographer.getUserId());
-
-        String[] userIdWithCondition;
-        List<String[]> supporters = new ArrayList<>();
-
-        for(Support support : supports){
-            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
-            supporters.add(userIdWithCondition);
-        }
-
-        String hasNewRedisKey = "photographer_" + exhibitionCreateRequest.getUserId().toString() + "_exhibition_" + savedExhibition.getExhibitionId().toString();
-        redisTemplate.opsForValue().set(hasNewRedisKey, supporters.toString());
-        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
-
-        if(newWork == null){
-            newWork = NewWork.builder()
-                    .exhibition(savedExhibition)
-                    .photographer(photographer)
-                    .photographerId(UUID.fromString(exhibitionCreateRequest.getUserId()))
-                    .exhibitionId(savedExhibition.getExhibitionId())
-                    .build();
-        }
-        else {
-            newWork.setExhibition(savedExhibition);
-        }
-
-        newWorkRepository.save(newWork);
+        saveOrUpdateNewWork(photographer.getUserId(), savedExhibition);
 
         final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = ExhibitionDto.CreateExhibitionResponse.builder()
                 .exhibitionId(savedExhibition.getExhibitionId().toString())
@@ -125,5 +99,47 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                     .build();
 
             return exhibitionReadRandomExhibitionResponse;
+    }
+
+    @Transactional
+    public void saveOrUpdateNewWork(UUID photographerId, Exhibition exhibition) throws JsonProcessingException{
+        List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
+
+        String[] userIdWithCondition;
+        List<String[]> supporters = new ArrayList<>();
+
+        for(Support support : supports){
+            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
+
+            supporters.add(userIdWithCondition);
+        }
+
+        String hasNewRedisKey = "photographer_" + photographerId + "_exhibition_" + exhibition.getExhibitionId().toString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String supportersJson = objectMapper.writeValueAsString(supporters);
+        try{
+            supportersJson = objectMapper.writeValueAsString(supporters);
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 실패: {}", e.getMessage());
+        }
+
+        redisTemplate.opsForValue().set(hasNewRedisKey, supportersJson);
+        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
+        User photographer = userRepository.findByUserId(photographerId)
+                .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));
+
+        NewWork newWork = NewWork.builder()
+                .exhibition(exhibition)
+                .photographerId(photographerId)
+                .exhibitionId(exhibition.getExhibitionId())
+                .build();
+
+        newWork.setPhotographer(photographer);
+        newWork.setExhibition(exhibition);
+
+        newWorkRepository.save(newWork);
     }
 }
