@@ -108,6 +108,14 @@ public class RoomServiceImpl implements RoomService {
 
         final List<RoomDto> roomDtoList = roomRepository.findAllByExhibitionId(exhibitionId);
 
+        roomDtoList.stream().forEach(roomDto -> {
+            final String thumbnail = roomDto.getThumbnail();
+            final Photo photo = photoRepository.findByPhotoId(UUID.fromString(thumbnail))
+                    .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+            roomDto.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+        });
+
         final RoomDto.ReadRoomListResponse roomReadRoomListResponseDto = RoomDto.ReadRoomListResponse.builder()
                 .rooms(roomDtoList)
                 .build();

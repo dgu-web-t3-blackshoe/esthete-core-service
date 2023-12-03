@@ -2,6 +2,8 @@ package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.entity.*;
+import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
+import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, DataModel> dataModelRedisTemplate;
+    private final PhotoRepository photoRepository;
 
     private Map<Long, Set<Long>> collectUserPreferredGenres() {
         Map<Long, Set<Long>> userPreferredGenres = new HashMap<>();
@@ -143,6 +146,11 @@ public class RecommendationServiceImpl implements RecommendationService {
             Optional<Exhibition> opExhibition = exhibitionRepository.findById(exhibitionId);
 
             ExhibitionDto.ReadRecommendedExhibitionResponse recommendedExhibition = new ExhibitionDto.ReadRecommendedExhibitionResponse(opExhibition.get());
+
+            Photo photo = photoRepository.findByPhotoId(UUID.fromString(recommendedExhibition.getThumbnail()))
+                    .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+            recommendedExhibition.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
 
             recommendedExhibitions.add(recommendedExhibition);
         }
