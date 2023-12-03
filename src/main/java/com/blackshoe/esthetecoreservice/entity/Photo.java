@@ -62,10 +62,10 @@ public class Photo {
 
     //equipments
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoEquipment> photoEquipments = new ArrayList<>();
+    private List<PhotoEquipment> photoEquipments;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoGenre> photoGenres = new ArrayList<>();
+    private List<PhotoGenre> photoGenres;
 
     @Column(name = "view_count")
     @ColumnDefault("0")
@@ -101,6 +101,10 @@ public class Photo {
 
     public void addPhotoGenre(PhotoGenre photoGenre) {
         this.photoGenres.add(photoGenre);
+    }
+
+    public void addPhotoEquipment(PhotoEquipment photoEquipment) {
+        this.photoEquipments.add(photoEquipment);
     }
     public void increaseViewCount() {
         this.viewCount++;

@@ -238,17 +238,8 @@ public class PhotoServiceImpl implements PhotoService {
     public PhotoDto.GetResponse getPhoto(UUID photoId) {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
-        List<PhotoGenre> photoGenres = photoGenreRepository.findByPhoto(photo).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_GENRE_NOT_FOUND));
-
-        PhotoDto.EquipmentNamesRequest equipmentNames = PhotoDto.EquipmentNamesRequest.builder()
-                .equipmentNames(
-                        photo.getPhotoEquipments()
-                                .stream()
-                                .map(equipment -> equipment.getPhotoEquipmentName())
-                                .collect(Collectors.toList())  // 수정된 부분
-                )
-                .build();
-
+        List<PhotoGenre> photoGenres = photoGenreRepository.findByPhoto(photo).orElse(new ArrayList<>());
+        List<PhotoEquipment> photoEquipments = photoEquipmentRepository.findByPhoto(photo).orElse(new ArrayList<>());
 
         PhotoDto.LocationRequest locationRequest = PhotoDto.LocationRequest.builder()
                 .longitude(photo.getPhotoLocation().getLongitude())
@@ -262,8 +253,6 @@ public class PhotoServiceImpl implements PhotoService {
                 .cloudfrontUrl(photo.getPhotoUrl().getCloudfrontUrl())
                 .build();
 
-        log.info("photo.getPhotoGenres(): {}", photo.getPhotoGenres());
-
         //PhotoGenre to Long
         List<PhotoDto.GenreDto> genres = photoGenres
                 .stream()
@@ -271,11 +260,6 @@ public class PhotoServiceImpl implements PhotoService {
                         .genreId(photoGenre.getGenre().getGenreId().toString())
                         .genreName(photoGenre.getGenre().getGenreName())
                         .build())
-                .collect(Collectors.toList());
-
-        List<String> equipments = photo.getPhotoEquipments()
-                .stream()
-                .map(photoEquipment -> photoEquipment.getPhotoEquipmentName())
                 .collect(Collectors.toList());
 
 
@@ -286,7 +270,7 @@ public class PhotoServiceImpl implements PhotoService {
                 .time(photo.getTime())
                 .photoUrl(urlRequest)
                 .photoLocation(locationRequest)
-                .equipments(equipments)
+                .equipments(photoEquipments.stream().map(photoEquipment -> photoEquipment.getPhotoEquipmentName()).collect(Collectors.toList()))
                 .genres(genres)
                 .viewCount(photo.getViewCount())
                 .createdAt(String.valueOf(photo.getCreatedAt()))

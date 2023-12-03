@@ -35,14 +35,14 @@ public class NewWork {
     @Column(columnDefinition = "BINARY(16)", name = "photographer_uuid")
     private UUID photographerId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "new_work_fk_photo_id"))
     private Photo photo;
 
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "exhibition_id", foreignKey = @ForeignKey(name = "new_work_fk_exhibition_id"))
     private Exhibition exhibition;
 

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -228,17 +229,30 @@ public class UserServiceImpl implements UserService {
         return myProfileInfoResponse;
     }
 
-    @Override
-    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest) {
+    @Override @Transactional
+    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileDto updateProfileDto) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        user.setNickname(updateMyProfileRequest.getNickname());
-        user.setBiography(updateMyProfileRequest.getBiography());
+        ProfileImgUrl profileImgUrl;
+        if(updateProfileDto.getProfileImgUrlDto().getCloudfrontUrl().equals("")) {
 
-        List<UserDto.GenreDto> genreDtos = null;
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        }else{
+            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
+        }
 
-        updateMyProfileRequest.getGenres().stream().forEach(genreId -> {
+        user.setNickname(updateProfileDto.getNickname());
+        user.setBiography(updateProfileDto.getBiography());
+        user.setProfileImgUrl(profileImgUrl);
+
+
+        List<UserDto.GenreDto> genreDtos = new ArrayList<>();
+
+        updateProfileDto.getGenres().stream().forEach(genreId -> {
             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
                     .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
 
@@ -251,18 +265,14 @@ public class UserServiceImpl implements UserService {
                     .build();
 
             userGenre.setUser(user);
-
-            userGenreRepository.save(userGenre);
         });
 
-        updateMyProfileRequest.getEquipments().stream().forEach(equipmentName -> {
+        updateProfileDto.getEquipments().stream().forEach(equipmentName -> {
             UserEquipment userEquipment = UserEquipment.builder()
                     .equipmentName(equipmentName)
                     .build();
 
             userEquipment.setUser(user);
-
-            userEquipmentRepository.save(userEquipment);
         });
 
         UserDto.UpdateProfileResponse updateMyProfileResponse = UserDto.UpdateProfileResponse.builder()

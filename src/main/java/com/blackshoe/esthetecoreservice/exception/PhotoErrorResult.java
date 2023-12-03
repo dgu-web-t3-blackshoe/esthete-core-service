@@ -19,8 +19,8 @@ public enum PhotoErrorResult {
     PHOTO_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "사진이 이미 존재합니다."),
     INVALID_LOCATION_GROUP_TYPE(HttpStatus.BAD_REQUEST, "위치 그룹 타입이 유효하지 않습니다."),
     INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "정렬 타입이 유효하지 않습니다."),
-    INVALID_ADDRESS_FILTER(HttpStatus.BAD_REQUEST, "주소 필터가 유효하지 않습니다.");
-
+    INVALID_ADDRESS_FILTER(HttpStatus.BAD_REQUEST, "주소 필터가 유효하지 않습니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
