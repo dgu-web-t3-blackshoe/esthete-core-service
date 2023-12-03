@@ -82,7 +82,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
             Optional<Exhibition> optionalExhibition = Optional.empty();
 
             while (optionalExhibition.isEmpty()) {
-                final Long exhibitionId = (long) (Math.random() * 1000000);
+                final Long exhibitionId = (long) (Math.random() * 100);
                 optionalExhibition = exhibitionRepository.findById(exhibitionId);
             }
 
