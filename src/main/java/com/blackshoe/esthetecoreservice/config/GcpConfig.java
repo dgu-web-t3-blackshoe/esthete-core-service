@@ -3,14 +3,13 @@ package com.blackshoe.esthetecoreservice.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Slf4j
@@ -24,10 +23,11 @@ public class GcpConfig {
     public void init() {
 
         try {
-            Path downladPath = Path.of("src/main/resources");
             String fileName = "esthete-gcp.json";
 
-            Path filePath = downladPath.resolve(fileName);
+            ClassPathResource resource = new ClassPathResource(fileName);
+
+            Path filePath = Path.of(resource.getURI());
 
             log.info("GCP credential file download start");
             log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
