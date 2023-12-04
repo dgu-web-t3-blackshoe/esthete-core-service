@@ -86,6 +86,7 @@ public class User {
 
     @Builder
     public User(String nickname, String biography) {
+        this.email = email;
         this.nickname = nickname;
         this.biography = biography;
         this.userGenres = new ArrayList<>();
@@ -117,14 +118,13 @@ public class User {
         this.email = email;
     }
 
-    @Builder(builderMethodName = "createUserFromKafka")
-    public User(UUID userId, String email, Role role, ProfileImgUrl profileImgUrl) {
+    @Builder(builderMethodName = "createUserFromOAuth2")
+    public User(UUID userId, String provider, Role role, String email) {
         this.userId = userId;
         this.email = email;
         this.role = role;
-        this.profileImgUrl = profileImgUrl;
+        this.provider = provider;
     }
-
     public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
@@ -160,5 +160,9 @@ public class User {
 
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void setProvider(String authProvider) {
+        this.provider = authProvider;
     }
 }
