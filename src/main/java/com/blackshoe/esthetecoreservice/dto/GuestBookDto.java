@@ -65,4 +65,15 @@ public class GuestBookDto {
             this.content = guestBook != null ? guestBook.getContent() : "";
         }
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DeleteGuestBookResponse {
+        private String guestBookId;
+        private String deletedAt;
+    }
 }

@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PhotoBookAbusingReportDto {
+public class PhotoAbusingReportDto {
         private String photoId;
         private String photoTitle;
         private String photoDescription;

@@ -3,6 +3,8 @@ package com.blackshoe.esthetecoreservice.service;
 import com.blackshoe.esthetecoreservice.dto.GuestBookDto;
 import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.blackshoe.esthetecoreservice.entity.User;
+import com.blackshoe.esthetecoreservice.exception.GuestBookErrorResult;
+import com.blackshoe.esthetecoreservice.exception.GuestBookException;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.GuestBookRepository;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -48,5 +51,21 @@ public class GuestBookServiceImpl implements GuestBookService {
                 .build();
 
         return guestBookCreateGuestBookResponse;
+    }
+
+    @Override
+    public GuestBookDto.DeleteGuestBookResponse deleteGuestBook(UUID guestBookId) {
+
+        final GuestBook guestBook = guestBookRepository.findByGuestBookId(guestBookId)
+                .orElseThrow(() -> new GuestBookException(GuestBookErrorResult.GUEST_BOOK_NOT_FOUND));
+
+        guestBookRepository.delete(guestBook);
+
+        final GuestBookDto.DeleteGuestBookResponse guestBookDeleteGuestBookResponse = GuestBookDto.DeleteGuestBookResponse.builder()
+                .guestBookId(guestBook.getGuestBookId().toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        return guestBookDeleteGuestBookResponse;
     }
 }
