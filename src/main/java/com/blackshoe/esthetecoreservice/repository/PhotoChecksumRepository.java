@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PhotoChecksumRepository extends JpaRepository<PhotoChecksum, Long> {
     boolean existsByChecksum(String checksum);
+
+    void deleteByChecksum(String checksum);
+
 }

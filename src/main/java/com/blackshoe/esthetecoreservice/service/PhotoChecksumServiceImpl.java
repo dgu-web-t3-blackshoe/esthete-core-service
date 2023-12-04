@@ -65,6 +65,40 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
         }
     }
 
+    @Override
+    public void testAddPhotoChecksum(MultipartFile file, UUID photoId) {
+
+        final String checksum;
+
+        try {
+            checksum = calculateMD5(file.getBytes());
+        } catch (IOException e) {
+            throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
+        }
+
+        PhotoChecksum photoChecksum = PhotoChecksum.builder()
+                .checksum(checksum)
+                .build();
+
+        photoChecksumRepository.save(photoChecksum);
+    }
+
+    @Override
+    public void testValidatePhotoChecksumExist(MultipartFile file) {
+
+            final String checksum;
+
+            try {
+                checksum = calculateMD5(file.getBytes());
+            } catch (IOException e) {
+                throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
+            }
+
+            if (photoChecksumRepository.existsByChecksum(checksum)) {
+               photoChecksumRepository.deleteByChecksum(checksum);
+            }
+    }
+
     private String calculateMD5(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

@@ -57,6 +57,11 @@ springfox:
         path: core/v3/api-docs
 
 cloud:
+  gcp:
+    project-id: ${GCP_PROJECT_ID}
+    credentials:
+      location: classpath:esthete-gcp.json
+    credential-download-link: ${GCP_CREDENTIAL_DOWNLOAD_LINK}
   aws:
     credentials:
       access-key: ${AWS_ACCESS_KEY}
