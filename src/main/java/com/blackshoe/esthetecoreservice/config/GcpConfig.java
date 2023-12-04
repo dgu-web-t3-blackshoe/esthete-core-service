@@ -19,7 +19,6 @@ public class GcpConfig {
     @Value("${cloud.gcp.credential-download-link}")
     private String CREDENTIAL_DOWNLOAD_LINK;
 
-    // 어플리케이션이 시작되고 resources 폴더 안에 esthete-gcp.json파일이 없으면 다운로드 받는다.
     @PostConstruct
     public void init() {
 
@@ -30,12 +29,13 @@ public class GcpConfig {
 
             if (!file.exists()) {
                 log.info("GCP credential file download start");
+                log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
                 URL url = new URL(CREDENTIAL_DOWNLOAD_LINK);
                 Files.copy(url.openStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
                 log.info("GCP credential file download complete");
             }
         } catch (IOException e) {
-            log.error("GCP credential file download failed");
+            log.error("GCP credential file download failed", e);
         }
     }
 }
