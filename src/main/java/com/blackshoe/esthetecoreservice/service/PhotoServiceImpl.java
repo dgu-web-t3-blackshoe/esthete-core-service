@@ -43,6 +43,8 @@ public class PhotoServiceImpl implements PhotoService {
     private final GenreRepository genreRepository;
     private final PhotoGenreRepository photoGenreRepository;
     private final PhotoEquipmentRepository photoEquipmentRepository;
+    private final PhotoChecksumService photoChecksumService;
+    private final SafeSearchFilterService safeSearchFilterService;
 
     //redis
     private final RedisTemplate redisTemplate;
@@ -64,11 +66,18 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
         validatePhoto(photo);
+
+//        photoChecksumService.validatePhotoChecksumExist(photo);
+//
+//        safeSearchFilterService.safeSearchFilter(photo);
+
         User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
 
         UUID photoId = UUID.randomUUID();
+
+//        photoChecksumService.addPhotoChecksum(photo, photoId);
 
         String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
 
