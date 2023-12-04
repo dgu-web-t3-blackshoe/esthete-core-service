@@ -15,4 +15,6 @@ public interface SupportService {
     SupportDto.DeleteSupportResponse deleteSupport(UUID userId, UUID photographerId);
 
     Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page);
+
+    SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId);
 }

@@ -78,5 +78,7 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
             "AND s.createdAt >= CURRENT_DATE - 7 " +
             "GROUP BY s.photographer " +
             "ORDER BY COUNT(s.photographer) DESC")
-    Page<User> getPhotographersBySupportCountInAWeekAndGenres(@Param("userId") UUID userId,@Param("genres") List<String> genres, Pageable pageable);
+    Page<User> getPhotographersBySupportCountInAWeekAndGenres(@Param("userId") UUID userId, @Param("genres") List<String> genres, Pageable pageable);
+
+    Boolean existsByUserAndPhotographer(User user, User photographer);
 }
