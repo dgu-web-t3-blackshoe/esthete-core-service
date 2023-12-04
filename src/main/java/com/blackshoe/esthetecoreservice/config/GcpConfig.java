@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -23,17 +24,16 @@ public class GcpConfig {
     public void init() {
 
         try {
-            String path = "src/main/resources/esthete-gcp.json";
+            Path downladPath = Path.of("src/main/resources");
+            String fileName = "esthete-gcp.json";
 
-            File file = new File(path);
+            Path filePath = downladPath.resolve(fileName);
 
-            if (!file.exists()) {
-                log.info("GCP credential file download start");
-                log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
-                URL url = new URL(CREDENTIAL_DOWNLOAD_LINK);
-                Files.copy(url.openStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
-                log.info("GCP credential file download complete");
-            }
+            log.info("GCP credential file download start");
+            log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
+            URL url = new URL(CREDENTIAL_DOWNLOAD_LINK);
+            Files.copy(url.openStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("GCP credential file download complete");
         } catch (IOException e) {
             log.error("GCP credential file download failed", e);
         }
