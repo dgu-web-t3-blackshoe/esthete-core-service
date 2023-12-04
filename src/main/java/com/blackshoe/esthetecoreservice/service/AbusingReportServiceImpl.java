@@ -31,7 +31,7 @@ public class AbusingReportServiceImpl implements AbusingReportService {
 
     private final UserRepository userRepository;
 
-    @Value("${services.admin-service")
+    @Value("${services.admin-service}")
     private String ADMIN_SERVICE;
 
     @Override
