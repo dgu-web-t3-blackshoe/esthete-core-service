@@ -67,17 +67,17 @@ public class PhotoServiceImpl implements PhotoService {
     public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
         validatePhoto(photo);
 
-//        photoChecksumService.validatePhotoChecksumExist(photo);
+        UUID photoId = UUID.randomUUID();
+
+        photoChecksumService.validatePhotoChecksumExist(photo);
 //
 //        safeSearchFilterService.safeSearchFilter(photo);
+
+        photoChecksumService.addPhotoChecksum(photo, photoId);
 
         User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
-
-        UUID photoId = UUID.randomUUID();
-
-//        photoChecksumService.addPhotoChecksum(photo, photoId);
 
         String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
 
