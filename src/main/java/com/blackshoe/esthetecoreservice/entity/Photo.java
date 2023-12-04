@@ -62,10 +62,14 @@ public class Photo {
 
     //equipments
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoEquipment> photoEquipments;
+    private List<PhotoEquipment> photoEquipments = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoGenre> photoGenres;
+    private List<PhotoGenre> photoGenres = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "new_work_id", foreignKey = @ForeignKey(name = "photo_fk_new_work_id"))
+    private NewWork newWork;
 
     @Column(name = "view_count")
     @ColumnDefault("0")

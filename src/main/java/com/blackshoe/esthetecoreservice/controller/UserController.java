@@ -213,7 +213,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userUpdateProfileResponse); //200
     }
 
-    @PostMapping(value = "/{user_id}/profile-img", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
+    @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<UserDto.UpdateProfileImgResponse> uploadProfileImage(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
                                                      @PathVariable(name = "user_id") UUID userId) throws Exception {
 
