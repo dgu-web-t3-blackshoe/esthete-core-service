@@ -4,13 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Configuration
@@ -21,21 +25,26 @@ public class GcpConfig {
 
     @PostConstruct
     public void init() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            try {
+                String fileName = "esthete-gcp.json";
 
-        try {
-            String fileName = "esthete-gcp.json";
+                Path destinationPath = Path.of("src/main/resources", fileName);
 
-            ClassPathResource resource = new ClassPathResource(fileName);
+                log.info("GCP credential file download start");
+                log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
 
-            Path filePath = Path.of(resource.getURI());
+                try (InputStream inputStream = new URL(CREDENTIAL_DOWNLOAD_LINK).openStream()) {
+                    Files.copy(inputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                }
 
-            log.info("GCP credential file download start");
-            log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
-            URL url = new URL(CREDENTIAL_DOWNLOAD_LINK);
-            Files.copy(url.openStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            log.info("GCP credential file download complete");
-        } catch (IOException e) {
-            log.error("GCP credential file download failed", e);
-        }
+                log.info("GCP credential file download complete");
+            } catch (IOException e) {
+                log.error("GCP credential file download failed", e);
+            }
+        });
+
+        executorService.shutdown();
     }
 }
