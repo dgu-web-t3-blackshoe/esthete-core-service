@@ -21,6 +21,7 @@ public interface UserService {
     Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size);
 
     Page<GuestBookDto.ReadGuestBookResponse> readUserGuestbooks(UUID userId, Sort sortBy, int page, int size);
+
     Page<UserDto.SearchResult> readAllNicknameContaining(String nickname, Pageable pageable);
 
     Page<UserDto.SearchResult> readAllGenresContaining(List<UUID> genres, Pageable pageable);
