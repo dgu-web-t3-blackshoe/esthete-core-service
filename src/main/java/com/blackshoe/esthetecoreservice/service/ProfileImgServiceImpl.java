@@ -27,6 +27,7 @@ import java.util.UUID;
 public class ProfileImgServiceImpl implements ProfileImgService {
     private final AmazonS3Client amazonS3Client;
     private final UserRepository userRepository;
+
     private final ProfileImgUrlRepository profileImgUrlRepository;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -115,6 +116,9 @@ public class ProfileImgServiceImpl implements ProfileImgService {
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
         String profileImgS3Url = user.getProfileImgUrl().getS3Url();
 
+        //@TODO: delete profileImgUrl from user
+        //profileImgUrlRepository.deleteById(user.getProfileImgUrl().getId());
+
         if(profileImgS3Url.equals("")){
             return;
         }
@@ -127,6 +131,8 @@ public class ProfileImgServiceImpl implements ProfileImgService {
             log.error(e.getMessage());
             throw new UserException(UserErrorResult.PROFILEIMG_DELETE_FAILED);
         }
+
+
     }
 
     @Override

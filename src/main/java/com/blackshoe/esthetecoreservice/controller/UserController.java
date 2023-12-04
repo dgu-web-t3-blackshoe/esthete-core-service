@@ -187,7 +187,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfileImage(@PathVariable(name = "user_id") UUID userId,
+    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfile(@PathVariable(name = "user_id") UUID userId,
                                                                             @RequestPart UserDto.UpdateProfileRequest userUpdateProfileRequest,
                                                                             @RequestPart(name = "profile_img", required = false) MultipartFile profileImg) throws Exception {
 
