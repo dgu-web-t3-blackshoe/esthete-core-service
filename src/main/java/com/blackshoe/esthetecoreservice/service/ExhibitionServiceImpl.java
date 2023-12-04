@@ -28,6 +28,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     private final UserRepository userRepository;
     private final RedisTemplate redisTemplate;
     private final SupportRepository supportRepository;
+    private final PhotoRepository photoRepository;
     private final GenreRepository genreRepository;
 
     @Override
@@ -66,6 +67,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         exhibitionRepository.delete(exhibition);
 
+        //@TODO Logic 수정
         redisTemplate.delete("*" + exhibitionId.toString());
 
         final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = ExhibitionDto.DeleteExhibitionResponse.builder()
@@ -88,11 +90,14 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
             final Exhibition exhibition = optionalExhibition.get();
 
+            //photo cloudfronturl from exhibition.thumbnail(photoid)
+            Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail())).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
             final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = ExhibitionDto.ReadRandomExhibitionResponse.builder()
                     .exhibitionId(exhibition.getExhibitionId().toString())
                     .title(exhibition.getTitle())
                     .description(exhibition.getDescription())
-                    .thumbnail(exhibition.getThumbnail())
+                    .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
                     .userId(exhibition.getUser().getUserId().toString())
                     .nickname(exhibition.getUser().getNickname())
                     .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
