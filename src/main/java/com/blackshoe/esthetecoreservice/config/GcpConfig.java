@@ -35,7 +35,7 @@ public class GcpConfig {
                 log.info("GCP credential file download complete");
             }
         } catch (IOException e) {
-            log.error("GCP credential file download failed");
+            log.error("GCP credential file download failed", e);
         }
     }
 }
