@@ -46,14 +46,14 @@ public class PhotoController {
                 .createdAt(photoDto.getCreatedAt().toString())
                 .build();
 
-        return ResponseEntity.ok(photoCreatePhotoResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(photoCreatePhotoResponse);
     }
 
     @GetMapping({"/{photo_id}"})
     public ResponseEntity<PhotoDto.GetResponse> getPhoto(@PathVariable(name = "photo_id") UUID photoId) {
         final PhotoDto.GetResponse photoGetResponse = photoService.getPhoto(photoId);
 
-        return ResponseEntity.ok(photoGetResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(photoGetResponse);
     }
 
     @GetMapping({"/genres"})
@@ -83,7 +83,7 @@ public class PhotoController {
     }
 
     @GetMapping("/locations")
-    public ResponseEntity<Page<PhotoDto.ReadResponse>> readByAddress (
+    public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> readByAddress (
             @RequestParam(name = "state", required = true) Optional<String> state,
             @RequestParam(name = "city", required = false) Optional<String> city,
             @RequestParam(name = "town", required = false) Optional<String> town,
@@ -99,7 +99,7 @@ public class PhotoController {
 
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        final Page<PhotoDto.ReadResponse> photoReadByAddressResponse
+        final Page<PhotoDto.ReadPhotoResponse> photoReadByAddressResponse
                 = photoService.readByAddress(photoAddressFilter, page, size, sortBy);
 
         return ResponseEntity.status(HttpStatus.OK).body(photoReadByAddressResponse);

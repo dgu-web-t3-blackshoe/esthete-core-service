@@ -18,9 +18,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,8 @@ public class UserServiceImpl implements UserService {
     private final UserEquipmentRepository userEquipmentRepository;
     private final GenreRepository genreRepository;
 
+    private final EntityManager entityManager;
+
     private final KafkaUserInfoProducerService kafkaUserInfoProducerService;
 
     @Override
@@ -48,8 +53,6 @@ public class UserServiceImpl implements UserService {
         List<String> equipmentNames = equipments.stream()
                 .map(UserEquipment::getEquipmentName)
                 .collect(Collectors.toList());
-
-        //get equipment name from equipments
 
         return UserDto.ReadEquipmentsResponse.builder()
                 .equipments(equipmentNames)
@@ -76,23 +79,26 @@ public class UserServiceImpl implements UserService {
         Exhibition exhibition = exhibitionRepository.findMostRecentExhibitionOfUser(userId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
 
+        Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail()))
+                .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
         final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse = ExhibitionDto.ReadCurrentOfUserExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
                 .title(exhibition.getTitle())
                 .description(exhibition.getDescription())
-                .thumbnail(exhibition.getThumbnail())
+                .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
                 .build();
 
         return exhibitionReadCurrentOfUserExhibitionResponse;
     }
 
     @Override
-    public Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
+    public Page<PhotoDto.ReadPhotoResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<PhotoDto.ReadResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        Page<PhotoDto.ReadPhotoResponse> photoReadResponses = photoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 
         return photoReadResponses;
     }
@@ -228,50 +234,73 @@ public class UserServiceImpl implements UserService {
         return myProfileInfoResponse;
     }
 
-    @Override
-    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest) {
+    @Override @Transactional
+    public UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileDto updateProfileDto) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+        ProfileImgUrl profileImgUrl = createProfileImgUrl(updateProfileDto.getProfileImgUrlDto());
+        user.setNickname(updateProfileDto.getNickname());
+        user.setBiography(updateProfileDto.getBiography());
+        user.setProfileImgUrl(profileImgUrl);
 
-        user.setNickname(updateMyProfileRequest.getNickname());
-        user.setBiography(updateMyProfileRequest.getBiography());
+        updateGenres(user, updateProfileDto.getGenres());
+        updateEquipments(user, updateProfileDto.getEquipments());
 
-        List<UserDto.GenreDto> genreDtos = null;
+        List<UserDto.GenreDto> genres = user.getUserGenres().stream()
+                .map(userGenre -> new UserDto.GenreDto(userGenre.getGenre().getGenreId(), userGenre.getGenre().getGenreName()))
+                .collect(Collectors.toList());
 
-        updateMyProfileRequest.getGenres().stream().forEach(genreId -> {
+        UserDto.UpdateProfileResponse updateMyProfileResponse = UserDto.UpdateProfileResponse.builder()
+                .profileImg(user.getProfileImgUrl().getCloudfrontUrl())
+                .userId(user.getUserId().toString())
+                .genres(genres)
+                .updatedAt(user.getUpdatedAt().toString())
+                .build();
+
+        return updateMyProfileResponse;
+    }
+
+    private ProfileImgUrl createProfileImgUrl(ProfileImgUrlDto profileImgUrlDto) {
+        if (profileImgUrlDto.getCloudfrontUrl().equals("")) {
+            return ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        } else {
+            return ProfileImgUrl.convertProfileImgUrlDtoToEntity(profileImgUrlDto);
+        }
+    }
+
+    @Transactional
+    public void updateGenres(User user, List<String> genreIds) {
+        userGenreRepository.deleteByUser(user);
+        entityManager.flush();
+
+        genreIds.forEach(genreId -> {
             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
                     .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
-
-            UserDto.GenreDto genreDto = new UserDto.GenreDto(genre.getGenreId(), genre.getGenreName());
-
-            genreDtos.add(genreDto);
 
             UserGenre userGenre = UserGenre.builder()
                     .genre(genre)
                     .build();
 
             userGenre.setUser(user);
-
-            userGenreRepository.save(userGenre);
         });
+    }
 
-        updateMyProfileRequest.getEquipments().stream().forEach(equipmentName -> {
+    @Transactional
+    public void updateEquipments(User user, List<String> equipmentNames) {
+        userEquipmentRepository.deleteByUser(user);
+        entityManager.flush();
+
+        equipmentNames.forEach(equipmentName -> {
             UserEquipment userEquipment = UserEquipment.builder()
                     .equipmentName(equipmentName)
                     .build();
 
             userEquipment.setUser(user);
-
-            userEquipmentRepository.save(userEquipment);
         });
-
-        UserDto.UpdateProfileResponse updateMyProfileResponse = UserDto.UpdateProfileResponse.builder()
-                .userId(user.getUserId().toString())
-                .genres(genreDtos)
-                .updatedAt(user.getUpdatedAt().toString())
-                .build();
-
-        return updateMyProfileResponse;
     }
 
 }

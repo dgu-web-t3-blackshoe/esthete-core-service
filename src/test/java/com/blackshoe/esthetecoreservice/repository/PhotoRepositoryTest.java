@@ -134,7 +134,7 @@ public class PhotoRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, sort);
 
         // when
-        Page<PhotoDto.ReadResponse> readPhotoResponse
+        Page<PhotoDto.ReadPhotoResponse> readPhotoResponse
                 = photoRepository.findAllByPhotoLocationState(photoAddressFilter, pageable);
 
         // then
@@ -159,7 +159,7 @@ public class PhotoRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, sort);
 
         // when
-        Page<PhotoDto.ReadResponse> readPhotoResponse
+        Page<PhotoDto.ReadPhotoResponse> readPhotoResponse
                 = photoRepository.findAllByPhotoLocationStateAndCity(photoAddressFilter, pageable);
 
         // then
@@ -185,7 +185,7 @@ public class PhotoRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, sort);
 
         // when
-        Page<PhotoDto.ReadResponse> readPhotoResponse
+        Page<PhotoDto.ReadPhotoResponse> readPhotoResponse
                 = photoRepository.findAllByPhotoLocationStateAndCityAndTown(photoAddressFilter, pageable);
 
         // then

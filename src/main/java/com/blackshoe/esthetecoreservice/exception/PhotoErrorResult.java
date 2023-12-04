@@ -23,7 +23,6 @@ public enum PhotoErrorResult {
     PHOTO_SAFE_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사진 선정성 필터에 실패했습니다."),
     UNSAFE_PHOTO(HttpStatus.NOT_ACCEPTABLE, "선정적인 사진은 등록할 수 없습니다.");
 
-
     private final HttpStatus httpStatus;
     private final String message;
 }

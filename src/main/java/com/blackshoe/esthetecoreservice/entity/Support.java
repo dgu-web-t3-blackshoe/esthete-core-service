@@ -36,6 +36,7 @@ public class Support {
     private User user;
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Builder

@@ -22,8 +22,8 @@ public class NewWorkDto {
         private String nickname;
         private String photoId;
         private String exhibitionId;
-        private boolean hasNewPhoto;
-        private boolean hasNewExhibition;
+        private String hasNewPhoto;
+        private String hasNewExhibition;
         private String updatedAt;
     }
 

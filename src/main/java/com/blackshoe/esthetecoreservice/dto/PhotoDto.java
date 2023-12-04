@@ -148,7 +148,7 @@ public class PhotoDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class ReadResponse{
+    public static class ReadPhotoResponse {
         private String photoId;
         private String title;
         private String photoUrl;
@@ -157,7 +157,7 @@ public class PhotoDto {
         private String time;
         private String createdAt;
 
-        public ReadResponse(Photo photo){
+        public ReadPhotoResponse(Photo photo){
             this.photoId = photo.getPhotoId().toString();
             this.title = photo.getTitle();
             this.photoUrl = photo.getPhotoUrl() != null ? photo.getPhotoUrl().getCloudfrontUrl() : "";

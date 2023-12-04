@@ -221,6 +221,20 @@ public class UserDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UpdateProfileDto{
+        private ProfileImgUrlDto profileImgUrlDto;
+        private String nickname;
+        private String biography;
+        private List<String> genres;
+        private List<String> equipments;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UpdateProfileResponse{
         private String userId;

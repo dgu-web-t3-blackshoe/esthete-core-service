@@ -24,8 +24,8 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     @EntityGraph(attributePaths = "photoGenres")
     Optional<Photo> findByPhotoId(UUID photoId);
 
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) FROM Photo p WHERE p.user = :user ORDER BY p.createdAt DESC")
-    Page<PhotoDto.ReadResponse> findByUserOrderByCreatedAtDesc(@Param("user") User user, Pageable pageable);
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadPhotoResponse(p) FROM Photo p WHERE p.user = :user ORDER BY p.createdAt DESC")
+    Page<PhotoDto.ReadPhotoResponse> findByUserOrderByCreatedAtDesc(@Param("user") User user, Pageable pageable);
 
 
     default Page<PhotoDto.ReadRegionGroupResponse> findTop10ByUserLocationGroupByState(PhotoPointFilter photoPointFilter) {
@@ -94,24 +94,24 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByTown(
             @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
 
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadPhotoResponse(p) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} ")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationState(
+    Page<PhotoDto.ReadPhotoResponse> findAllByPhotoLocationState(
             @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadPhotoResponse(p) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} " +
             "AND p.photoLocation.city = :#{#photoAddressFilter.city} ")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationStateAndCity(
+    Page<PhotoDto.ReadPhotoResponse> findAllByPhotoLocationStateAndCity(
             @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 
-    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadResponse(p) " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadPhotoResponse(p) " +
             "FROM Photo p " +
             "WHERE p.photoLocation.state = :#{#photoAddressFilter.state} " +
             "AND p.photoLocation.city = :#{#photoAddressFilter.city} " +
             "AND p.photoLocation.town = :#{#photoAddressFilter.town} ")
-    Page<PhotoDto.ReadResponse> findAllByPhotoLocationStateAndCityAndTown(
+    Page<PhotoDto.ReadPhotoResponse> findAllByPhotoLocationStateAndCityAndTown(
             @Param("photoAddressFilter") PhotoAddressFilter photoAddressFilter, Pageable pageable);
 }

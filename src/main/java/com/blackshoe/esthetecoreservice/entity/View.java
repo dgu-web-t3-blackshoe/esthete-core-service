@@ -28,6 +28,10 @@ public class View {
     private Photo photo;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exhibition_id", foreignKey = @ForeignKey(name = "view_fk_exhibition_id"))
+    private Exhibition exhibition;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "view_fk_user_id"))
     private User user;
 
