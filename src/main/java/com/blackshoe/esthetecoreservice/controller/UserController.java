@@ -81,6 +81,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateSupportResponse);
     }
 
+    @GetMapping("/{userId}/supports/{photographerId}")
+    public ResponseEntity<SupportDto.IsSupported> getSupportBoolean(@PathVariable UUID userId, @PathVariable UUID photographerId) {
+
+        SupportDto.IsSupported isSupportedDto = supportService.getIsSupported(userId, photographerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(isSupportedDto);
+    }
+
+
     @DeleteMapping("/{user_id}/supports/{photographerId}")
     public ResponseEntity<SupportDto.DeleteSupportResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
 

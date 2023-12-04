@@ -13,6 +13,15 @@ import javax.validation.constraints.Pattern;
 
 public class SupportDto {
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class IsSupported {
+        private boolean isSupported;
+    }
 
     @Data
     @Builder

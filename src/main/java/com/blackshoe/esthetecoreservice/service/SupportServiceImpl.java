@@ -110,4 +110,22 @@ public class SupportServiceImpl implements SupportService {
         return photographersResponse;
 
     }
+
+    @Override
+    public SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId) {
+
+        final User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        final User photographer = userRepository.findByUserId(photographerId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        final Boolean isSupported = supportRepository.existsByUserAndPhotographer(user, photographer);
+
+        final SupportDto.IsSupported isSupportedResponse = SupportDto.IsSupported.builder()
+                .isSupported(isSupported)
+                .build();
+
+        return isSupportedResponse;
+    }
 }
