@@ -1,7 +1,7 @@
 package com.blackshoe.esthetecoreservice.controller;
 
 import com.blackshoe.esthetecoreservice.dto.GuestBookAbusingReportDto;
-import com.blackshoe.esthetecoreservice.dto.PhotoBookAbusingReportDto;
+import com.blackshoe.esthetecoreservice.dto.PhotoAbusingReportDto;
 import com.blackshoe.esthetecoreservice.service.AbusingReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,9 +29,12 @@ public class AbusingReportController {
     }
 
     @PostMapping("/photos")
-    public ResponseEntity<PhotoBookAbusingReportDto.photoAbusingReportCreateResponse>
-    createPhotoAbusingReport(@RequestBody PhotoBookAbusingReportDto.photoAbusingReportCreateRequest photoBookAbusingReportCreateRequest) {
+    public ResponseEntity<PhotoAbusingReportDto.photoAbusingReportCreateResponse>
+    createPhotoAbusingReport(@RequestBody PhotoAbusingReportDto.photoAbusingReportCreateRequest photoBookAbusingReportCreateRequest) {
 
-        return null;
+        PhotoAbusingReportDto.photoAbusingReportCreateResponse photoAbusingReportCreateResponse
+                = abusingReportService.createPhotoAbusingReport(photoBookAbusingReportCreateRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(photoAbusingReportCreateResponse);
     }
 }
