@@ -66,6 +66,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
     }
 
     @Override
+    @Transactional
     public void testAddPhotoChecksum(MultipartFile file, UUID photoId) {
 
         final String checksum;
@@ -84,6 +85,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
     }
 
     @Override
+    @Transactional
     public void testValidatePhotoChecksumExist(MultipartFile file) {
 
             final String checksum;
