@@ -1,7 +1,7 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.GuestBookAbusingReportDto;
-import com.blackshoe.esthetecoreservice.dto.PhotoBookAbusingReportDto;
+import com.blackshoe.esthetecoreservice.dto.PhotoAbusingReportDto;
 import com.blackshoe.esthetecoreservice.entity.GuestBook;
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.User;
@@ -68,7 +68,7 @@ public class AbusingReportServiceImpl implements AbusingReportService {
                 .build();
 
         webClient.post()
-                .uri("/guest-books")
+                .uri("/abusing-reports/guest-books")
                 .bodyValue(guestBookAbusingReportDto)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse -> {
@@ -87,8 +87,8 @@ public class AbusingReportServiceImpl implements AbusingReportService {
     }
 
     @Override
-    public PhotoBookAbusingReportDto.photoAbusingReportCreateResponse createPhotoAbusingReport(
-            PhotoBookAbusingReportDto.photoAbusingReportCreateRequest photoBookAbusingReportCreateRequest) {
+    public PhotoAbusingReportDto.photoAbusingReportCreateResponse createPhotoAbusingReport(
+            PhotoAbusingReportDto.photoAbusingReportCreateRequest photoBookAbusingReportCreateRequest) {
 
         final UUID photoId = UUID.fromString(photoBookAbusingReportCreateRequest.getPhotoId());
         final UUID reporterId = UUID.fromString(photoBookAbusingReportCreateRequest.getUserId());
@@ -98,7 +98,7 @@ public class AbusingReportServiceImpl implements AbusingReportService {
         final User reporter = userRepository.findByUserId(reporterId)
                 .orElseThrow(() -> new AbusingReportException(AbusingReportErrorResult.USER_NOT_FOUND));
 
-        final PhotoBookAbusingReportDto photoBookAbusingReportDto = PhotoBookAbusingReportDto.builder()
+        final PhotoAbusingReportDto photoAbusingReportDto = PhotoAbusingReportDto.builder()
                 .photoId(photo.getPhotoId().toString())
                 .photoTitle(photo.getTitle())
                 .photoDescription(photo.getDescription())
@@ -119,8 +119,8 @@ public class AbusingReportServiceImpl implements AbusingReportService {
                 .build();
 
         webClient.post()
-                .uri("/photos")
-                .bodyValue(photoBookAbusingReportDto)
+                .uri("/abusing-reports/photos")
+                .bodyValue(photoAbusingReportDto)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse -> {
                     throw new AbusingReportException(AbusingReportErrorResult.ABUSING_REPORT_FAILED);
@@ -128,8 +128,8 @@ public class AbusingReportServiceImpl implements AbusingReportService {
                 .bodyToMono(Void.class)
                 .block();
 
-        final PhotoBookAbusingReportDto.photoAbusingReportCreateResponse photoBookAbusingReportCreateResponse
-                = PhotoBookAbusingReportDto.photoAbusingReportCreateResponse.builder()
+        final PhotoAbusingReportDto.photoAbusingReportCreateResponse photoBookAbusingReportCreateResponse
+                = PhotoAbusingReportDto.photoAbusingReportCreateResponse.builder()
                 .photoAbusingReportId(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
