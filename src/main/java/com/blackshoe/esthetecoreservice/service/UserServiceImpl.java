@@ -79,11 +79,14 @@ public class UserServiceImpl implements UserService {
         Exhibition exhibition = exhibitionRepository.findMostRecentExhibitionOfUser(userId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
 
+        Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail()))
+                .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
         final ExhibitionDto.ReadCurrentOfUserExhibitionResponse exhibitionReadCurrentOfUserExhibitionResponse = ExhibitionDto.ReadCurrentOfUserExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
                 .title(exhibition.getTitle())
                 .description(exhibition.getDescription())
-                .thumbnail(exhibition.getThumbnail())
+                .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
                 .build();
 
         return exhibitionReadCurrentOfUserExhibitionResponse;
