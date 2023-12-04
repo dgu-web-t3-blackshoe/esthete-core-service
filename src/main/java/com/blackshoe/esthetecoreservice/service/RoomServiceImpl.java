@@ -1,26 +1,19 @@
 package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
-import com.blackshoe.esthetecoreservice.entity.Exhibition;
-import com.blackshoe.esthetecoreservice.entity.Photo;
-import com.blackshoe.esthetecoreservice.entity.Room;
-import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
+import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
-import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
-import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomPhotoRepository;
-import com.blackshoe.esthetecoreservice.repository.RoomRepository;
+import com.blackshoe.esthetecoreservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,6 +27,8 @@ public class RoomServiceImpl implements RoomService {
     private final PhotoRepository photoRepository;
 
     private final RoomPhotoRepository roomPhotoRepository;
+
+    private final GenreRepository genreRepository;
 
     @Override
     @Transactional
@@ -54,6 +49,12 @@ public class RoomServiceImpl implements RoomService {
 
         final List<String> roomPhotoIds = roomCreateRoomRequest.getPhotos();
 
+        Set<Long> genreIds = new HashSet<>();
+
+        exhibition.getExhibitionGenres().stream().forEach(exhibitionGenre -> {
+            genreIds.add(exhibitionGenre.getGenre().getId());
+        });
+
         roomPhotoIds.stream().forEach(roomPhotoId -> {
 
             final Photo photo = photoRepository.findByPhotoId(UUID.fromString(roomPhotoId))
@@ -67,7 +68,15 @@ public class RoomServiceImpl implements RoomService {
 
             roomPhotoRepository.save(roomPhoto);
 
+            //add genreID in PhotoGenres into Set<String> genreIds
+            photo.getPhotoGenres().stream().forEach(photoGenre -> {
+                genreIds.add(photoGenre.getGenre().getId());
+            });
         });
+        //saveExhibitionGenres ( Set To List )
+        List<Long> genreIdList = new ArrayList<>(genreIds);
+
+        saveExhibitionGenres(exhibition, genreIdList);
 
         final RoomDto.CreateRoomResponse roomCreateRoomResponseDto = RoomDto.CreateRoomResponse.builder()
                 .roomId(savedRoom.getRoomId().toString())
@@ -99,10 +108,34 @@ public class RoomServiceImpl implements RoomService {
 
         final List<RoomDto> roomDtoList = roomRepository.findAllByExhibitionId(exhibitionId);
 
+        roomDtoList.stream().forEach(roomDto -> {
+            final String thumbnail = roomDto.getThumbnail();
+            final Photo photo = photoRepository.findByPhotoId(UUID.fromString(thumbnail))
+                    .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+            roomDto.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+        });
+
         final RoomDto.ReadRoomListResponse roomReadRoomListResponseDto = RoomDto.ReadRoomListResponse.builder()
                 .rooms(roomDtoList)
                 .build();
 
         return roomReadRoomListResponseDto;
+    }
+
+    public void saveExhibitionGenres(Exhibition savedExhibition, List<Long> genreIds) {
+        genreIds.forEach(genreId -> {
+            final Genre genre = genreRepository.findById(genreId)
+                    .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.GENRE_NOT_FOUND));
+
+            ExhibitionGenre exhibitionGenre = ExhibitionGenre.builder()
+                    .genre(genre)
+                    .build();
+
+            exhibitionGenre.setExhibition(savedExhibition);
+
+            savedExhibition.addExhibitionGenre(exhibitionGenre);
+
+        });
     }
 }

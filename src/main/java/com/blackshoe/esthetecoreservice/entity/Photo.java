@@ -67,6 +67,11 @@ public class Photo {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoGenre> photoGenres = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "new_work_id", foreignKey = @ForeignKey(name = "photo_fk_new_work_id"))
+    private NewWork newWork;
+
+    @Column(name = "view_count")
     @ColumnDefault("0")
     private long viewCount;
 
@@ -100,6 +105,10 @@ public class Photo {
 
     public void addPhotoGenre(PhotoGenre photoGenre) {
         this.photoGenres.add(photoGenre);
+    }
+
+    public void addPhotoEquipment(PhotoEquipment photoEquipment) {
+        this.photoEquipments.add(photoEquipment);
     }
     public void increaseViewCount() {
         this.viewCount++;

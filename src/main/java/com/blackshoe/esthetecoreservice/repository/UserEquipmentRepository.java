@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UserEquipmentRepository extends JpaRepository<UserEquipment, Long> {
-
     List<UserEquipment> findByUser(User user);
+    void deleteByUser(User user);
 }

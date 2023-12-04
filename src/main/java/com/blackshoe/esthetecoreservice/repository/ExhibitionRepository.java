@@ -15,8 +15,8 @@ import java.util.UUID;
 
 @Repository
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
-    Optional<Exhibition> findByExhibitionId(UUID exhibitionId);
 
+    Optional<Exhibition> findByExhibitionId(UUID exhibitionId);
     Optional<Exhibition> findTopByUserUserIdOrderByCreatedAtDesc(UUID userId);
 
     default Optional<Exhibition> findMostRecentExhibitionOfUser(@Param("userId") UUID userId) {

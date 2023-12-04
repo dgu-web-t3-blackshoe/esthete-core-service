@@ -4,14 +4,17 @@ import com.blackshoe.esthetecoreservice.dto.ExhibitionDto;
 import com.blackshoe.esthetecoreservice.dto.RoomDto;
 import com.blackshoe.esthetecoreservice.dto.RoomPhotoDto;
 import com.blackshoe.esthetecoreservice.service.ExhibitionService;
+import com.blackshoe.esthetecoreservice.service.RecommendationService;
 import com.blackshoe.esthetecoreservice.service.RoomPhotoService;
 import com.blackshoe.esthetecoreservice.service.RoomService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,8 +28,9 @@ public class ExhibitionController {
 
     private final RoomPhotoService roomPhotoService;
 
+
     @PostMapping
-    public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) {
+    public ResponseEntity<ExhibitionDto.CreateExhibitionResponse> createExhibition(@RequestBody @Valid ExhibitionDto.CreateExhibitionRequest exhibitionCreateRequest) throws JsonProcessingException{
 
         final ExhibitionDto.CreateExhibitionResponse exhibitionCreateExhibitionResponse = exhibitionService.createExhibition(exhibitionCreateRequest);
 
@@ -81,4 +85,5 @@ public class ExhibitionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadRoomPhotoListResponse);
     }
+
 }

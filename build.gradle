@@ -61,6 +61,13 @@ dependencies {
     //google-vision-api
     implementation 'org.springframework.cloud:spring-cloud-gcp-starter-vision:1.2.8.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-gcp-dependencies:1.2.8.RELEASE'
+
+    //mahout core
+    implementation('org.apache.mahout:mahout-integration:0.13.0') {
+        exclude group: 'log4j', module: 'log4j'
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+
 }
 
 tasks.named('test') {

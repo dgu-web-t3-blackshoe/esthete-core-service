@@ -16,7 +16,7 @@ public interface UserService {
 
     ExhibitionDto.ReadCurrentOfUserExhibitionResponse readCurrentExhibitionOfUser(UUID userId);
 
-    Page<PhotoDto.ReadResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size);
+    Page<PhotoDto.ReadPhotoResponse> readUserPhotos(UUID userId, Sort sortBy, int page, int size);
 
     Page<ExhibitionDto.ReadExhibitionResponse> readUserExhibitions(UUID userId, Sort sortBy, int page, int size);
 
@@ -32,6 +32,5 @@ public interface UserService {
     UserDto.SignUpResponse signUp(UUID userId, UserDto.SignUpRequest signUpInfoRequest);
 
     UserDto.MyProfileInfoResponse getMyProfileInfo(UUID userId);
-
-    UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileRequest updateMyProfileRequest);
+    UserDto.UpdateProfileResponse updateMyProfile(UUID userId, UserDto.UpdateProfileDto updateProfileDto);
 }

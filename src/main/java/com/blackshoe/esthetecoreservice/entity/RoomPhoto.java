@@ -36,6 +36,7 @@ public class RoomPhoto {
     @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "room_photo_fk_photo_id"))
     private Photo photo;
 
+    @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
 

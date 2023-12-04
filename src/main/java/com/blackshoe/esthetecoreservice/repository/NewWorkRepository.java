@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public interface NewWorkRepository extends JpaRepository<NewWork, Long> {
 
-    NewWork findByPhotographerId(UUID photographerId);
+    Optional<NewWork> findByPhotographerId(UUID photographerId);
 
-    NewWork findByPhotographerIdAndPhotoId(UUID photographerId, UUID photoId);
-    NewWork findByPhotographerIdAndExhibitionId(UUID photographerId, UUID exhibitionId);
+    Optional<NewWork> findByPhotographerIdAndPhotoId(UUID photographerId, UUID photoId);
+    Optional<NewWork> findByPhotographerIdAndExhibitionId(UUID photographerId, UUID exhibitionId);
 }

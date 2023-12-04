@@ -46,6 +46,7 @@ public class Room {
     private List<RoomPhoto> roomPhotos;
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @PrePersist

@@ -104,13 +104,13 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}/photos")
-    public ResponseEntity<Page<PhotoDto.ReadResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
-                                                                     @RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(required = false, defaultValue = "recent") String sort) {
+    public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(required = false, defaultValue = "recent") String sort) {
 
         final Sort sortBy = PhotoSortType.convertParamToColumn(sort);
 
-        Page<PhotoDto.ReadResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
+        Page<PhotoDto.ReadPhotoResponse> readUserPhotos = userService.readUserPhotos(userId, sortBy, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(readUserPhotos);
     }
@@ -187,21 +187,30 @@ public class UserController {
     }
 
     @PutMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfileInfo(@PathVariable UUID userId, @Valid @RequestBody UserDto.UpdateProfileRequest userUpdateProfileRequest, @RequestPart(name = "profile_img", required = false) MultipartFile profileImg) throws Exception {
+    public ResponseEntity<UserDto.UpdateProfileResponse> updateProfile(@PathVariable(name = "user_id") UUID userId,
+                                                                            @RequestPart UserDto.UpdateProfileRequest userUpdateProfileRequest,
+                                                                            @RequestPart(name = "profile_img", required = false) MultipartFile profileImg) throws Exception {
 
         profileImgService.deleteProfileImg(userId);
-        UserDto.UpdateProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, userUpdateProfileRequest);
+        ProfileImgUrlDto profileImgUrlDto;
+        if(profileImg == null){
+            profileImgUrlDto = profileImgService.getUserPresentProfileImgUrlDto(userId);
+        }else{
+            profileImgService.deleteProfileImg(userId);
+            profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
+        }
 
-        ProfileImgUrlDto profileImgUrlDto = profileImgService.uploadProfileImg(userId, profileImg);
-
-        UserDto.UpdateProfileResponse updateProfileResponse = UserDto.UpdateProfileResponse.builder()
-                .userId(userId.toString())
-                .profileImg(profileImgUrlDto.getCloudfrontUrl())
-                .genres(userUpdateProfileResponse.getGenres())
-                .updatedAt(String.valueOf(LocalDateTime.now()))
+        UserDto.UpdateProfileDto updateProfileDto = UserDto.UpdateProfileDto.builder()
+                .profileImgUrlDto(profileImgUrlDto)
+                .nickname(userUpdateProfileRequest.getNickname())
+                .biography(userUpdateProfileRequest.getBiography())
+                .genres(userUpdateProfileRequest.getGenres())
+                .equipments(userUpdateProfileRequest.getEquipments())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(updateProfileResponse); //200
+        UserDto.UpdateProfileResponse userUpdateProfileResponse = userService.updateMyProfile(userId, updateProfileDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userUpdateProfileResponse); //200
     }
 
     @PostMapping(value = "/{user_id}/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
