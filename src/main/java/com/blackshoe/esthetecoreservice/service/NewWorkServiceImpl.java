@@ -29,7 +29,7 @@ public class NewWorkServiceImpl implements NewWorkService{
     @Override
     public List<NewWorkDto.ReadNewWorkResponse> readNewWork(UUID userId) {
 
-        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponsNewWorks = new ArrayList<>();
+        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponseNewWorks = new ArrayList<>();
 
         ObjectMapper objectMapper = new ObjectMapper(); // JSON 파싱을 위한 ObjectMapper
 
@@ -86,7 +86,7 @@ public class NewWorkServiceImpl implements NewWorkService{
                     newWorkReadNewWorkResponse.setProfileImg(photographer.getProfileImgUrl().getCloudfrontUrl());
                     newWorkReadNewWorkResponse.setNickname(photographer.getNickname());
 
-                    newWorkReadResponsNewWorks.add(newWorkReadNewWorkResponse);
+                    newWorkReadResponseNewWorks.add(newWorkReadNewWorkResponse);
                 }
 
             } catch (JsonProcessingException e) {
@@ -95,7 +95,7 @@ public class NewWorkServiceImpl implements NewWorkService{
             }
         }
 
-        return newWorkReadResponsNewWorks;
+        return newWorkReadResponseNewWorks;
     }
 
     @Override

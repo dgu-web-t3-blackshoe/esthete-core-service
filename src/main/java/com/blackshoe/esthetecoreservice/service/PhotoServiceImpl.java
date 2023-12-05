@@ -210,7 +210,6 @@ public class PhotoServiceImpl implements PhotoService {
         User photographer = userRepository.findByUserId(photographerId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         NewWork newWork = NewWork.builder()
-                .photo(uploadedPhoto)
                 .photographerId(photographerId)
                 .photoId(uploadedPhoto.getPhotoId())
                 .build();
@@ -315,6 +314,8 @@ public class PhotoServiceImpl implements PhotoService {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         photoRepository.delete(photo);
+
+        newWorkRepository.deleteByPhoto(photo);
 
         redisTemplate.delete("*" + photoId.toString());
 
