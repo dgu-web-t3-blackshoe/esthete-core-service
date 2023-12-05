@@ -40,7 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //TODO: CORS 설정 및 Permit 설정 필요
         http
                 //.httpBasic().disable()
                 .formLogin().disable()
@@ -50,16 +49,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
-                .antMatchers("/oauth2/**").permitAll()
+                .antMatchers("/core/oauth2/**").permitAll()
+                .antMatchers("/core/swagger-ui/**", "/core/v3/api-docs/**", "/swagger-ui/**","/v3/api-docs/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .oauth2Login()
                 .redirectionEndpoint()
-                .baseUri("/oauth2/callback/*")
+                .baseUri("/core/oauth2/callback/*")
                 .and()
                 .authorizationEndpoint()
-                .baseUri("/oauth2/authorize")
+                .baseUri("/core/oauth2/authorize")
                 .and()
                 .userInfoEndpoint()
                 .userService(customOAuth2UserService)

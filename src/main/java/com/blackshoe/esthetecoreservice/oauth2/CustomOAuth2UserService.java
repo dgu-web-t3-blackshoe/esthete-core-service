@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.oauth2;
 
+import com.blackshoe.esthetecoreservice.entity.ProfileImgUrl;
 import com.blackshoe.esthetecoreservice.entity.User;
 import com.blackshoe.esthetecoreservice.exception.UserException;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service @Transactional
@@ -62,36 +64,39 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 throw new AccessDeniedException("Unsupported auth provider: " + authProvider);
         }
 
-        User user = null;
         log.info("Trying to pull user info email {} authProvider {} ", email, authProvider);
 
         try {
-            if(userRepository.existsByEmail(email)) {
-                user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            User user;
+            if (userRepository.existsByEmail(email)) {
+                user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
                 user.setProvider(authProvider);
-            }else{
-                user = User.createUserFromOAuth2()
-                        .email(email)
-                        .role(Role.USER)
-                        .provider(authProvider)
+            } else {
+
+                ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                        .cloudfrontUrl("")
+                        .s3Url("")
                         .build();
+
+                user = new User(UUID.randomUUID(), email, Role.USER, authProvider, profileImgUrl);
 
                 userRepository.save(user);
             }
+
+            if (user == null) {
+                log.info("User is null");
+                throw new UsernameNotFoundException("User 정보 초기화 안됨: " + email);
+            }
+
+            log.info("user email {}", user.getEmail());
+            log.info("user authProvider {}", user.getProvider());
+
+            return new CustomOAuth2User(user.getUserId().toString(), user.getEmail(), oAuth2User.getAttributes());
 
         } catch (UsernameNotFoundException e) {
             log.error("User not found with email: {}", email);
             throw e;
         }
-
-        if(user==null){
-            log.info("User is null");
-            throw new UsernameNotFoundException("User 정보 초기화 안됨: " + email);
-        }
-
-        log.info("user email {}", user.getEmail());
-        log.info("user authProvider {}", user.getProvider());
-
-        return new CustomOAuth2User(user.getId().toString(), user.getEmail(), oAuth2User.getAttributes());
     }
 }
