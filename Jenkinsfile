@@ -103,9 +103,6 @@ pipeline {
 
 # esthete-deployment-chart/values.yaml
 
-spec:
-  replicas: 2
-
 image:
   repository: lsb8375/esthete-core
   tag: \"${env.IMAGE_TAG}\"
