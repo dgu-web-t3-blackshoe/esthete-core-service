@@ -29,7 +29,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     private final RedisTemplate redisTemplate;
     private final SupportRepository supportRepository;
     private final PhotoRepository photoRepository;
-    private final GenreRepository genreRepository;
+    private final ViewRepository viewRepository;
 
     @Override
     @Transactional
@@ -107,6 +107,35 @@ public class ExhibitionServiceImpl implements ExhibitionService {
             return exhibitionReadRandomExhibitionResponse;
     }
 
+    @Override
+    public ExhibitionDto.UpdateViewOfExhibitionResponse viewExhibition(UUID exhibitionId, UUID userId) {
+        ExhibitionDto.UpdateViewOfExhibitionResponse exhibitionUpdateViewOfExhibitionResponse = ExhibitionDto.UpdateViewOfExhibitionResponse.builder()
+                .exhibitionId(exhibitionId.toString())
+                .updatedAt(LocalDateTime.now().toString())
+                .build();
+
+        if(redisTemplate.opsForValue().get("view_exhibition_" + exhibitionId + "_user_" + userId) == null){
+
+            String redisKey = "view_exhibition_" + exhibitionId + "_user_" + userId;
+            redisTemplate.opsForValue().set(redisKey, "0");
+            redisTemplate.expire(redisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+
+            Exhibition exhibition = exhibitionRepository.findByExhibitionId(exhibitionId).orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+            User user = userRepository.findByUserId(userId).orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));
+
+            View view = View.builder()
+                    .exhibition(exhibition)
+                    .user(user)
+                    .build();
+
+            viewRepository.save(view);
+
+            exhibition.increaseViewCount();
+        }
+
+        return exhibitionUpdateViewOfExhibitionResponse;
+    }
+
     @Transactional
     public void saveOrUpdateNewWork(UUID photographerId, Exhibition exhibition) throws JsonProcessingException{
         List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
@@ -147,4 +176,6 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         newWorkRepository.save(newWork);
     }
+
+
 }

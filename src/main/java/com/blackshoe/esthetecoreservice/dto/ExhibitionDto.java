@@ -160,4 +160,14 @@ public class ExhibitionDto {
         }
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class UpdateViewOfExhibitionResponse {
+        private String exhibitionId;
+        private String updatedAt;
+    }
+
 }
