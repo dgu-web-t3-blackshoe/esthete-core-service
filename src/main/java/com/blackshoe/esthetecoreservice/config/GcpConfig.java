@@ -6,43 +6,30 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.nio.file.Paths;
 
 @Slf4j
 @Configuration
 public class GcpConfig {
 
-    @Value("${cloud.gcp.credential-download-link}")
-    private String CREDENTIAL_DOWNLOAD_LINK;
+    @Value("${cloud.gcp.credentials.string}")
+    private String GCP_CREDENTIALS;
 
     @PostConstruct
     public void init() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> {
-            try {
-                String fileName = "gcp.json";
+        try {
+            Path resourcesPath = Paths.get("src", "main", "resources");
 
-                Path destinationPath = Path.of("src/main/resources", fileName);
+            Path gcpJsonPath = resourcesPath.resolve("gcp.json");
 
-                log.info("GCP credential file download start");
-                log.info("Credential download link: " + CREDENTIAL_DOWNLOAD_LINK);
+            Files.write(gcpJsonPath, GCP_CREDENTIALS.getBytes());
 
-                try (InputStream inputStream = new URL(CREDENTIAL_DOWNLOAD_LINK).openStream()) {
-                    Files.copy(inputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-
-                log.info("GCP credential file download complete");
-            } catch (IOException e) {
-                log.error("GCP credential file download failed", e);
-            }
-        });
-
-        executorService.shutdown();
+            log.info("GCP credentials saved to: {}", gcpJsonPath);
+        } catch (IOException e) {
+            log.error("Error saving GCP credentials to file", e);
+        }
     }
 }
+

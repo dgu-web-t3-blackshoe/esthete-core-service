@@ -61,7 +61,10 @@ cloud:
     project-id: ${GCP_PROJECT_ID}
     credentials:
       location: classpath:gcp.json
-    credential-download-link: ${GCP_CREDENTIAL_DOWNLOAD_LINK}
+      string: ${GCP_CREDENTIALS}
+    vision:
+      safe-search-option: ${GCP_VISION_SAFE_SEARCH_OPTION}
+
   aws:
     credentials:
       access-key: ${AWS_ACCESS_KEY}
