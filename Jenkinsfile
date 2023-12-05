@@ -103,7 +103,7 @@ pipeline {
 
 # esthete-deployment-chart/values.yaml
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: lsb8375/esthete-core
