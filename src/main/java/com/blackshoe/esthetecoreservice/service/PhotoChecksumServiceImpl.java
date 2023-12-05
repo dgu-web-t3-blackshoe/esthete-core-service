@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.PhotoChecksum;
+import com.blackshoe.esthetecoreservice.exception.CopyrightException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.PhotoChecksumRepository;
@@ -28,7 +29,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
 
     @Override
     @Transactional
-    public void addPhotoChecksum(MultipartFile file, UUID photoId){
+    public void addPhotoChecksum(MultipartFile file, UUID photoId) {
         final String checksum;
 
         try {
@@ -61,7 +62,12 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
         }
 
         if (photoChecksumRepository.existsByChecksum(checksum)) {
-            throw new PhotoException(PhotoErrorResult.PHOTO_ALREADY_EXISTS);
+            PhotoChecksum photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+
+            throw new CopyrightException(
+                    "이미 업로드된 이미지는 등록할 수 없습니다.",
+                    photoChecksum.getPhoto().getPhotoId().toString()
+            );
         }
     }
 
@@ -88,17 +94,25 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
     @Transactional
     public void testValidatePhotoChecksumExist(MultipartFile file) {
 
-            final String checksum;
+        final String checksum;
 
-            try {
-                checksum = calculateMD5(file.getBytes());
-            } catch (IOException e) {
-                throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
-            }
+        try {
+            checksum = calculateMD5(file.getBytes());
+        } catch (IOException e) {
+            throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
+        }
 
-            if (photoChecksumRepository.existsByChecksum(checksum)) {
-               photoChecksumRepository.deleteByChecksum(checksum);
-            }
+        if (photoChecksumRepository.existsByChecksum(checksum)) {
+
+            PhotoChecksum photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+
+            photoChecksumRepository.deleteByChecksum(checksum);
+
+            throw new CopyrightException(
+                    "이미 업로드된 이미지는 등록할 수 없습니다.",
+                    photoChecksum.getPhoto().getPhotoId().toString()
+            );
+        }
     }
 
     private String calculateMD5(byte[] bytes) {
