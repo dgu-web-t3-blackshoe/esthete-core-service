@@ -46,7 +46,7 @@ public class Exhibition {
     @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
 
-    @OneToOne(mappedBy = "exhibition", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "new_work_id", foreignKey = @ForeignKey(name = "exhibition_fk_new_work_id"))
     private NewWork newWork;
 
