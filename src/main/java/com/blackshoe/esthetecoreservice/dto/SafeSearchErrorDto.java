@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class SafeSearchErrorDto {
     private String  error;
-    private SafeSearchData data;
+    private SafeSearchData safeSearchData;
 
     @Data
     @Builder

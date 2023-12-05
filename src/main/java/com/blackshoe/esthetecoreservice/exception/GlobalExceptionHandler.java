@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
 
         final SafeSearchErrorDto safeSearchErrorDto = SafeSearchErrorDto.builder()
                 .error(e.getMessage())
-                .data(e.getSafeSearchData())
+                .safeSearchData(e.getSafeSearchData())
                 .build();
 
         return ResponseEntity.status(e.getHttpStatus()).body(safeSearchErrorDto);
