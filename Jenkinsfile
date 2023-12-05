@@ -105,6 +105,7 @@ pipeline {
 
 spec:
   replicas: 2
+
 image:
   repository: lsb8375/esthete-core
   tag: \"${env.IMAGE_TAG}\"
@@ -117,7 +118,7 @@ ingress:
 controller:
   ## Argo controller commandline flags
   args:
-    appResyncPeriod: 60
+    appResyncPeriod: \"60\"
 """
                     def shaOutput = sh(script: """
 curl -s -X GET \\
