@@ -103,8 +103,6 @@ pipeline {
 
 # esthete-deployment-chart/values.yaml
 
-replicaCount: 1
-
 image:
   repository: lsb8375/esthete-core
   tag: \"${env.IMAGE_TAG}\"
@@ -117,7 +115,7 @@ ingress:
 controller:
   ## Argo controller commandline flags
   args:
-    appResyncPeriod: \"60\"
+    appResyncPeriod: 60
 """
                     def shaOutput = sh(script: """
 curl -s -X GET \\
@@ -141,7 +139,7 @@ curl -s -X GET \\
                     sh "rm temp-new-contents.yaml"
 
                     def response = sh(script: """
-curl -X PUT -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${githubToken}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${githubRepo}/contents/${filePath} -d '{"message": "Chore: Update values.yaml by Jenkins","content": "${base64Contents}","branch": "deployment","sha": "$sha"}'
+curl -X PUT -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${githubToken}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/${githubRepo}/contents/${filePath} -d '{"message": "Chore: Update image tag to ${env.IMAGE_TAG} by Jenkins","content": "${base64Contents}","branch": "deployment","sha": "$sha"}'
 """, returnStatus: true)
 
                     if (response == 0) {

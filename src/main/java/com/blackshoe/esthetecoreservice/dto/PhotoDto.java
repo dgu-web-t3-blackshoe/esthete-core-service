@@ -170,6 +170,7 @@ public class PhotoDto {
 
     @Data @NoArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReadRegionGroupResponse {
         private String state;
         private String city;
@@ -186,6 +187,29 @@ public class PhotoDto {
             this.state = state;
             this.city = city;
             this.town = town;
+            this.thumbnail = thumbnail;
+            this.count = count;
+        }
+
+        @Builder
+        public ReadRegionGroupResponse(String state,
+                                       String city,
+                                       String thumbnail,
+                                       Long count) {
+            this.state = state;
+            this.city = city;
+            this.town = null;
+            this.thumbnail = thumbnail;
+            this.count = count;
+        }
+
+        @Builder
+        public ReadRegionGroupResponse(String state,
+                                       String thumbnail,
+                                       Long count) {
+            this.state = state;
+            this.city = null;
+            this.town = null;
             this.thumbnail = thumbnail;
             this.count = count;
         }

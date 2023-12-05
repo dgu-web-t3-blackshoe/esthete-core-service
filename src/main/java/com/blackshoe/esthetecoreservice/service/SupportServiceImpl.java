@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -75,39 +76,52 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
+    public Page<UserDto.SearchResult> readAllByNicknameContaining(UUID supporterId, String nickname, Pageable pageable) {
 
-        Page<User> photographers = null;
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByNicknameContaining(supporterId, nickname, pageable);
 
-        Pageable pageable = PageRequest.of(page, size);
+        return searchResultPage;
+    }
 
-        if(sort == null) sort = "recent";
+    @Override
+    public Page<UserDto.SearchResult> readAllByGenresContaining(UUID supporterId, List<UUID> searchGenreIds, Pageable pageable) {
 
-        if(sort.equals("recent")){
-            if(genres == null)
-                photographers = supportRepository.getPhotographersByRecentSupport(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersByRecentSupportAndGenres(userId, genres, pageable);
-        }
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByGenreContaining(supporterId, searchGenreIds, pageable);
 
-        else if(sort.equals("popular")) {
-            if(genres == null)
-                photographers = supportRepository.getPhotographersBySupportCount(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersBySupportCountAndGenres(userId, genres, pageable);
-        }
+        return searchResultPage;
+    }
 
-        else if(sort.equals("trending")){
-            //최근 7일간 support를 많이 받은 순
-            if(genres == null)
-                photographers = supportRepository.getPhotographersBySupportCountInAWeek(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersBySupportCountInAWeekAndGenres(userId, genres, pageable);
-        }
+    @Override
+    public Page<UserDto.SearchResult> readAllByNicknameAndGenresContaining(UUID supporterId, String nickname, List<UUID> searchGenreIds, Pageable pageable) {
 
-        Page<UserDto.SearchResult> photographersResponse = photographers.map(photographer -> new UserDto.SearchResult(photographer));
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByNicknameAndGenresContaining(supporterId, nickname, searchGenreIds, pageable);
 
-        return photographersResponse;
+        return searchResultPage;
+    }
 
+    @Override
+    public Page<UserDto.SearchResult> readAllBySupporterId(UUID supporterId, Pageable pageable) {
+
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllBySupporterId(supporterId, pageable);
+
+        return searchResultPage;
+    }
+
+    @Override
+    public SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId) {
+
+        final User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        final User photographer = userRepository.findByUserId(photographerId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        final Boolean isSupported = supportRepository.existsByUserAndPhotographer(user, photographer);
+
+        final SupportDto.IsSupported isSupportedResponse = SupportDto.IsSupported.builder()
+                .isSupported(isSupported)
+                .build();
+
+        return isSupportedResponse;
     }
 }

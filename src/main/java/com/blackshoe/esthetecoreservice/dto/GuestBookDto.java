@@ -55,12 +55,14 @@ public class GuestBookDto {
         private String userId;
         private String nickname;
         private String content;
+        private String profileImgUrl;
 
         public ReadGuestBookResponse(GuestBook guestBook) {
             this.guestbookId = guestBook.getGuestBookId().toString();
             this.createdAt = guestBook.getCreatedAt().toString();
             this.photographerId = guestBook.getPhotographer().getUserId().toString();
             this.userId = guestBook.getUser().getUserId().toString();
+            this.profileImgUrl = guestBook.getUser().getProfileImgUrl().getCloudfrontUrl();
             this.nickname = guestBook != null ? guestBook.getUser().getNickname() : "";
             this.content = guestBook != null ? guestBook.getContent() : "";
         }

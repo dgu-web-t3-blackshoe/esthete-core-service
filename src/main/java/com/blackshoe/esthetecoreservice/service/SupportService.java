@@ -3,6 +3,7 @@ package com.blackshoe.esthetecoreservice.service;
 import com.blackshoe.esthetecoreservice.dto.SupportDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -14,5 +15,9 @@ public interface SupportService {
 
     SupportDto.DeleteSupportResponse deleteSupport(UUID userId, UUID photographerId);
 
-    Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page);
+    Page<UserDto.SearchResult> readAllByNicknameContaining(UUID supporterId, String nickname, Pageable pageable);
+    Page<UserDto.SearchResult> readAllByGenresContaining(UUID supporterId, List<UUID> searchGenreIds, Pageable pageable);
+    Page<UserDto.SearchResult>  readAllByNicknameAndGenresContaining(UUID supporterId, String nickname, List<UUID> searchGenreIds, Pageable pageable);
+    Page<UserDto.SearchResult> readAllBySupporterId(UUID supporterId, Pageable pageable);
+    SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId);
 }

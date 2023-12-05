@@ -58,6 +58,10 @@ dependencies {
     //webflux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    //google-vision-api
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-vision:1.2.8.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-gcp-dependencies:1.2.8.RELEASE'
+
     //mahout core
     implementation('org.apache.mahout:mahout-integration:0.13.0') {
         exclude group: 'log4j', module: 'log4j'

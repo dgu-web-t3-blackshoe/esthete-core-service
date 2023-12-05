@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.entity.Photo;
 import com.blackshoe.esthetecoreservice.entity.PhotoChecksum;
+import com.blackshoe.esthetecoreservice.exception.CopyrightException;
 import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.PhotoChecksumRepository;
@@ -28,7 +29,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
 
     @Override
     @Transactional
-    public void addPhotoChecksum(MultipartFile file, UUID photoId){
+    public void addPhotoChecksum(MultipartFile file, UUID photoId) {
         final String checksum;
 
         try {
@@ -50,6 +51,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
     }
 
     @Override
+    @Transactional
     public void validatePhotoChecksumExist(MultipartFile file) {
 
         final String checksum;
@@ -61,7 +63,67 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
         }
 
         if (photoChecksumRepository.existsByChecksum(checksum)) {
-            throw new PhotoException(PhotoErrorResult.PHOTO_ALREADY_EXISTS);
+            PhotoChecksum photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+
+            throw new CopyrightException(
+                    "이미 업로드된 이미지는 등록할 수 없습니다.",
+                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : ""
+            );
+        }
+    }
+
+    @Override
+    @Transactional
+    public void testAddPhotoChecksum(MultipartFile file, UUID photoId) {
+
+        final String checksum;
+
+        try {
+            checksum = calculateMD5(file.getBytes());
+        } catch (IOException e) {
+            throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
+        }
+
+        if (photoChecksumRepository.existsByChecksum(checksum)) {
+            photoChecksumRepository.deleteAllByChecksum(checksum);
+        }
+
+        PhotoChecksum photoChecksum = PhotoChecksum.builder()
+                .checksum(checksum)
+                .build();
+
+        photoChecksumRepository.save(photoChecksum);
+    }
+
+    @Override
+    @Transactional
+    public void testValidatePhotoChecksumExist(MultipartFile file) {
+
+        final String checksum;
+
+        try {
+            checksum = calculateMD5(file.getBytes());
+        } catch (IOException e) {
+            throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
+        }
+
+        if (photoChecksumRepository.existsByChecksum(checksum)) {
+
+            final PhotoChecksum photoChecksum;
+
+            try {
+                photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+
+                photoChecksumRepository.delete(photoChecksum);
+            } catch (Exception e) {
+                log.error("error on photo checksum delete", e);
+                throw new RuntimeException(e.getMessage());
+            }
+
+            throw new CopyrightException(
+                    "이미 업로드된 이미지는 등록할 수 없습니다.",
+                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : "test:"+UUID.randomUUID().toString()
+            );
         }
     }
 

@@ -43,6 +43,8 @@ public class PhotoServiceImpl implements PhotoService {
     private final GenreRepository genreRepository;
     private final PhotoGenreRepository photoGenreRepository;
     private final PhotoEquipmentRepository photoEquipmentRepository;
+    private final PhotoChecksumService photoChecksumService;
+    private final SafeSearchFilterService safeSearchFilterService;
 
     //redis
     private final RedisTemplate redisTemplate;
@@ -64,11 +66,18 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public PhotoDto uploadPhotoToS3(UUID userId, MultipartFile photo, PhotoDto.CreatePhotoRequest photoUploadRequest) {
         validatePhoto(photo);
+
+        UUID photoId = UUID.randomUUID();
+
+        photoChecksumService.validatePhotoChecksumExist(photo);
+//
+//        safeSearchFilterService.safeSearchFilter(photo);
+
+        photoChecksumService.addPhotoChecksum(photo, photoId);
+
         User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
-
-        UUID photoId = UUID.randomUUID();
 
         String fileExtension = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
 
@@ -201,7 +210,6 @@ public class PhotoServiceImpl implements PhotoService {
         User photographer = userRepository.findByUserId(photographerId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         NewWork newWork = NewWork.builder()
-                .photo(uploadedPhoto)
                 .photographerId(photographerId)
                 .photoId(uploadedPhoto.getPhotoId())
                 .build();
@@ -306,6 +314,8 @@ public class PhotoServiceImpl implements PhotoService {
         Photo photo = photoRepository.findByPhotoId(photoId).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
         photoRepository.delete(photo);
+
+        newWorkRepository.deleteByPhoto(photo);
 
         redisTemplate.delete("*" + photoId.toString());
 

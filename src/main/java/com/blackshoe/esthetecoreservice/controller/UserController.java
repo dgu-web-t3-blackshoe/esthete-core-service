@@ -81,6 +81,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(supportCreateSupportResponse);
     }
 
+    @GetMapping("/{userId}/supports/{photographerId}")
+    public ResponseEntity<SupportDto.IsSupported> getSupportBoolean(@PathVariable UUID userId, @PathVariable UUID photographerId) {
+
+        SupportDto.IsSupported isSupportedDto = supportService.getIsSupported(userId, photographerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(isSupportedDto);
+    }
+
+
     @DeleteMapping("/{user_id}/supports/{photographerId}")
     public ResponseEntity<SupportDto.DeleteSupportResponse> deleteSupport(@PathVariable(name = "user_id") UUID userId, @PathVariable UUID photographerId) {
 
@@ -91,18 +100,34 @@ public class UserController {
 
     @GetMapping("/{user_id}/supports/all")
     public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
-            @PathVariable(name = "user_id") UUID userId,
-            @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) List<String> genres,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "0") int page) {
+            @PathVariable(name = "user_id") UUID supporterId,
+            @RequestParam(required = false) Optional<String> nickname,
+            @RequestParam(required = false) Optional<List<UUID>> genres,
+            @RequestParam(required = false, defaultValue = "recent") String sort,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        Sort sortBy;
+        if("recent".equals(sort)) {
+            sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        } else {
+            sortBy = UserSortType.convertParamToColumn(sort);
+        }
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
 
+        Page<UserDto.SearchResult> readAllNicknameContainingPage = Page.empty();
 
-        Page<UserDto.SearchResult> readSupportingPhotographersPage = supportService.readSupportingPhotographers(userId, nickname, sort, genres, size, page);
-        return ResponseEntity.status(HttpStatus.OK).body(readSupportingPhotographersPage);
+        if (nickname.isPresent() && genres.isEmpty()) {
+            readAllNicknameContainingPage = supportService.readAllByNicknameContaining(supporterId, nickname.get(), pageable);
+        }else if (nickname.isEmpty() && genres.isPresent()) {
+            readAllNicknameContainingPage = supportService.readAllByGenresContaining(supporterId, genres.get(), pageable);
+        }else if (nickname.isPresent() && genres.isPresent()) {
+            readAllNicknameContainingPage = supportService.readAllByNicknameAndGenresContaining(supporterId, nickname.get(), genres.get(), pageable);
+        }else{
+            readAllNicknameContainingPage = supportService.readAllBySupporterId(supporterId, pageable);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(readAllNicknameContainingPage);
     }
-
     @GetMapping("/{user_id}/photos")
     public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                           @RequestParam(defaultValue = "0") int page,

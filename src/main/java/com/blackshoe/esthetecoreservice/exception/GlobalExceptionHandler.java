@@ -1,6 +1,8 @@
 package com.blackshoe.esthetecoreservice.exception;
 
+import com.blackshoe.esthetecoreservice.dto.CopyrightErrorDto;
 import com.blackshoe.esthetecoreservice.dto.ErrorDto;
+import com.blackshoe.esthetecoreservice.dto.SafeSearchErrorDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -101,6 +103,32 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(e.getGuestBookErrorResult().getHttpStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(SafeSearchException.class)
+    public ResponseEntity<SafeSearchErrorDto> handleSafeSearchException(SafeSearchException e) {
+
+        log.error("SafeSearchException", e);
+
+        final SafeSearchErrorDto safeSearchErrorDto = SafeSearchErrorDto.builder()
+                .error(e.getMessage())
+                .safeSearchData(e.getSafeSearchData())
+                .build();
+
+        return ResponseEntity.status(e.getHttpStatus()).body(safeSearchErrorDto);
+    }
+
+    @ExceptionHandler(CopyrightException.class)
+    public ResponseEntity<CopyrightErrorDto> handleCopyrightException(CopyrightException e) {
+
+        log.error("CopyrightException", e);
+
+        final CopyrightErrorDto copyrightErrorDto = CopyrightErrorDto.builder()
+                .error(e.getMessage())
+                .originalPhotoId(e.getOriginalPhotoId())
+                .build();
+
+        return ResponseEntity.status(e.getHttpStatus()).body(copyrightErrorDto);
     }
 
     @ExceptionHandler(RuntimeException.class)
