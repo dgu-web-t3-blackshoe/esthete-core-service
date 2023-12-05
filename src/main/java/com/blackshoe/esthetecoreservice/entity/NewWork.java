@@ -41,7 +41,7 @@ public class NewWork {
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "newWork")
     private Exhibition exhibition;
 
     @Column(columnDefinition = "BINARY(16)", name = "exhibition_uuid")
