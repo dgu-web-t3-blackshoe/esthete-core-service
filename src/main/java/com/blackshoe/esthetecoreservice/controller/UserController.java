@@ -101,17 +101,27 @@ public class UserController {
     @GetMapping("/{user_id}/supports/all")
     public ResponseEntity<Page<UserDto.SearchResult>> getUserSupports(
             @PathVariable(name = "user_id") UUID userId,
-            @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) List<String> genres,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(required = false) Optional<String> nickname,
+            @RequestParam(required = false) Optional<List<UUID>> genres,
+            @RequestParam(required = false, defaultValue = "recent") String sort,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
 
+        final Sort sortBy = UserSortType.convertParamToColumn(sort);
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
 
-        Page<UserDto.SearchResult> readSupportingPhotographersPage = supportService.readSupportingPhotographers(userId, nickname, sort, genres, size, page);
-        return ResponseEntity.status(HttpStatus.OK).body(readSupportingPhotographersPage);
+        Page<UserDto.SearchResult> readAllNicknameContainingPage = Page.empty();
+
+        if (nickname.isPresent() && genres.isEmpty()) {
+            readAllNicknameContainingPage = supportService.readAllByNicknameContaining(userId, nickname.get(), pageable);
+        }else if (nickname.isEmpty() && genres.isPresent()) {
+            readAllNicknameContainingPage = supportService.readAllByGenresContaining(userId, genres.get(), pageable);
+        }else if (nickname.isPresent() && genres.isPresent()) {
+            readAllNicknameContainingPage = supportService.readAllByNicknameAndGenresContaining(userId, nickname.get(), genres.get(), pageable);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(readAllNicknameContainingPage);
     }
-
     @GetMapping("/{user_id}/photos")
     public ResponseEntity<Page<PhotoDto.ReadPhotoResponse>> getUserPhotos(@PathVariable(name = "user_id") UUID userId, @RequestParam(defaultValue = "10") int size,
                                                                           @RequestParam(defaultValue = "0") int page,

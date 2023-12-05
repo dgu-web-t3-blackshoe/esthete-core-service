@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -75,42 +76,28 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public Page<UserDto.SearchResult> readSupportingPhotographers(UUID userId, String nickname, String sort, List<String> genres, int size, int page) {
+    public Page<UserDto.SearchResult> readAllByNicknameContaining(UUID supporterId, String nickname, Pageable pageable) {
 
-        Page<User> photographers = null;
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByNicknameContaining(supporterId, nickname, pageable);
 
-        Pageable pageable = PageRequest.of(page, size);
-
-        if(sort == null) sort = "recent";
-
-        if(sort.equals("recent")){
-            if(genres == null)
-                photographers = supportRepository.getPhotographersByRecentSupport(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersByRecentSupportAndGenres(userId, genres, pageable);
-        }
-
-        else if(sort.equals("popular")) {
-            if(genres == null)
-                photographers = supportRepository.getPhotographersBySupportCount(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersBySupportCountAndGenres(userId, genres, pageable);
-        }
-
-        else if(sort.equals("trending")){
-            //최근 7일간 support를 많이 받은 순
-            if(genres == null)
-                photographers = supportRepository.getPhotographersBySupportCountInAWeek(userId, pageable);
-            else
-                photographers = supportRepository.getPhotographersBySupportCountInAWeekAndGenres(userId, genres, pageable);
-        }
-
-        Page<UserDto.SearchResult> photographersResponse = photographers.map(photographer -> new UserDto.SearchResult(photographer));
-
-        return photographersResponse;
-
+        return searchResultPage;
     }
 
+    @Override
+    public Page<UserDto.SearchResult> readAllByGenresContaining(UUID supporterId, List<UUID> searchGenreIds, Pageable pageable) {
+
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByGenreContaining(supporterId, searchGenreIds, pageable);
+
+        return searchResultPage;
+    }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllByNicknameAndGenresContaining(UUID supporterId, String nickname, List<UUID> searchGenreIds, Pageable pageable) {
+
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllByNicknameAndGenresContaining(supporterId, nickname, searchGenreIds, pageable);
+
+        return searchResultPage;
+    }
     @Override
     public SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId) {
 
