@@ -60,7 +60,7 @@ cloud:
   gcp:
     project-id: ${GCP_PROJECT_ID}
     credentials:
-      location: classpath:esthete-gcp.json
+      location: classpath:gcp.json
     credential-download-link: ${GCP_CREDENTIAL_DOWNLOAD_LINK}
   aws:
     credentials:
