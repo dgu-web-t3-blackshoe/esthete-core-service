@@ -73,8 +73,6 @@ public class PhotoServiceImpl implements PhotoService {
 //
 //        safeSearchFilterService.safeSearchFilter(photo);
 
-        photoChecksumService.addPhotoChecksum(photo, photoId);
-
         User photographer = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         String s3FilePath = userId + "/" + PHOTO_DIRECTORY;
@@ -110,6 +108,8 @@ public class PhotoServiceImpl implements PhotoService {
         UUID photographerId = UUID.fromString(photographer.getUserId().toString());
 
         saveOrUpdateNewWork(photographerId, uploadedPhoto);
+
+        photoChecksumService.addPhotoChecksum(photo, photoId);
 
         return createPhotoDto(photoId, uploadedPhotoUrl);
     }
