@@ -198,6 +198,7 @@ public class PhotoDto {
                                        Long count) {
             this.state = state;
             this.city = city;
+            this.town = null;
             this.thumbnail = thumbnail;
             this.count = count;
         }
@@ -207,6 +208,8 @@ public class PhotoDto {
                                        String thumbnail,
                                        Long count) {
             this.state = state;
+            this.city = null;
+            this.town = null;
             this.thumbnail = thumbnail;
             this.count = count;
         }
