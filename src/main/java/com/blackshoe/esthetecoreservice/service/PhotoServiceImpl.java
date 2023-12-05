@@ -269,10 +269,6 @@ public class PhotoServiceImpl implements PhotoService {
 
         photoRepository.delete(photo);
 
-        newWorkRepository.deleteByPhoto(photo);
-
-        redisTemplate.delete("*" + photoId.toString());
-
         PhotoDto.DeletePhotoResponse photoDeleteResponse = PhotoDto.DeletePhotoResponse.builder()
                 .photoId(photo.getPhotoId().toString())
                 .deletedAt(LocalDateTime.now().toString())
