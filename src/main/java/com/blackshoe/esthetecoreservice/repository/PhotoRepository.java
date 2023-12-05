@@ -34,8 +34,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadRegionGroupResponse(" +
             "p.photoLocation.state, " +
-            "p.photoLocation.city, " +
-            "p.photoLocation.town, " +
             "p.photoUrl.cloudfrontUrl, " +
             "count(p)) " +
             "FROM Photo p " +
@@ -57,7 +55,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.PhotoDto$ReadRegionGroupResponse(" +
             "p.photoLocation.state, " +
             "p.photoLocation.city, " +
-            "p.photoLocation.town, " +
             "p.photoUrl.cloudfrontUrl, " +
             "count(p)) " +
             "FROM Photo p " +
@@ -67,7 +64,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "AND p.photoLocation.longitude " +
             "BETWEEN :#{#photoPointFilter.longitude - #photoPointFilter.longitudeDelta} " +
             "AND :#{#photoPointFilter.longitude + #photoPointFilter.longitudeDelta} " +
-            "GROUP BY p.photoLocation.city " +
+            "GROUP BY p.photoLocation.state, p.photoLocation.city " +
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByCity(
             @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
@@ -89,7 +86,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "AND p.photoLocation.longitude " +
             "BETWEEN :#{#photoPointFilter.longitude - #photoPointFilter.longitudeDelta} " +
             "AND :#{#photoPointFilter.longitude + #photoPointFilter.longitudeDelta} " +
-            "GROUP BY p.photoLocation.town " +
+            "GROUP BY p.photoLocation.state, p.photoLocation.city, p.photoLocation.town " +
             "ORDER BY count(p) DESC")
     Page<PhotoDto.ReadRegionGroupResponse> findByUserLocationGroupByTown(
             @Param("photoPointFilter") PhotoPointFilter photoPointFilter, Pageable pageable);
