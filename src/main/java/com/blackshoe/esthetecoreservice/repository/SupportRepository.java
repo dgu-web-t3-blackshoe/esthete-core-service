@@ -36,7 +36,7 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(s.photographer) " +
             "FROM Support s " +
             "WHERE s.user.userId = :userId and s.photographer.nickname like %:nickname% ")
-    Page<UserDto.SearchResult> findAllByNicknameContaining(@Param("userId") UUID userId, @Param("nicnkname") String nickname, Pageable pageable);
+    Page<UserDto.SearchResult> findAllByNicknameContaining(@Param("userId") UUID userId, @Param("nickname") String nickname, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(s.photographer) " +
             "FROM Support s " +
@@ -47,7 +47,7 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(s.photographer) " +
             "FROM Support s " +
             "JOIN s.photographer.userGenres ug " +
-            "WHERE s.photographer.nickname like %:nickname% and ug.genre.genreId in :searchGenreIds")
+            "WHERE s.user.userId = :userId and s.photographer.nickname like %:nickname% and ug.genre.genreId in :searchGenreIds")
     Page<UserDto.SearchResult> findAllByNicknameAndGenresContaining(@Param("userId") UUID userId, @Param("nickname") String nickname, @Param("searchGenreIds") List<UUID> searchGenreIds, Pageable pageable);
 
     Boolean existsByUserAndPhotographer(User user, User photographer);
