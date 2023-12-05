@@ -69,7 +69,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         UUID photoId = UUID.randomUUID();
 
-        photoChecksumService.validatePhotoChecksumExist(photo);
+//        photoChecksumService.validatePhotoChecksumExist(photo);
 //
 //        safeSearchFilterService.safeSearchFilter(photo);
 
