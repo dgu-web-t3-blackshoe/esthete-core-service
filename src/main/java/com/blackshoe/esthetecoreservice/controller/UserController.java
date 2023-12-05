@@ -5,6 +5,7 @@ import com.blackshoe.esthetecoreservice.service.ProfileImgService;
 import com.blackshoe.esthetecoreservice.service.UserService;
 import com.blackshoe.esthetecoreservice.vo.PhotoSortType;
 import com.blackshoe.esthetecoreservice.vo.UserSortType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -74,7 +75,7 @@ public class UserController {
     }
 
     @PostMapping("/{user_id}/supports")
-    public ResponseEntity<SupportDto.CreateSupportResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateSupportRequest supportCreateSupportRequest) {
+    public ResponseEntity<SupportDto.CreateSupportResponse> createSupport(@PathVariable(name = "user_id") UUID userId, @Valid @RequestBody SupportDto.CreateSupportRequest supportCreateSupportRequest) throws JsonProcessingException {
 
         SupportDto.CreateSupportResponse supportCreateSupportResponse = supportService.createSupport(userId, supportCreateSupportRequest);
 

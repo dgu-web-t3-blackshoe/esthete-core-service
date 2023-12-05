@@ -2,6 +2,7 @@ package com.blackshoe.esthetecoreservice.service;
 
 import com.blackshoe.esthetecoreservice.dto.SupportDto;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 public interface SupportService {
 
-    SupportDto.CreateSupportResponse createSupport(UUID userId, SupportDto.CreateSupportRequest supportCreateSupportRequest);
+    SupportDto.CreateSupportResponse createSupport(UUID userId, SupportDto.CreateSupportRequest supportCreateSupportRequest) throws JsonProcessingException;
 
     SupportDto.DeleteSupportResponse deleteSupport(UUID userId, UUID photographerId);
 

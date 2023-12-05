@@ -154,6 +154,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         ObjectMapper objectMapper = new ObjectMapper();
 
         String supportersJson = objectMapper.writeValueAsString(supporters);
+
         try{
             supportersJson = objectMapper.writeValueAsString(supporters);
         } catch (JsonProcessingException e) {
