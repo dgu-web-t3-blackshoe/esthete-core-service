@@ -8,6 +8,5 @@ import java.util.UUID;
 
 public interface NewWorkService {
     List<NewWorkDto.ReadNewWorkResponse> readNewWork(UUID userId);
-    NewWorkDto.UpdateNewWorkResponse viewNewPhoto(NewWorkDto.UpdateViewOfPhotoRequest updateRequest) throws JsonProcessingException;
     NewWorkDto.UpdateNewWorkResponse viewNewExhibition(NewWorkDto.UpdateViewOfExhibitionRequest updateRequest) throws JsonProcessingException;
 }

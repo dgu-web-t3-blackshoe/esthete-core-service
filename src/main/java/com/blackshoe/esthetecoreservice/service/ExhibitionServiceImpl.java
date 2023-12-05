@@ -69,8 +69,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         newWorkRepository.deleteByExhibition(exhibition);
 
-        //@TODO Logic 수정
-        redisTemplate.delete("*" + exhibitionId.toString());
+        redisTemplate.delete("photographer_" + exhibition.getUser().getUserId() + "_exhibition_" + exhibition.getExhibitionId().toString());
 
         final ExhibitionDto.DeleteExhibitionResponse exhibitionDeleteExhibitionResponse = ExhibitionDto.DeleteExhibitionResponse.builder()
                 .exhibitionId(exhibition.getExhibitionId().toString())
@@ -133,7 +132,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         }
 
         redisTemplate.opsForValue().set(hasNewRedisKey, supportersJson);
-        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
+        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24 * 7, java.util.concurrent.TimeUnit.SECONDS);
 
         User photographer = userRepository.findByUserId(photographerId)
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));

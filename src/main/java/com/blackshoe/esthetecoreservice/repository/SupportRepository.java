@@ -51,4 +51,11 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     Page<UserDto.SearchResult> findAllByNicknameAndGenresContaining(@Param("userId") UUID userId, @Param("nickname") String nickname, @Param("searchGenreIds") List<UUID> searchGenreIds, Pageable pageable);
 
     Boolean existsByUserAndPhotographer(User user, User photographer);
+
+    @Query("SELECT s " +
+            "FROM Support s " +
+            "WHERE s.user.userId = :userId")
+    List<Support> findBySupporterId(@Param("userId") UUID userId);
+
+
 }

@@ -107,7 +107,6 @@ public class PhotoServiceImpl implements PhotoService {
 
         UUID photographerId = UUID.fromString(photographer.getUserId().toString());
 
-        saveOrUpdateNewWork(photographerId, uploadedPhoto);
 
         photoChecksumService.addPhotoChecksum(photo, photoId);
 
@@ -173,51 +172,6 @@ public class PhotoServiceImpl implements PhotoService {
 
             photoEquipmentRepository.save(photoEquipment);
         });
-    }
-
-    @Transactional
-    public void saveOrUpdateNewWork(UUID photographerId, Photo uploadedPhoto) throws RuntimeException {
-        List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
-
-        String[] userIdWithCondition;
-        List<String[]> supporters = new ArrayList<>();
-
-        for (Support support : supports) {
-            //[[userId, true], [userId, true], [userId, true]]
-            userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
-
-            supporters.add(userIdWithCondition);
-        }
-
-        String hasNewRedisKey = "photographer_" + photographerId + "_photo_" + uploadedPhoto.getPhotoId().toString();
-
-// JSON 변환을 위한 ObjectMapper 인스턴스 생성
-        ObjectMapper mapper = new ObjectMapper();
-
-// supporters 리스트를 JSON 문자열로 변환
-        String supportersJson;
-        try {
-            supportersJson = mapper.writeValueAsString(supporters);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 실패", e);
-        }
-
-// Redis에 JSON 문자열 저장
-        redisTemplate.opsForValue().set(hasNewRedisKey, supportersJson);
-        redisTemplate.expire(hasNewRedisKey, 60 * 60 * 24, java.util.concurrent.TimeUnit.SECONDS);
-
-
-        User photographer = userRepository.findByUserId(photographerId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
-
-        NewWork newWork = NewWork.builder()
-                .photographerId(photographerId)
-                .photoId(uploadedPhoto.getPhotoId())
-                .build();
-
-        newWork.setPhotographer(photographer);
-        newWork.setPhoto(uploadedPhoto);
-
-        newWorkRepository.save(newWork);
     }
 
     public Photo createPhoto(User photographer, UUID photoId, PhotoUrl uploadedPhotoUrl, PhotoDto.CreatePhotoRequest photoUploadRequest, PhotoLocation photoLocation) {

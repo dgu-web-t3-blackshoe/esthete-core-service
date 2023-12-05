@@ -47,12 +47,6 @@ public class Photo {
     @JoinColumn(name = "photo_checksum_id", foreignKey = @ForeignKey(name = "photo_checksum_fk_photo_id"))
     private PhotoChecksum photoChecksum;
 
-    /*
-    @JoinColumn(name = "photo_location_id", foreignKey = @ForeignKey(name = "photo_fk_photo_location_id"))
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private PhotoLocation photoLocation;
-    */
-
     @Column(name = "photo_time", length = 20)
     private String time;
 
