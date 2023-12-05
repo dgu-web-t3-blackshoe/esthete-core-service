@@ -124,6 +124,14 @@ public class User {
         this.role = role;
         this.provider = provider;
         this.profileImgUrl = profileImgUrl;
+        this.userGenres = new ArrayList<>();
+        this.userEquipments = new ArrayList<>();
+        this.exhibitions = new ArrayList<>();
+        this.photos = new ArrayList<>();
+        this.guestBooks = new ArrayList<>();
+        this.supports = new ArrayList<>();
+        this.supportCount = 0L;
+        this.viewCount = 0L;
     }
 
     public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {

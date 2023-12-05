@@ -36,53 +36,59 @@ public class NewWorkServiceImpl implements NewWorkService{
 
         //get all supporting photographers from userId and get keys from those
         List<Support> supports = supportRepository.findBySupporterId(userId);
-        List<String> keys = new ArrayList<>();
+        Set<String> allKeys = new HashSet<>();
+
+// 모든 지지하는 포토그래퍼에 대한 키들을 찾음
         for (Support support : supports) {
-            keys.add("photographer_"+ support.getPhotographer().getUserId().toString() +"_exhibition_*");
+            String pattern = "photographer_" + support.getPhotographer().getUserId().toString() + "_exhibition_*";
+            allKeys.addAll(redisTemplate.keys(pattern));
         }
 
-        for (String key : keys) {
+        for (String key : allKeys) {
             try {
-                String jsonValue = (String) redisTemplate.opsForValue().get(key); // Object를 String으로 캐스팅
-                List<List<String>> values = objectMapper.readValue(jsonValue, new TypeReference<List<List<String>>>() {});
-
-                // 특정 userId가 JSON 배열 안에 존재하는지 확인
-                boolean userIdExists = values.stream().anyMatch(pair -> userId.toString().equals(pair.get(0)) );
-
-                if (userIdExists) {
-                    String hasNew = values.stream()
-                            .filter(pair -> userId.toString().equals(pair.get(0)))
-                            .findFirst()
-                            .map(pair -> pair.get(1))
-                            .orElse("false");
-
-                    String[] splitKey = key.split("_");
-
-                    String photographerId = splitKey[1];
-                    String postType = splitKey[2];
-                    String postId = splitKey[3];
-
-                    NewWorkDto.ReadNewWorkResponse newWorkReadNewWorkResponse;
-
-                    newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
-                            .exhibitionId(postId)
-                            .hasNewExhibition(hasNew)
-                            .build();
-
-                    newWorkRepository.findByPhotographerIdAndExhibitionId(UUID.fromString(photographerId), UUID.fromString(postId)).ifPresent(newWork -> {
-                        newWorkReadNewWorkResponse.setUpdatedAt(newWork.getUpdatedAt().toString());
-                        newWorkReadNewWorkResponse.setPhotographerId(newWork.getPhotographerId().toString());
+                String jsonValue = (String) redisTemplate.opsForValue().get(key);
+                // jsonValue가 null이 아닌 경우에만 처리
+                if (jsonValue != null) {
+                    List<List<String>> values = objectMapper.readValue(jsonValue, new TypeReference<List<List<String>>>() {
                     });
 
-                    User photographer = userRepository.findByUserId(UUID.fromString(photographerId)).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+                    // 특정 userId가 JSON 배열 안에 존재하는지 확인
+                    boolean userIdExists = values.stream().anyMatch(pair -> userId.toString().equals(pair.get(0)));
 
-                    newWorkReadNewWorkResponse.setPhotographerId(photographerId);
-                    newWorkReadNewWorkResponse.setProfileImg(photographer.getProfileImgUrl().getCloudfrontUrl());
-                    newWorkReadNewWorkResponse.setNickname(photographer.getNickname());
+                    if (userIdExists) {
+                        String hasNew = values.stream()
+                                .filter(pair -> userId.toString().equals(pair.get(0)))
+                                .findFirst()
+                                .map(pair -> pair.get(1))
+                                .orElse("false");
 
-                    newWorkReadResponseNewWorks.add(newWorkReadNewWorkResponse);
+                        String[] splitKey = key.split("_");
+
+                        String photographerId = splitKey[1];
+                        String postType = splitKey[2];
+                        String postId = splitKey[3];
+
+                        NewWorkDto.ReadNewWorkResponse newWorkReadNewWorkResponse;
+
+                        newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
+                                .exhibitionId(postId)
+                                .hasNewExhibition(hasNew)
+                                .build();
+
+                        newWorkRepository.findByPhotographerIdAndExhibitionId(UUID.fromString(photographerId), UUID.fromString(postId)).ifPresent(newWork -> {
+                            newWorkReadNewWorkResponse.setUpdatedAt(newWork.getUpdatedAt().toString());
+                            newWorkReadNewWorkResponse.setPhotographerId(newWork.getPhotographerId().toString());
+                        });
+
+                        User photographer = userRepository.findByUserId(UUID.fromString(photographerId)).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+                        newWorkReadNewWorkResponse.setPhotographerId(photographerId);
+                        newWorkReadNewWorkResponse.setProfileImg(photographer.getProfileImgUrl().getCloudfrontUrl());
+                        newWorkReadNewWorkResponse.setNickname(photographer.getNickname());
+
+                        newWorkReadResponseNewWorks.add(newWorkReadNewWorkResponse);
+                    }
                 }
-
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
                 log.info("JSON 파싱에 실패했습니다.");
