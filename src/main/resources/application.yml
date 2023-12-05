@@ -60,7 +60,8 @@ cloud:
   gcp:
     project-id: ${GCP_PROJECT_ID}
     credentials:
-      location: classpath:gcp.json
+      location: ${GCP_CREDENTIALS_PATH}/gcp.json
+      path: ${GCP_CREDENTIALS_PATH}
       string: ${GCP_CREDENTIALS}
     vision:
       safe-search-option: ${GCP_VISION_SAFE_SEARCH_OPTION}

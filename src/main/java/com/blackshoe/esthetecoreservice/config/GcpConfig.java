@@ -17,10 +17,13 @@ public class GcpConfig {
     @Value("${cloud.gcp.credentials.string}")
     private String GCP_CREDENTIALS;
 
+    @Value("${cloud.gcp.credentials.path}")
+    private String GCP_CREDENTIALS_PATH;
+
     @PostConstruct
     public void init() {
         try {
-            Path resourcesPath = Paths.get("src", "main", "resources");
+            Path resourcesPath = Paths.get(GCP_CREDENTIALS_PATH);
 
             Path gcpJsonPath = resourcesPath.resolve("gcp.json");
 
