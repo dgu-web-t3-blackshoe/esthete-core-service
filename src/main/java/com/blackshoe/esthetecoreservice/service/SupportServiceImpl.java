@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -58,10 +55,20 @@ public class SupportServiceImpl implements SupportService {
 
         if(keys != null){
             for(String key : keys){
+
                 String currentValue = (String) redisTemplate.opsForValue().get(key);
 
-                List<List<String>> supporters = new ObjectMapper().readValue(currentValue, new TypeReference<List<List<String>>>() {});
+                List<List<String>> supporters;
+                if (currentValue == null) {
+                    supporters = new ArrayList<>();
+                } else {
+                    supporters = new ObjectMapper().readValue(currentValue, new TypeReference<List<List<String>>>() {});
+                }
+
+                // 새로운 지지자 정보 추가
                 supporters.add(Arrays.asList(userId.toString(), "true"));
+
+                // JSON으로 다시 변환하여 Redis에 저장
                 String newValue = new ObjectMapper().writeValueAsString(supporters);
                 redisTemplate.opsForValue().set(key, newValue);
             }
