@@ -67,6 +67,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         exhibitionRepository.delete(exhibition);
 
+        newWorkRepository.deleteByExhibition(exhibition);
+
         //@TODO Logic 수정
         redisTemplate.delete("*" + exhibitionId.toString());
 
@@ -137,7 +139,6 @@ public class ExhibitionServiceImpl implements ExhibitionService {
                 .orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.USER_NOT_FOUND));
 
         NewWork newWork = NewWork.builder()
-                .exhibition(exhibition)
                 .photographerId(photographerId)
                 .exhibitionId(exhibition.getExhibitionId())
                 .build();

@@ -36,12 +36,14 @@ public class NewWork {
     private UUID photographerId;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photo_id", foreignKey = @ForeignKey(name = "new_work_fk_photo_id"))
     private Photo photo;
 
     @Column(columnDefinition = "BINARY(16)", name = "photo_uuid")
     private UUID photoId;
 
-    @OneToOne(mappedBy = "newWork")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exhibition_id", foreignKey = @ForeignKey(name = "new_work_fk_exhibition_id"))
     private Exhibition exhibition;
 
     @Column(columnDefinition = "BINARY(16)", name = "exhibition_uuid")

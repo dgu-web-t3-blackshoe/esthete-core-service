@@ -3,8 +3,6 @@ package com.blackshoe.esthetecoreservice.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -28,7 +26,7 @@ public class GcpConfig {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
             try {
-                String fileName = "esthete-gcp.json";
+                String fileName = "gcp.json";
 
                 Path destinationPath = Path.of("src/main/resources", fileName);
 
