@@ -13,4 +13,6 @@ public interface PhotoChecksumRepository extends JpaRepository<PhotoChecksum, Lo
     void deleteByChecksum(String checksum);
 
     Optional<PhotoChecksum> findByChecksum(String checksum);
+
+    void deleteAllByChecksum(String checksum);
 }

@@ -83,6 +83,10 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
             throw new PhotoException(PhotoErrorResult.PHOTO_HASH_FAILED);
         }
 
+        if (photoChecksumRepository.existsByChecksum(checksum)) {
+            photoChecksumRepository.deleteAllByChecksum(checksum);
+        }
+
         PhotoChecksum photoChecksum = PhotoChecksum.builder()
                 .checksum(checksum)
                 .build();
