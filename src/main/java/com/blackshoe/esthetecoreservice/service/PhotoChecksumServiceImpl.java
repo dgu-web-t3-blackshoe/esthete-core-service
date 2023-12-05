@@ -51,6 +51,7 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
     }
 
     @Override
+    @Transactional
     public void validatePhotoChecksumExist(MultipartFile file) {
 
         final String checksum;
