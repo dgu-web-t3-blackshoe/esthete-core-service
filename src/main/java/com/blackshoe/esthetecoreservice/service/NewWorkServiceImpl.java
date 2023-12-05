@@ -38,7 +38,6 @@ public class NewWorkServiceImpl implements NewWorkService{
         List<Support> supports = supportRepository.findBySupporterId(userId);
         Set<String> allKeys = new HashSet<>();
 
-// 모든 지지하는 포토그래퍼에 대한 키들을 찾음
         for (Support support : supports) {
             String pattern = "photographer_" + support.getPhotographer().getUserId().toString() + "_exhibition_*";
             allKeys.addAll(redisTemplate.keys(pattern));
@@ -65,27 +64,30 @@ public class NewWorkServiceImpl implements NewWorkService{
                         String[] splitKey = key.split("_");
 
                         String photographerId = splitKey[1];
-                        String postType = splitKey[2];
-                        String postId = splitKey[3];
+                        String exhibitionId = splitKey[3];
 
                         NewWorkDto.ReadNewWorkResponse newWorkReadNewWorkResponse;
 
                         newWorkReadNewWorkResponse = NewWorkDto.ReadNewWorkResponse.builder()
-                                .exhibitionId(postId)
+                                .exhibitionId(exhibitionId)
                                 .hasNewExhibition(hasNew)
                                 .build();
 
-                        newWorkRepository.findByPhotographerIdAndExhibitionId(UUID.fromString(photographerId), UUID.fromString(postId)).ifPresent(newWork -> {
+                        newWorkRepository.findByPhotographerIdAndExhibitionId(UUID.fromString(photographerId), UUID.fromString(exhibitionId)).ifPresent(newWork -> {
                             newWorkReadNewWorkResponse.setUpdatedAt(newWork.getUpdatedAt().toString());
                             newWorkReadNewWorkResponse.setPhotographerId(newWork.getPhotographerId().toString());
                         });
 
                         User photographer = userRepository.findByUserId(UUID.fromString(photographerId)).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
+                        Exhibition exhibition = exhibitionRepository.findByExhibitionId(UUID.fromString(exhibitionId)).orElseThrow(() -> new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND));
+
+                        Photo photo = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail())).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
                         newWorkReadNewWorkResponse.setPhotographerId(photographerId);
                         newWorkReadNewWorkResponse.setProfileImg(photographer.getProfileImgUrl().getCloudfrontUrl());
                         newWorkReadNewWorkResponse.setNickname(photographer.getNickname());
-
+                        newWorkReadNewWorkResponse.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
                         newWorkReadResponseNewWorks.add(newWorkReadNewWorkResponse);
                     }
                 }
