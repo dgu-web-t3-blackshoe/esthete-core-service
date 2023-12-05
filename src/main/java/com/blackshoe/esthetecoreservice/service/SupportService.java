@@ -18,7 +18,6 @@ public interface SupportService {
     Page<UserDto.SearchResult> readAllByNicknameContaining(UUID supporterId, String nickname, Pageable pageable);
     Page<UserDto.SearchResult> readAllByGenresContaining(UUID supporterId, List<UUID> searchGenreIds, Pageable pageable);
     Page<UserDto.SearchResult>  readAllByNicknameAndGenresContaining(UUID supporterId, String nickname, List<UUID> searchGenreIds, Pageable pageable);
-
-
+    Page<UserDto.SearchResult> readAllBySupporterId(UUID supporterId, Pageable pageable);
     SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId);
 }

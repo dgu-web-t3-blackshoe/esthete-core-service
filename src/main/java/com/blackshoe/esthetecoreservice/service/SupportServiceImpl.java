@@ -98,6 +98,15 @@ public class SupportServiceImpl implements SupportService {
 
         return searchResultPage;
     }
+
+    @Override
+    public Page<UserDto.SearchResult> readAllBySupporterId(UUID supporterId, Pageable pageable) {
+
+        final Page<UserDto.SearchResult> searchResultPage = supportRepository.findAllBySupporterId(supporterId, pageable);
+
+        return searchResultPage;
+    }
+
     @Override
     public SupportDto.IsSupported getIsSupported(UUID userId, UUID photographerId) {
 
