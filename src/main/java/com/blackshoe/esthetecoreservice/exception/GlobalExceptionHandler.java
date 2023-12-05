@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.exception;
 
+import com.blackshoe.esthetecoreservice.dto.CopyrightErrorDto;
 import com.blackshoe.esthetecoreservice.dto.ErrorDto;
 import com.blackshoe.esthetecoreservice.dto.SafeSearchErrorDto;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +106,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SafeSearchException.class)
-    public ResponseEntity<SafeSearchErrorDto> handleAbusedPhotoException(SafeSearchException e) {
+    public ResponseEntity<SafeSearchErrorDto> handleSafeSearchException(SafeSearchException e) {
 
         log.error("SafeSearchException", e);
 
@@ -115,6 +116,19 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(e.getHttpStatus()).body(safeSearchErrorDto);
+    }
+
+    @ExceptionHandler(CopyrightException.class)
+    public ResponseEntity<CopyrightErrorDto> handleCopyrightException(CopyrightException e) {
+
+        log.error("CopyrightException", e);
+
+        final CopyrightErrorDto copyrightErrorDto = CopyrightErrorDto.builder()
+                .error(e.getMessage())
+                .originalPhotoId(e.getOriginalPhotoId())
+                .build();
+
+        return ResponseEntity.status(e.getHttpStatus()).body(copyrightErrorDto);
     }
 
     @ExceptionHandler(RuntimeException.class)
