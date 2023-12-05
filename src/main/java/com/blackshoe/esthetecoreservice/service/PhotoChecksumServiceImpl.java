@@ -108,9 +108,16 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
 
         if (photoChecksumRepository.existsByChecksum(checksum)) {
 
-            PhotoChecksum photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+            final PhotoChecksum photoChecksum;
 
-            photoChecksumRepository.deleteByChecksum(checksum);
+            try {
+                photoChecksum = photoChecksumRepository.findByChecksum(checksum).get();
+
+                photoChecksumRepository.delete(photoChecksum);
+            } catch (Exception e) {
+                log.error("error on photo checksum delete", e);
+                throw new RuntimeException(e.getMessage());
+            }
 
             throw new CopyrightException(
                     "이미 업로드된 이미지는 등록할 수 없습니다.",
