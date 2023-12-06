@@ -1,5 +1,6 @@
 package com.blackshoe.esthetecoreservice.repository;
 
+import com.blackshoe.esthetecoreservice.dto.UserCountDto;
 import com.blackshoe.esthetecoreservice.entity.User;
 import org.springframework.data.domain.Page;
 import com.blackshoe.esthetecoreservice.dto.UserDto;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +36,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE u.nickname like %:nickname% and ug.genre.genreId in :searchGenreIds")
     Page<UserDto.SearchResult> findAllByNicknameAndGenresContaining(@Param("nickname") String nickname, @Param("searchGenreIds") List<UUID> searchGenreIds, Pageable pageable);
 
+    default UserCountDto getUserCount(LocalDateTime now, Integer countIntervalMinutes) {
+        LocalDateTime start = now.minusMinutes(countIntervalMinutes);
+        LocalDateTime end = now;
+        return getUserCount(start, end);
+    }
+
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserCountDto(count(u)) " +
+            "FROM User u " +
+            "WHERE u.createdAt >= :start AND u.createdAt < :end")
+    UserCountDto getUserCount(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+  
     boolean existsByEmail(String email);
 
     Optional<User> findByEmail(String email);
