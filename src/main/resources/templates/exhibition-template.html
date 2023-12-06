@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${exhibition.title + ' - ' + exhibition.user.nickname}"></title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            /*background-image: url(th:style="${exhibition.thumbnailUrl}");*/
+            background-size: cover;
+            position: relative;
+            color: white;
+            text-align: center;
+            padding: 50px;
+            box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: inherit;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .exhibition-room {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .exhibition-room img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .exhibition-item {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .exhibition-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header th:style="'background-image:url('+ @{exhibitionThumbnailUrl} +');'">
+    <h1 th:text="${'exhibition.title - ' + exhibition.artistName}"></h1>
+    <p th:text="${exhibition.description}"></p>
+</header>
+
+<!-- Main Content -->
+<main>
+    <div class="exhibition-room" th:each="room : ${exhibition.rooms}">
+        <h2 th:text="${room.title}"></h2>
+        <p th:text="${room.description}"></p>
+        <div class="grid-container">
+            <!-- 전시 사진 목록 -->
+            <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}">
+                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}">
+                <h3 th:text="${roomPhoto.photo.title}"></h3>
+                <p th:text="${roomPhoto.photo.description}"></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+
+</html>
