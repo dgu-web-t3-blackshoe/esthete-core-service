@@ -24,7 +24,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         ExhibitionCountDto exhibitionCountDto = exhibitionRepository.getExhibitionCount(now, interval);
 
-        return null;
+        return exhibitionCountDto;
     }
 
     @Override
@@ -32,6 +32,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         UserCountDto userCountDto = userRepository.getUserCount(now, interval);
 
-        return null;
+        return userCountDto;
     }
 }
