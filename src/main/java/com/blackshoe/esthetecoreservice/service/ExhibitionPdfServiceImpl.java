@@ -7,6 +7,7 @@ import com.blackshoe.esthetecoreservice.entity.RoomPhoto;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
+import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.UUID;
 public class ExhibitionPdfServiceImpl implements ExhibitionPdfService {
 
     private final ExhibitionRepository exhibitionRepository;
+    private final PhotoRepository photoRepository;
 
     @Override
     public byte[] generatePdf(UUID exhibitionId) throws DocumentException, IOException {
@@ -49,24 +51,36 @@ public class ExhibitionPdfServiceImpl implements ExhibitionPdfService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private static void addExhibitionDetails(Document document, Exhibition exhibition) throws DocumentException, IOException {
+    private void addExhibitionDetails(Document document, Exhibition exhibition) throws DocumentException, IOException {
         document.add(new Paragraph("Exhibition Title: " + exhibition.getTitle()));
         document.add(new Paragraph("Exhibition Description: " + exhibition.getDescription()));
         document.add(new Paragraph("Photographer: " + exhibition.getUser().getNickname()));
-        addImageToPdf(document, exhibition.getThumbnail(), "Exhibition Thumbnail");
+
+        UUID exhibitionThumbnailId = UUID.fromString(exhibition.getThumbnail());
+
+        String exhibitionThumbnailUrl
+                = photoRepository.findByPhotoId(exhibitionThumbnailId).get().getPhotoUrl().getCloudfrontUrl();
+
+        addImageToPdf(document, exhibitionThumbnailUrl, "Exhibition Thumbnail");
     }
 
-    private static void addRoomDetails(Document document, List<Room> rooms) throws DocumentException, IOException {
+    private void addRoomDetails(Document document, List<Room> rooms) throws DocumentException, IOException {
         for (Room room : rooms) {
             document.add(new Paragraph("Room Title: " + room.getTitle()));
             document.add(new Paragraph("Room Description: " + room.getDescription()));
-            addImageToPdf(document, room.getThumbnail(), "Room Thumbnail");
+
+            UUID roomThumbnailId = UUID.fromString(room.getThumbnail());
+
+            String roomThumbnailUrl
+                    = photoRepository.findByPhotoId(roomThumbnailId).get().getPhotoUrl().getCloudfrontUrl();
+
+            addImageToPdf(document, roomThumbnailUrl, "Room Thumbnail");
             addPhotoDetails(document, room.getRoomPhotos());
             document.newPage();
         }
     }
 
-    private static void addPhotoDetails(Document document, List<RoomPhoto> roomPhotos) throws DocumentException, IOException {
+    private void addPhotoDetails(Document document, List<RoomPhoto> roomPhotos) throws DocumentException, IOException {
         for (RoomPhoto roomPhoto : roomPhotos) {
             document.add(new Paragraph("Photo Title: " + roomPhoto.getPhoto().getTitle()));
             document.add(new Paragraph("Photo Description: " + roomPhoto.getPhoto().getDescription()));
@@ -74,7 +88,7 @@ public class ExhibitionPdfServiceImpl implements ExhibitionPdfService {
         }
     }
 
-    private static void addImageToPdf(Document document, String cloudfrontUrl, String altText) throws DocumentException, IOException {
+    private void addImageToPdf(Document document, String cloudfrontUrl, String altText) throws DocumentException, IOException {
         URL url = new URL(cloudfrontUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
