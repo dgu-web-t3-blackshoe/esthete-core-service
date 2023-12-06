@@ -76,7 +76,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     @Scheduled(cron = "0 0 6 * * *")
     public void buildDataModel() {
-        List<View> views = viewRepository.findAllWithUserAndExhibition();
+        List<View> views = viewRepository.findAll();
         Map<Long, Set<Long>> userPreferredGenres = collectUserPreferredGenres();
         Map<Long, Set<Long>> exhibitionGenres = collectExhibitionGenres();
 
@@ -109,6 +109,11 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
     public DataModel getCachedDataModel() {
         ValueOperations<String, DataModel> valueOps = dataModelRedisTemplate.opsForValue();
+
+        if (valueOps.get("recommendation") == null) {
+            buildDataModel();
+        }
+
         return valueOps.get("recommendation");
     }
 

@@ -19,8 +19,6 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserId(UUID any);
 
-    Optional<User> findByNickname(String nickname);
-
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(u) " +
             "FROM User u " +
             "WHERE u.nickname like %:nickname% ")
@@ -48,4 +46,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "FROM User u " +
             "WHERE u.createdAt >= :start AND u.createdAt < :end")
     UserCountDto getUserCount(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+  
+    boolean existsByEmail(String email);
+
+    Optional<User> findByEmail(String email);
 }

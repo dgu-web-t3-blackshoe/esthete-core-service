@@ -43,11 +43,12 @@ public class KafkaUserInfoConsumerServiceImpl implements KafkaUserInfoConsumerSe
                 .s3Url("")
                 .build();
 
-        User user = User.createUserFromKafka()
+        User user = null;
+        /* User user = User.createUserFromKafka()
                 .userId(userId)
                 .role(role)
                 .profileImgUrl(profileImgUrl)
-                .build();
+                .build(); */
 
         try {
             userRepository.save(user);

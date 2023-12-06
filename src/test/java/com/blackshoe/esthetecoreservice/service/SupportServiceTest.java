@@ -53,7 +53,7 @@ public class SupportServiceTest {
             .build();
 
     @Test
-    public void createSupport_whenSuccess_returnsSupportCreateResponse() {
+    public void createSupport_whenSuccess_returnsSupportCreateResponse() throws Exception{
         // given
         final SupportDto.CreateSupportRequest supportCreateSupportRequest = SupportDto.CreateSupportRequest.builder()
                 .photographerId(photographerId.toString())

@@ -184,6 +184,9 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
+        user.setNickname(signUpInfoRequest.getNickname());
+        user.setBiography(signUpInfoRequest.getBiography());
+
         signUpInfoRequest.getGenres().stream()
                 .forEach(genreId -> {
                             Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))

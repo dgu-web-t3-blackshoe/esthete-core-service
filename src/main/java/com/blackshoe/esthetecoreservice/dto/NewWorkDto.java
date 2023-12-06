@@ -20,9 +20,8 @@ public class NewWorkDto {
         private String photographerId;
         private String profileImg;
         private String nickname;
-        private String photoId;
+        private String thumbnail;
         private String exhibitionId;
-        private String hasNewPhoto;
         private String hasNewExhibition;
         private String updatedAt;
     }
