@@ -72,10 +72,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
-
-    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Support> supportingPhotographers;
-
+    
     @ColumnDefault("0")
     @Column(name = "support_count")
     private Long supportCount;
