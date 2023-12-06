@@ -66,11 +66,7 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
         String htmlContent = templateEngine.process("exhibition-template", thymeleafContext);
 
         FontProvider fontProvider = new DefaultFontProvider(false, false, false);
-
-        String fontPath = FONT_DIRECTORY + FONT_NAME;
-        InputStream fontInputStream = new BufferedInputStream(new FileInputStream(fontPath));
-        FontProgram koreanFont = FontProgramFactory.createFont(fontInputStream.readAllBytes());
-        fontProvider.addFont(koreanFont);
+        fontProvider.addFont(FONT_DIRECTORY + FONT_NAME);
 
         ConverterProperties properties = new ConverterProperties();
         properties.setFontProvider(fontProvider);
