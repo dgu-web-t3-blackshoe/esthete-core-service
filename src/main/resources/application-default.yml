@@ -140,3 +140,8 @@ app:
 
 services:
   admin-service: ${ADMIN_SERVICE_URL}
+
+itext:
+  font-directory: ${ITEXT_FONT_DIRECTORY}
+  font-name: ${ITEXT_FONT_NAME}
+  font-download-url: ${ITEXT_FONT_DOWNLOAD_URL}
