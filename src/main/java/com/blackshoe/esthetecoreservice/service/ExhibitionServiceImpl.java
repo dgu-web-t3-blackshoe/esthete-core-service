@@ -107,7 +107,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
             return exhibitionReadRandomExhibitionResponse;
     }
 
-    @Override
+    @Override @Transactional
     public ExhibitionDto.UpdateViewOfExhibitionResponse viewExhibition(UUID exhibitionId, UUID userId) {
         ExhibitionDto.UpdateViewOfExhibitionResponse exhibitionUpdateViewOfExhibitionResponse = ExhibitionDto.UpdateViewOfExhibitionResponse.builder()
                 .exhibitionId(exhibitionId.toString())

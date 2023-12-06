@@ -24,9 +24,9 @@ public class RecommendationController {
         return ResponseEntity.status(HttpStatus.OK).body(readRecommendedExhibitionResponses);
     }
 
-    @PostMapping("/build-data-model")
+/*    @PostMapping("/build-data-model")
     public void buildDataModel() {
-        recommendationService.buildDataModel();
+       recommendationService.buildDataModel();
     }
-
+*/
 }
