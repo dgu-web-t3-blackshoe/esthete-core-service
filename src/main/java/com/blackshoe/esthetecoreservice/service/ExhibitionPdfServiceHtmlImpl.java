@@ -16,7 +16,6 @@ import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -70,10 +66,7 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
         String htmlContent = templateEngine.process("exhibition-template", thymeleafContext);
 
         FontProvider fontProvider = new DefaultFontProvider(false, false, false);
-
-        String fontPath = FONT_DIRECTORY + FONT_NAME;
-        FontProgram koreanFont = FontProgramFactory.createFont(fontPath);
-        fontProvider.addFont(koreanFont);
+        fontProvider.addFont(FONT_DIRECTORY + FONT_NAME);
 
         ConverterProperties properties = new ConverterProperties();
         properties.setFontProvider(fontProvider);
