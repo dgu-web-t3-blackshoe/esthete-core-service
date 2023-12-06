@@ -94,8 +94,8 @@
 <body>
 
 <!-- Header -->
-<header th:style="'background-image:url('+ @{exhibitionThumbnailUrl} +');'">
-    <h1 th:text="${'exhibition.title - ' + exhibition.artistName}"></h1>
+<header th:style="'background-image:url('exhibitionThumbnailUrl');'">
+    <h1 th:text="${exhibition.title + ' - '  + exhibition.user.nickname}"></h1>
     <p th:text="${exhibition.description}"></p>
 </header>
 
