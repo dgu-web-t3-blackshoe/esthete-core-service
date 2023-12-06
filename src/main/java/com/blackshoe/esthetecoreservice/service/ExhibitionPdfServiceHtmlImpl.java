@@ -9,8 +9,8 @@ import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -52,20 +52,18 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
                 .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
         String exhibitionThumbnailUrl = photo.getPhotoUrl().getCloudfrontUrl();
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4);
-
-        PdfWriter writer = PdfWriter.getInstance(document, byteArrayOutputStream);
-        document.open();
-
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("exhibition", exhibition);
         thymeleafContext.setVariable("exhibitionThumbnailUrl", exhibitionThumbnailUrl);
-
         String htmlContent = templateEngine.process("exhibition-template", thymeleafContext);
-        InputStream inputStream = new ByteArrayInputStream(htmlContent.getBytes(StandardCharsets.UTF_8));
 
-        HtmlConverter.convertToPdf(inputStream, byteArrayOutputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+
+        PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+        document.open();
+        InputStream inputStream = new ByteArrayInputStream(htmlContent.getBytes(StandardCharsets.UTF_8));
+        HtmlConverter.convertToPdf(inputStream, pdfWriter);
         document.close();
 
         return byteArrayOutputStream.toByteArray();
