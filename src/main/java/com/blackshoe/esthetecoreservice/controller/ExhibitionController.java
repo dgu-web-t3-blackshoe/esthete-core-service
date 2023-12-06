@@ -86,4 +86,12 @@ public class ExhibitionController {
         return ResponseEntity.status(HttpStatus.OK).body(roomPhotoReadRoomPhotoListResponse);
     }
 
+    @PostMapping("/{exhibitionId}/users/{userId}")
+    //view exhibition
+    public ResponseEntity<ExhibitionDto.UpdateViewOfExhibitionResponse> viewExhibition(@PathVariable UUID exhibitionId, @PathVariable UUID userId) throws JsonProcessingException {
+
+        final ExhibitionDto.UpdateViewOfExhibitionResponse updateViewOfExhibitionResponse = exhibitionService.viewExhibition(exhibitionId, userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updateViewOfExhibitionResponse);
+    }
 }

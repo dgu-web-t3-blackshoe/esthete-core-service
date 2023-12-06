@@ -28,10 +28,10 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
             "WHERE s.photographer.userId = :photographerId")
     List<Support> findAllByPhotographerId(@Param("photographerId") UUID photographerId);
 
-    @Query("SELECT s.photographer " +
+    @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(s.photographer) " +
             "FROM Support s " +
             "WHERE s.user.userId = :userId")
-    List<User> findAllBySupporterId(@Param("userId") UUID userId);
+    Page<UserDto.SearchResult> findAllBySupporterId(@Param("userId") UUID userId, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.esthetecoreservice.dto.UserDto$SearchResult(s.photographer) " +
             "FROM Support s " +
@@ -51,4 +51,11 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     Page<UserDto.SearchResult> findAllByNicknameAndGenresContaining(@Param("userId") UUID userId, @Param("nickname") String nickname, @Param("searchGenreIds") List<UUID> searchGenreIds, Pageable pageable);
 
     Boolean existsByUserAndPhotographer(User user, User photographer);
+
+    @Query("SELECT s " +
+            "FROM Support s " +
+            "WHERE s.user.userId = :userId")
+    List<Support> findBySupporterId(@Param("userId") UUID userId);
+
+
 }

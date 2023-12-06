@@ -11,4 +11,6 @@ public interface ExhibitionService {
     ExhibitionDto.DeleteExhibitionResponse deleteExhibition(UUID exhibitionId);
 
     ExhibitionDto.ReadRandomExhibitionResponse readRandomExhibition();
+
+    ExhibitionDto.UpdateViewOfExhibitionResponse viewExhibition(UUID exhibitionId, UUID userId);
 }

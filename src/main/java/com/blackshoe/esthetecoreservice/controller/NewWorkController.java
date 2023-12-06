@@ -25,18 +25,6 @@ public class NewWorkController {
         return ResponseEntity.status(HttpStatus.OK).body(newWorkReadResponsNewWorks);
     }
 
-    @PostMapping("/{userId}/photos/{photoId}")
-    public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewPhoto(@PathVariable UUID userId, @PathVariable UUID photoId) throws JsonProcessingException {
-
-        NewWorkDto.UpdateViewOfPhotoRequest updateRequest = NewWorkDto.UpdateViewOfPhotoRequest.builder()
-                .userId(String.valueOf(userId))
-                .photoId(String.valueOf(photoId))
-                .build();
-
-        NewWorkDto.UpdateNewWorkResponse newWorkUpdateNewWorkResponse = newWorkService.viewNewPhoto(updateRequest);
-
-        return ResponseEntity.status(HttpStatus.OK).body(newWorkUpdateNewWorkResponse);
-    }
 
     @PostMapping("/{userId}/exhibitions/{exhibitionId}")
     public ResponseEntity<NewWorkDto.UpdateNewWorkResponse> viewNewExhibition(@PathVariable UUID userId, @PathVariable UUID exhibitionId) throws JsonProcessingException {

@@ -73,6 +73,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Support> supports;
 
+    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Support> supportingPhotographers;
+
     @ColumnDefault("0")
     @Column(name = "support_count")
     private Long supportCount;
@@ -86,6 +89,7 @@ public class User {
 
     @Builder
     public User(String nickname, String biography) {
+        this.email = email;
         this.nickname = nickname;
         this.biography = biography;
         this.userGenres = new ArrayList<>();
@@ -117,12 +121,20 @@ public class User {
         this.email = email;
     }
 
-    @Builder(builderMethodName = "createUserFromKafka")
-    public User(UUID userId, String email, Role role, ProfileImgUrl profileImgUrl) {
+    public User(UUID userId, String email, Role role, String provider, ProfileImgUrl profileImgUrl) {
         this.userId = userId;
         this.email = email;
         this.role = role;
+        this.provider = provider;
         this.profileImgUrl = profileImgUrl;
+        this.userGenres = new ArrayList<>();
+        this.userEquipments = new ArrayList<>();
+        this.exhibitions = new ArrayList<>();
+        this.photos = new ArrayList<>();
+        this.guestBooks = new ArrayList<>();
+        this.supports = new ArrayList<>();
+        this.supportCount = 0L;
+        this.viewCount = 0L;
     }
 
     public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {
@@ -160,5 +172,13 @@ public class User {
 
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void setProvider(String authProvider) {
+        this.provider = authProvider;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
