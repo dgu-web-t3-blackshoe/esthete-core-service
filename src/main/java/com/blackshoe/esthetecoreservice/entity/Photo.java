@@ -69,6 +69,9 @@ public class Photo {
     @Column(name = "created_at", length = 20)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomPhoto> roomPhotos = new ArrayList<>();
+
     public void setPhotoUrl(PhotoUrl photoUrl) {
         this.photoUrl = photoUrl;
     }
@@ -102,5 +105,9 @@ public class Photo {
     }
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void addRoomPhoto(RoomPhoto roomPhoto) {
+        this.roomPhotos.add(roomPhoto);
     }
 }
