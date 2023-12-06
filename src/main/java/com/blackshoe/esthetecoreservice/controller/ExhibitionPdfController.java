@@ -5,6 +5,7 @@ import com.blackshoe.esthetecoreservice.exception.ExhibitionErrorResult;
 import com.blackshoe.esthetecoreservice.exception.ExhibitionException;
 import com.blackshoe.esthetecoreservice.service.ExhibitionPdfService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("core/exhibitions")
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class ExhibitionPdfController {
         try {
             pdfBytes = exhibitionPdfService.generatePdf(exhibitionId);
         } catch (Exception e) {
+            log.error("Failed to generate pdf", e);
             throw new ExhibitionException(ExhibitionErrorResult.FAILED_TO_GENERATE_PDF);
         }
 
