@@ -43,3 +43,4 @@ my-debug-key.keystore
 .env
 docker-compose.yaml
 **/gcp.json
+**/application-local.yml
