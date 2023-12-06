@@ -8,11 +8,18 @@ import com.blackshoe.esthetecoreservice.exception.PhotoErrorResult;
 import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import com.blackshoe.esthetecoreservice.repository.PhotoRepository;
+import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -34,6 +41,11 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
     private final ExhibitionRepository exhibitionRepository;
     private final PhotoRepository photoRepository;
     private final TemplateEngine templateEngine;
+
+    @Value("${itext.font-directory}")
+    private String FONT_DIRECTORY;
+    @Value("${itext.font-name}")
+    private String FONT_NAME;
 
     @Override
     public byte[] generatePdf(UUID exhibitionId) throws DocumentException, IOException {
@@ -57,13 +69,23 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
         thymeleafContext.setVariable("exhibitionThumbnailUrl", exhibitionThumbnailUrl);
         String htmlContent = templateEngine.process("exhibition-template", thymeleafContext);
 
+        FontProvider fontProvider = new DefaultFontProvider(false, false, false);
+
+        String fontPath = FONT_DIRECTORY + FONT_NAME;
+        FontProgram koreanFont = FontProgramFactory.createFont(fontPath);
+        fontProvider.addFont(koreanFont);
+
+        ConverterProperties properties = new ConverterProperties();
+        properties.setFontProvider(fontProvider);
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4);
 
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
+
         document.open();
         InputStream inputStream = new ByteArrayInputStream(htmlContent.getBytes(StandardCharsets.UTF_8));
-        HtmlConverter.convertToPdf(inputStream, pdfWriter);
+        HtmlConverter.convertToPdf(inputStream, pdfWriter, properties);
         document.close();
 
         return byteArrayOutputStream.toByteArray();

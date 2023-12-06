@@ -16,7 +16,6 @@
         }
 
         header {
-            /*background-image: url(th:style="${exhibition.thumbnailUrl}");*/
             background-size: cover;
             position: relative;
             color: white;
@@ -108,7 +107,8 @@
         <div class="grid-container">
             <!-- 전시 사진 목록 -->
             <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}">
-                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}">
+                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}"
+                     style="max-width: 30%; height: auto; border-radius: 8px; margin-bottom: 10px;">
                 <h3 th:text="${roomPhoto.photo.title}"></h3>
                 <p th:text="${roomPhoto.photo.description}"></p>
             </div>
