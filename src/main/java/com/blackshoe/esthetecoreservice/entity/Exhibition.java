@@ -62,6 +62,7 @@ public class Exhibition {
         this.description = description;
         this.thumbnail = thumbnail;
         this.rooms = new ArrayList<>();
+        this.viewCount = 0L;
     }
 
     @PrePersist
