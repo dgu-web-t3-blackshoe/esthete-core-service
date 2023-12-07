@@ -65,11 +65,12 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
         thymeleafContext.setVariable("exhibitionThumbnailUrl", exhibitionThumbnailUrl);
         String htmlContent = templateEngine.process("exhibition-template", thymeleafContext);
 
-        FontProvider fontProvider = new DefaultFontProvider(false, false, false);
-        fontProvider.addFont(FONT_DIRECTORY + FONT_NAME);
-
-        ConverterProperties properties = new ConverterProperties();
-        properties.setFontProvider(fontProvider);
+//        FontProgram fontProgram = FontProgramFactory.createFont(FONT_DIRECTORY + FONT_NAME);
+//        FontProvider fontProvider = new DefaultFontProvider(false, false, false);
+//        fontProvider.addFont(fontProgram);
+//
+//        ConverterProperties properties = new ConverterProperties();
+//        properties.setFontProvider(fontProvider);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4);
@@ -78,7 +79,8 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
 
         document.open();
         InputStream inputStream = new ByteArrayInputStream(htmlContent.getBytes(StandardCharsets.UTF_8));
-        HtmlConverter.convertToPdf(inputStream, pdfWriter, properties);
+//        HtmlConverter.convertToPdf(inputStream, pdfWriter, properties);
+        HtmlConverter.convertToPdf(inputStream, pdfWriter);
         document.close();
 
         return byteArrayOutputStream.toByteArray();
