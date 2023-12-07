@@ -53,7 +53,7 @@ public class Exhibition {
     private Long viewCount;
 
     @Column(name = "exhibition_genres")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExhibitionGenre> exhibitionGenres = new ArrayList<>();
 
     @Builder

@@ -103,4 +103,8 @@ public class Photo {
     public void increaseViewCount() {
         this.viewCount++;
     }
+
+    public List<PhotoGenre> getPhotoGenres() {
+        return this.photoGenres;
+    }
 }

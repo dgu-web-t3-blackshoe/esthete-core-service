@@ -7,10 +7,12 @@ import com.blackshoe.esthetecoreservice.exception.PhotoException;
 import com.blackshoe.esthetecoreservice.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericPreference;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
+import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
@@ -20,12 +22,17 @@ import org.apache.mahout.cf.taste.model.PreferenceArray;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
-@Service
+@Service @Slf4j
 @RequiredArgsConstructor
 public class RecommendationServiceImpl implements RecommendationService {
 
@@ -60,47 +67,65 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     private float calculatePreferenceScore(long userId, long exhibitionId, Map<Long, Set<Long>> userPreferredGenres, Map<Long, Set<Long>> exhibitionGenres) {
-        Set<Long> userGenres = userPreferredGenres.getOrDefault(userId, new HashSet<>());
+        Set<Long> originalUserGenres = userPreferredGenres.getOrDefault(userId, new HashSet<>());
         Set<Long> exhibitionGenreIds = exhibitionGenres.getOrDefault(exhibitionId, new HashSet<>());
+
+        // 원본 Set을 복사하여 작업
+        Set<Long> userGenres = new HashSet<>(originalUserGenres);
+
+        log.info("userGenres: {}", userGenres);
+        log.info("exhibitionGenreIds: {}", exhibitionGenreIds);
+
         userGenres.retainAll(exhibitionGenreIds);
-        return userGenres.size();
+        //userGenres가 originalUserGenres의 몇 %인지
+        float percentage = (float) userGenres.size() / (float) originalUserGenres.size() * 10;
+        return percentage;
     }
+    private void createOrUpdateCsvFile() throws IOException {
+        String filePath = "user_file_data_model.csv"; // CSV 파일 경로 지정
+        File file = new File(filePath);
 
-    private DataModel createDataModel() {
-        List<View> views = viewRepository.findAll();
-        Map<Long, Set<Long>> userPreferredGenres = collectUserPreferredGenres();
-        Map<Long, Set<Long>> exhibitionGenres = collectExhibitionGenres();
-
-        FastByIDMap<PreferenceArray> userData = new FastByIDMap<>();
-
-        for (View view : views) {
-            long userId = view.getUser().getId();
-            long exhibitionId = view.getExhibition().getId();
-            float preferenceValue = calculatePreferenceScore(userId, exhibitionId, userPreferredGenres, exhibitionGenres);
-
-            List<GenericPreference> userPreferences = new ArrayList<>();
-            if (userData.containsKey(userId)) {
-                PreferenceArray prefsArray = userData.get(userId);
-                for (int i = 0; i < prefsArray.length(); i++) {
-                    Preference pref = prefsArray.get(i);
-                    userPreferences.add(new GenericPreference(pref.getUserID(), pref.getItemID(), pref.getValue()));
-                }
-            }
-
-            userPreferences.add(new GenericPreference(userId, exhibitionId, preferenceValue));
-            userData.put(userId, new GenericUserPreferenceArray(userPreferences));
+        //파일 삭제
+        if (file.exists()) {
+            file.delete();
         }
 
-        return new GenericDataModel(userData);
+        file.createNewFile();
+
+        // FileWriter를 사용하여 파일에 데이터를 추가
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            List<View> views = viewRepository.findAll();
+            for (View view : views) {
+                long userId = view.getUser().getId();
+                long exhibitionId = view.getExhibition().getId();
+                float preferenceValue = calculatePreferenceScore(userId, exhibitionId, collectUserPreferredGenres(), collectExhibitionGenres());
+                bw.write(userId + "," + exhibitionId + "," + preferenceValue + "\n");
+            }
+        }
+    }
+
+    private DataModel createFileDataModel() throws Exception {
+        createOrUpdateCsvFile(); // CSV 파일 생성 또는 업데이트
+        String fileLocation = "user_file_data_model.csv";
+
+        //String fileLocation = "test.csv";
+        return new FileDataModel(new File(fileLocation));
     }
 
     public List<RecommendedItem> recommendExhibitions(UUID userId, int numberOfRecommendations) throws Exception {
         long userLongId = getUserIdFromUUID(userId);
-        DataModel model = createDataModel();
+        //long userLongId = 2L;
+        DataModel model = createFileDataModel();
+        log.info("model: {}", model);
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-        Recommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+        log.info("similarity: {}", similarity.toString());
+
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, model);
+        log.info("neighborhood: {}", neighborhood.toString());
+
+        UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+        log.info("recommender: {}", recommender.toString());
 
         return recommender.recommend(userLongId, numberOfRecommendations);
     }
@@ -111,7 +136,10 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public List<ExhibitionDto.ReadRecommendedExhibitionResponse> getRecommendedExhibitions(UUID userId) throws Exception {
-        List<RecommendedItem> recommendedItems = recommendExhibitions(userId, 10);
+        List<RecommendedItem> recommendedItems = recommendExhibitions(userId, 1);
+
+        log.info("recommendedItems: {}", recommendedItems);
+
         List<ExhibitionDto.ReadRecommendedExhibitionResponse> recommendedExhibitions = new ArrayList<>();
 
         for (RecommendedItem item : recommendedItems) {
