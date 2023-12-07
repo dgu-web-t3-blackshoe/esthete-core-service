@@ -73,7 +73,7 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
 //        properties.setFontProvider(fontProvider);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4);
+        Document document = new Document(PageSize.A4, 2, 2, 2, 2);
 
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
 
