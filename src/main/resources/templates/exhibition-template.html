@@ -62,7 +62,7 @@
         }
 
         .exhibition-room img {
-            max-width: 100%;
+            max-width: 30%;
             height: auto;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -106,9 +106,8 @@
         <p th:text="${room.description}"></p>
         <div class="grid-container">
             <!-- 전시 사진 목록 -->
-            <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}">
-                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}"
-                     style="max-width: 30%; height: auto; border-radius: 8px; margin-bottom: 10px;">
+            <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}"
+                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}">
                 <h3 th:text="${roomPhoto.photo.title}"></h3>
                 <p th:text="${roomPhoto.photo.description}"></p>
             </div>
