@@ -68,7 +68,7 @@ public class AbusingReportServiceImpl implements AbusingReportService {
                 .build();
 
         webClient.post()
-                .uri("/abusing-reports/guest-books")
+                .uri("/post-abusing-report/guest-books")
                 .bodyValue(guestBookAbusingReportDto)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse -> {
@@ -119,7 +119,7 @@ public class AbusingReportServiceImpl implements AbusingReportService {
                 .build();
 
         webClient.post()
-                .uri("/abusing-reports/photos")
+                .uri("/post-abusing-report/photos")
                 .bodyValue(photoAbusingReportDto)
                 .retrieve()
                 .onStatus(HttpStatus::isError, clientResponse -> {

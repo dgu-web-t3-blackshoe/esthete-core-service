@@ -40,6 +40,12 @@ public class RoomPhoto {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Builder
+    public RoomPhoto(Photo photo) {
+        this.photo = photo;
+        photo.addRoomPhoto(this);
+    }
+
     @PrePersist
     public void setRoomPhotoId() {
         if (roomPhotoId == null) {
