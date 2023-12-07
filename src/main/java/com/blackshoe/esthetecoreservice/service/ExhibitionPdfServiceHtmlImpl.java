@@ -74,14 +74,13 @@ public class ExhibitionPdfServiceHtmlImpl implements ExhibitionPdfService {
         properties.setFontProvider(new DefaultFontProvider(true, true, true));
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4, 0, 0, 0, 0);
+        Document document = new Document(PageSize.A4);
 
         PdfWriter pdfWriter = new PdfWriter(byteArrayOutputStream);
 
         document.open();
         InputStream inputStream = new ByteArrayInputStream(htmlContent.getBytes(StandardCharsets.UTF_8));
-//        HtmlConverter.convertToPdf(inputStream, pdfWriter, properties);
-        HtmlConverter.convertToPdf(inputStream, pdfWriter);
+        HtmlConverter.convertToPdf(inputStream, pdfWriter, properties);
         document.close();
 
         return byteArrayOutputStream.toByteArray();

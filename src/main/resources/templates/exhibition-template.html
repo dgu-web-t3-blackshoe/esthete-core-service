@@ -62,7 +62,7 @@
         }
 
         .exhibition-room img {
-            max-width: 30%;
+            max-width: 100%;
             height: auto;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -104,14 +104,16 @@
     <div class="exhibition-room" th:each="room : ${exhibition.rooms}">
         <h2 th:text="${room.title}"></h2>
         <p th:text="${room.description}"></p>
-        <div class="grid-container">
+        <div class="grid-container"
+             style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
             <!-- 전시 사진 목록 -->
-            <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}"
-            <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}">
-            <h3 th:text="${roomPhoto.photo.title}"></h3>
-            <p th:text="${roomPhoto.photo.description}"></p>
+            <div class="exhibition-item" th:each="roomPhoto : ${room.roomPhotos}">
+                <img th:src="${roomPhoto.photo.photoUrl.cloudfrontUrl}" th:alt="${roomPhoto.photo.description}"
+                style="max-width: 30%; height: auto">
+                <h3 th:text="${roomPhoto.photo.title}"></h3>
+                <p th:text="${roomPhoto.photo.description}"></p>
+            </div>
         </div>
-    </div>
     </div>
 </main>
 
