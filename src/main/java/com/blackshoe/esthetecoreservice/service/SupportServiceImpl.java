@@ -5,6 +5,7 @@ import com.blackshoe.esthetecoreservice.dto.UserDto;
 import com.blackshoe.esthetecoreservice.entity.*;
 import com.blackshoe.esthetecoreservice.exception.UserErrorResult;
 import com.blackshoe.esthetecoreservice.exception.UserException;
+import com.blackshoe.esthetecoreservice.repository.ExhibitionRepository;
 import com.blackshoe.esthetecoreservice.repository.SupportRepository;
 import com.blackshoe.esthetecoreservice.repository.UserRepository;
 import com.blackshoe.esthetecoreservice.repository.ViewRepository;
@@ -31,6 +32,7 @@ public class SupportServiceImpl implements SupportService {
     private final UserRepository userRepository;
     private final ViewRepository viewRepository;
     private final RedisTemplate redisTemplate;
+    private final ExhibitionRepository exhibitionRepository;
     @Override
     @Transactional
     public SupportDto.CreateSupportResponse createSupport(UUID userId, SupportDto.CreateSupportRequest supportCreateSupportRequest) throws JsonProcessingException {
@@ -39,6 +41,7 @@ public class SupportServiceImpl implements SupportService {
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
         final UUID photographerId = UUID.fromString(supportCreateSupportRequest.getPhotographerId());
+
         final User photographer = userRepository.findByUserId(photographerId)
                 .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
@@ -181,4 +184,29 @@ public class SupportServiceImpl implements SupportService {
 
         return isSupportedResponse;
     }
+
+    @Transactional
+    public boolean isOkToSupported(UUID userId, UUID photographerId) {
+
+        final User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        final User photographer = userRepository.findByUserId(photographerId)
+                .orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
+
+        List<Exhibition> exhibitions = exhibitionRepository.findAllByPhotographer(photographer);
+
+        int count = 0;
+        for(Exhibition exhibition : exhibitions){
+            if(viewRepository.existsByUserAndExhibition(user, exhibition)){
+                count++;
+            }
+        }
+        if(count >= 3){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
