@@ -1,6 +1,8 @@
 package com.blackshoe.esthetecoreservice.config;
 
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.layout.font.FontProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,8 +47,9 @@ public class ITextConfig {
         try {
             log.info("폰트를 등록 테스트합니다.");
 
-            FontProvider fontProvider = new DefaultFontProvider();
-            fontProvider.addFont(FONT_DIRECTORY + FONT_NAME);
+            FontProgram fontProgram = FontProgramFactory.createFont(FONT_DIRECTORY + FONT_NAME);
+            FontProvider fontProvider = new DefaultFontProvider(false, false, false);
+            fontProvider.addFont(fontProgram);
 
             log.info("폰트 등록 테스트에 성공하였습니다.");
 
