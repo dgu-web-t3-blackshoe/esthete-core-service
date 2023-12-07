@@ -16,11 +16,4 @@ import java.util.UUID;
 
 @Repository
 public interface ViewRepository extends JpaRepository<View, UUID> {
-    //get photos by user id order by view count
-    @Query("SELECT v.photo FROM View v WHERE v.user = :user GROUP BY v.photo ORDER BY COUNT(v.photo) DESC")
-    Page<Photo> findPhotosByUserIdOrderByViewCount(User user, Pageable pageable);
-
-    @Query("SELECT v FROM View v JOIN FETCH v.user u JOIN FETCH v.exhibition e")
-    List<View> findAllWithUserAndExhibition();
-
 }
