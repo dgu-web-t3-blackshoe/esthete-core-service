@@ -184,32 +184,43 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorResult.USER_NOT_FOUND));
 
-        user.setNickname(signUpInfoRequest.getNickname());
-        user.setBiography(signUpInfoRequest.getBiography());
+        log.info("signUp userId: {}", userId.toString());
+        log.info("signUp nickname: {}", signUpInfoRequest.getNickname());
+        log.info("signUp biography: {}", signUpInfoRequest.getBiography());
+        log.info("signUp genres: {}", signUpInfoRequest.getGenres());
+        log.info("signUp equipments: {}", signUpInfoRequest.getEquipments());
 
-        signUpInfoRequest.getGenres().stream()
-                .forEach(genreId -> {
-                            Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
-                                    .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
-                            UserGenre userGenre = UserGenre.builder()
-                                    .user(user)
-                                    .genre(genre)
-                                    .build();
+        try {
+            user.setNickname(signUpInfoRequest.getNickname());
+            user.setBiography(signUpInfoRequest.getBiography());
 
-                            userGenreRepository.save(userGenre);
-                        }
-                );
+            signUpInfoRequest.getGenres().stream()
+                    .forEach(genreId -> {
+                                Genre genre = genreRepository.findByGenreId(UUID.fromString(genreId))
+                                        .orElseThrow(() -> new UserException(UserErrorResult.GENRE_NOT_FOUND));
+                                UserGenre userGenre = UserGenre.builder()
+                                        .user(user)
+                                        .genre(genre)
+                                        .build();
 
-        signUpInfoRequest.getEquipments().stream()
-                .forEach(equipmentName -> {
-                            UserEquipment userEquipment = UserEquipment.builder()
-                                    .user(user)
-                                    .equipmentName(equipmentName)
-                                    .build();
+                                userGenreRepository.save(userGenre);
+                            }
+                    );
 
-                            userEquipmentRepository.save(userEquipment);
-                        }
-                );
+            signUpInfoRequest.getEquipments().stream()
+                    .forEach(equipmentName -> {
+                                UserEquipment userEquipment = UserEquipment.builder()
+                                        .user(user)
+                                        .equipmentName(equipmentName)
+                                        .build();
+
+                                userEquipmentRepository.save(userEquipment);
+                            }
+                    );
+        } catch (Exception e) {
+            log.error("signUp error: {}", e.getMessage());
+            throw new UserException(UserErrorResult.USER_SIGN_UP_ERROR);
+        }
 
         return UserDto.SignUpResponse.builder().userId(user.getUserId().toString()).createdAt(String.valueOf(LocalDateTime.now())).build();
     }
