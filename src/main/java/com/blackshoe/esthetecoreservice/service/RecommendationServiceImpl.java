@@ -137,7 +137,6 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public List<ExhibitionDto.ReadRecommendedExhibitionResponse> getRecommendedExhibitions(UUID userId) throws Exception {
         List<RecommendedItem> recommendedItems = recommendExhibitions(userId, 1);
-
         log.info("recommendedItems: {}", recommendedItems);
 
         List<ExhibitionDto.ReadRecommendedExhibitionResponse> recommendedExhibitions = new ArrayList<>();
