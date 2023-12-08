@@ -40,9 +40,9 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final ExhibitionRepository exhibitionRepository;
     private final UserGenreRepository userGenreRepository;
     private final ExhibitionGenreRepository exhibitionGenreRepository;
-    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final PhotoRepository photoRepository;
+    private final UserRepository userRepository;
 
     private Map<Long, Set<Long>> collectUserPreferredGenres() {
         Map<Long, Set<Long>> userPreferredGenres = new HashMap<>();
@@ -140,11 +140,11 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public List<ExhibitionDto.ReadRecommendedExhibitionResponse> getRecommendedExhibitions(UUID userId) throws Exception {
+    public ExhibitionDto.ReadRecommendedExhibitionResponse getRecommendedExhibitions(UUID userId) throws Exception {
         List<RecommendedItem> recommendedItems = recommendExhibitions(userId, 1);
         log.info("recommendedItems: {}", recommendedItems);
 
-        List<ExhibitionDto.ReadRecommendedExhibitionResponse> recommendedExhibitions = new ArrayList<>();
+        ExhibitionDto.ReadRecommendedExhibitionResponse recommendExhibitions = null;
 
         for (RecommendedItem item : recommendedItems) {
             long exhibitionId = item.getItemID();
@@ -154,12 +154,11 @@ public class RecommendationServiceImpl implements RecommendationService {
             Photo photo = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail()))
                     .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
-            ExhibitionDto.ReadRecommendedExhibitionResponse response = new ExhibitionDto.ReadRecommendedExhibitionResponse(exhibition);
-            response.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+            ExhibitionDto.ReadRecommendedExhibitionResponse recommendedExhibitionResponse = new ExhibitionDto.ReadRecommendedExhibitionResponse(exhibition);
+            recommendedExhibitionResponse.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
 
-            recommendedExhibitions.add(response);
         }
 
-        return recommendedExhibitions;
+        return recommendExhibitions;
     }
 }

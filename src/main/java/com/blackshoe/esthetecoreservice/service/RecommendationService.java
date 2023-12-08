@@ -10,5 +10,5 @@ public interface RecommendationService {
     //@Scheduled(cron = "0 0 6 * * *")
     //void buildDataModel();
 
-    List<ExhibitionDto.ReadRecommendedExhibitionResponse> getRecommendedExhibitions(UUID userId) throws Exception;
+    ExhibitionDto.ReadRecommendedExhibitionResponse getRecommendedExhibitions(UUID userId) throws Exception;
 }
