@@ -15,7 +15,7 @@ spring:
   jpa:
     defer-datasource-initialization: true
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQL5Dialect
     open-in-view: true
     generate-ddl: true
     show-sql: true
