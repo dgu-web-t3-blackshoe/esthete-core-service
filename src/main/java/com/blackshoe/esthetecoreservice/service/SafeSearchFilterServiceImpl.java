@@ -62,7 +62,7 @@ public class SafeSearchFilterServiceImpl implements SafeSearchFilterService {
                     .build();
 
             throw new SafeSearchException(
-                    "선정적인 사진은 업로드할 수 없습니다",
+                    "선정적인 사진은 업로드할 수 없습니다.",
                     safeSearchData);
         }
     }

@@ -17,10 +17,10 @@ public class SafeSearchController {
     private final SafeSearchFilterService safeSearchFilterService;
 
     @PostMapping
-    public ResponseEntity checkSafeSearch(@RequestPart MultipartFile request) {
+    public ResponseEntity<String> checkSafeSearch(@RequestPart MultipartFile request) {
 
         safeSearchFilterService.safeSearchFilter(request);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("safe search check success");
     }
 }
