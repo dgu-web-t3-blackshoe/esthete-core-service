@@ -92,6 +92,8 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         long lastExhibitionId = exhibitionRepository.findTopByOrderByCreatedAtDesc().get().getId();
 
+        log.info("lastExhibitionId: {}", lastExhibitionId);
+
         Optional<Exhibition> optionalExhibition = Optional.empty();
 
         while (optionalExhibition.isEmpty()) {
