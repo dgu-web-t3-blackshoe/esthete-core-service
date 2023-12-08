@@ -84,12 +84,23 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         long exhibitionCount = exhibitionRepository.countAllBy();
 
+        log.info("exhibitionCount: {}", exhibitionCount);
+
         if (exhibitionCount == 0) {
             throw new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND);
         }
 
-        final Long exhibitionId = (long) (Math.random() * exhibitionCount);
-        Exhibition exhibition = exhibitionRepository.findById(exhibitionId).get();
+        long lastExhibitionId = exhibitionRepository.findTopByOrderByCreatedAtDesc().get().getId();
+
+        Optional<Exhibition> optionalExhibition = Optional.empty();
+
+        while (optionalExhibition.isEmpty()) {
+            final Long exhibitionId = (long) (Math.random() * lastExhibitionId);
+            log.info("exhibitionId: {}", exhibitionId);
+            optionalExhibition = exhibitionRepository.findById(exhibitionId);
+        }
+
+        Exhibition exhibition = optionalExhibition.get();
 
         //photo cloudfronturl from exhibition.thumbnail(photoid)
         Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail())).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
