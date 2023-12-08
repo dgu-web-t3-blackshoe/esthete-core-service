@@ -82,39 +82,40 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     @Override
     public ExhibitionDto.ReadRandomExhibitionResponse readRandomExhibition() {
 
-            Optional<Exhibition> optionalExhibition = Optional.empty();
+        long exhibitionCount = exhibitionRepository.countAllBy();
 
-            while (optionalExhibition.isEmpty()) {
-                final Long exhibitionId = (long) (Math.random() * 100);
-                optionalExhibition = exhibitionRepository.findById(exhibitionId);
-            }
+        if (exhibitionCount == 0) {
+            throw new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND);
+        }
 
-            final Exhibition exhibition = optionalExhibition.get();
+        final Long exhibitionId = (long) (Math.random() * exhibitionCount);
+        Exhibition exhibition = exhibitionRepository.findById(exhibitionId).get();
 
-            //photo cloudfronturl from exhibition.thumbnail(photoid)
-            Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail())).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+        //photo cloudfronturl from exhibition.thumbnail(photoid)
+        Photo thumbnailPhoto = photoRepository.findByPhotoId(UUID.fromString(exhibition.getThumbnail())).orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
 
-            final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = ExhibitionDto.ReadRandomExhibitionResponse.builder()
-                    .exhibitionId(exhibition.getExhibitionId().toString())
-                    .title(exhibition.getTitle())
-                    .description(exhibition.getDescription())
-                    .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
-                    .userId(exhibition.getUser().getUserId().toString())
-                    .nickname(exhibition.getUser().getNickname())
-                    .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
-                    .build();
+        final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse = ExhibitionDto.ReadRandomExhibitionResponse.builder()
+                .exhibitionId(exhibition.getExhibitionId().toString())
+                .title(exhibition.getTitle())
+                .description(exhibition.getDescription())
+                .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
+                .userId(exhibition.getUser().getUserId().toString())
+                .nickname(exhibition.getUser().getNickname())
+                .profileImg(exhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
+                .build();
 
-            return exhibitionReadRandomExhibitionResponse;
+        return exhibitionReadRandomExhibitionResponse;
     }
 
-    @Override @Transactional
+    @Override
+    @Transactional
     public ExhibitionDto.UpdateViewOfExhibitionResponse viewExhibition(UUID exhibitionId, UUID userId) {
         ExhibitionDto.UpdateViewOfExhibitionResponse exhibitionUpdateViewOfExhibitionResponse = ExhibitionDto.UpdateViewOfExhibitionResponse.builder()
                 .exhibitionId(exhibitionId.toString())
                 .updatedAt(LocalDateTime.now().toString())
                 .build();
 
-        if(redisTemplate.opsForValue().get("view_exhibition_" + exhibitionId + "_user_" + userId) == null){
+        if (redisTemplate.opsForValue().get("view_exhibition_" + exhibitionId + "_user_" + userId) == null) {
 
             String redisKey = "view_exhibition_" + exhibitionId + "_user_" + userId;
             redisTemplate.opsForValue().set(redisKey, "0");
@@ -137,13 +138,13 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     }
 
     @Transactional
-    public void saveOrUpdateNewWork(UUID photographerId, Exhibition exhibition) throws JsonProcessingException{
+    public void saveOrUpdateNewWork(UUID photographerId, Exhibition exhibition) throws JsonProcessingException {
         List<Support> supports = supportRepository.findAllByPhotographerId(photographerId);
 
         String[] userIdWithCondition;
         List<String[]> supporters = new ArrayList<>();
 
-        for(Support support : supports){
+        for (Support support : supports) {
             userIdWithCondition = new String[]{support.getUser().getUserId().toString(), "true"};
 
             supporters.add(userIdWithCondition);
@@ -155,7 +156,7 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         String supportersJson = objectMapper.writeValueAsString(supporters);
 
-        try{
+        try {
             supportersJson = objectMapper.writeValueAsString(supporters);
         } catch (JsonProcessingException e) {
             log.error("JSON 변환 실패: {}", e.getMessage());

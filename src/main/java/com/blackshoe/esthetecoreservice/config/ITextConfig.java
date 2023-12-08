@@ -30,7 +30,7 @@ public class ITextConfig {
         try {
             log.info("폰트 다운로드를 시작합니다.");
 
-            Path fontFilePath = Path.of(FONT_DIRECTORY, FONT_NAME);
+            Path fontFilePath = Path.of(FONT_DIRECTORY + FONT_NAME);
             log.info("폰트 파일 경로: {}", fontFilePath);
 
             URL fontUrl = new URL(FONT_DOWNLOAD_URL);
