@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,4 +44,8 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
     ExhibitionCountDto getExhibitionCount(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     long countAllBy();
+
+    @Query("SELECT e FROM Exhibition e WHERE e.user = :photographer")
+    List<Exhibition> findAllByPhotographer(@Param("photographer") User photographer);
+
 }
