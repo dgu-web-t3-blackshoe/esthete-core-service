@@ -95,22 +95,28 @@ public class PhotoServiceImpl implements PhotoService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        PhotoUrlDto photoUrlDto = createPhotoUrlDto(s3Url, cloudFrontUrl);
-        PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
+        try {
 
-        PhotoLocation photoLocation = createPhotoLocation(photoUploadRequest);
-        Photo uploadedPhoto = createPhoto(photographer, photoId, uploadedPhotoUrl, photoUploadRequest, photoLocation);
-        photoRepository.save(uploadedPhoto);
+            PhotoUrlDto photoUrlDto = createPhotoUrlDto(s3Url, cloudFrontUrl);
+            PhotoUrl uploadedPhotoUrl = PhotoUrl.convertPhotoUrlDtoToEntity(photoUrlDto);
 
-        savePhotoGenres(uploadedPhoto, photoUploadRequest.getGenreIds());
-        savePhotoEquipments(uploadedPhoto, photoUploadRequest.getEquipments());
+            PhotoLocation photoLocation = createPhotoLocation(photoUploadRequest);
+            Photo uploadedPhoto = createPhoto(photographer, photoId, uploadedPhotoUrl, photoUploadRequest, photoLocation);
+            photoRepository.save(uploadedPhoto);
 
-        UUID photographerId = UUID.fromString(photographer.getUserId().toString());
+            savePhotoGenres(uploadedPhoto, photoUploadRequest.getGenreIds());
+            savePhotoEquipments(uploadedPhoto, photoUploadRequest.getEquipments());
 
+            UUID photographerId = UUID.fromString(photographer.getUserId().toString());
 
-        photoChecksumService.addPhotoChecksum(photo, photoId);
+            photoChecksumService.addPhotoChecksum(photo, photoId);
 
-        return createPhotoDto(photoId, uploadedPhotoUrl);
+            return createPhotoDto(photoId, uploadedPhotoUrl);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new PhotoException(PhotoErrorResult.PHOTO_UPLOAD_FAILED);
+        }
     }
 
     public void validatePhoto(MultipartFile photo) {
