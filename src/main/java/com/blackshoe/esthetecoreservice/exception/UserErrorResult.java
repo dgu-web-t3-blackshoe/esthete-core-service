@@ -17,7 +17,7 @@ public enum UserErrorResult {
     PROFILEIMG_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 업로드에 실패했습니다."),
     INVALID_PROFILEIMG_SIZE(HttpStatus.BAD_REQUEST, "프로필 이미지의 크기가 너무 큽니다."),
     PROFILEIMG_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 삭제에 실패했습니다."),
-    ;
+    USER_SIGN_UP_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "회원가입에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
