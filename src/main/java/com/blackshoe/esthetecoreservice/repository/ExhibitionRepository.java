@@ -41,4 +41,6 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
             "FROM Exhibition e " +
             "WHERE e.createdAt >= :start AND e.createdAt < :end")
     ExhibitionCountDto getExhibitionCount(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    long countAllBy();
 }
