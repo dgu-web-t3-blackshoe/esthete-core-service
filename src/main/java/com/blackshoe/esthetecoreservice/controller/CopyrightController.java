@@ -18,10 +18,10 @@ public class CopyrightController {
     private final PhotoChecksumService photoChecksumService;
 
     @PostMapping
-    public ResponseEntity checkCopyRight(@RequestPart MultipartFile request) {
+    public ResponseEntity<String> checkCopyRight(@RequestPart MultipartFile request) {
 
         photoChecksumService.validatePhotoChecksumExist(request);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body("copy right check success");
     }
 }
