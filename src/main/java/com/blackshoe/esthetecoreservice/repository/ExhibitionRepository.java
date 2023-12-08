@@ -48,4 +48,6 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
     @Query("SELECT e FROM Exhibition e WHERE e.user = :photographer")
     List<Exhibition> findAllByPhotographer(@Param("photographer") User photographer);
 
+    Optional<Exhibition> findTopByOrderByCreatedAtDesc();
+
 }
