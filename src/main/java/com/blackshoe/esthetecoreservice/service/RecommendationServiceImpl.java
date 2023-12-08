@@ -77,7 +77,9 @@ public class RecommendationServiceImpl implements RecommendationService {
         log.info("exhibitionGenreIds: {}", exhibitionGenreIds);
 
         userGenres.retainAll(exhibitionGenreIds);
-        //userGenres가 originalUserGenres의 몇 %인지
+        if (originalUserGenres.size() == 0) {
+            return 0.0f;
+        }
         float percentage = (float) userGenres.size() / (float) originalUserGenres.size() * 10;
         return percentage;
     }
@@ -95,6 +97,9 @@ public class RecommendationServiceImpl implements RecommendationService {
         // FileWriter를 사용하여 파일에 데이터를 추가
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
             List<View> views = viewRepository.findAll();
+            if(views.isEmpty()) {
+                bw.write("1,1,1.0\n");
+            }
             for (View view : views) {
                 long userId = view.getUser().getId();
                 long exhibitionId = view.getExhibition().getId();
