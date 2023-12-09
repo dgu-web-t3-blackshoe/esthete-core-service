@@ -17,4 +17,6 @@ import lombok.NoArgsConstructor;
 public class CopyrightErrorDto {
     private String  error;
     private String originalPhotoId;
+    private String originalPhotoUserId;
+    private String originalPhotoUserNickname;
 }

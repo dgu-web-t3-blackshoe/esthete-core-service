@@ -12,8 +12,15 @@ public class CopyrightException extends RuntimeException {
 
     private final String originalPhotoId;
 
-    public CopyrightException(String message, String originalPhotoId) {
+    private final String originalPhotoUserId;
+
+    private final String originalPhotoUserNickname;
+
+    public CopyrightException(String message, String originalPhotoId,
+                              String originalPhotoUserId, String originalPhotoUserNickname) {
         this.message = message;
         this.originalPhotoId = originalPhotoId;
+        this.originalPhotoUserId = originalPhotoUserId;
+        this.originalPhotoUserNickname = originalPhotoUserNickname;
     }
 }

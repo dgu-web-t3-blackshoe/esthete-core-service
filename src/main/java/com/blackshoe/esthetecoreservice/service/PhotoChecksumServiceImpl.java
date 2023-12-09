@@ -67,7 +67,9 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
 
             throw new CopyrightException(
                     "이미 업로드된 이미지는 등록할 수 없습니다.",
-                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : ""
+                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : "",
+                    photoChecksum.getPhoto().getUser() != null ? photoChecksum.getPhoto().getUser().getUserId().toString() : "",
+                    photoChecksum.getPhoto().getUser().getNickname() != null ? photoChecksum.getPhoto().getUser().getNickname() : ""
             );
         }
     }
@@ -122,7 +124,9 @@ public class PhotoChecksumServiceImpl implements PhotoChecksumService {
 
             throw new CopyrightException(
                     "이미 업로드된 이미지는 등록할 수 없습니다.",
-                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : "test:"+UUID.randomUUID().toString()
+                    photoChecksum.getPhoto() != null ? photoChecksum.getPhoto().getPhotoId().toString() : "test:"+UUID.randomUUID().toString(),
+                    photoChecksum.getPhoto().getUser() != null ? photoChecksum.getPhoto().getUser().getUserId().toString() : "test:"+UUID.randomUUID().toString(),
+                    photoChecksum.getPhoto().getUser().getNickname() != null ? photoChecksum.getPhoto().getUser().getNickname() : "test:nickname"
             );
         }
     }
