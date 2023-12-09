@@ -126,6 +126,8 @@ public class GlobalExceptionHandler {
         final CopyrightErrorDto copyrightErrorDto = CopyrightErrorDto.builder()
                 .error(e.getMessage())
                 .originalPhotoId(e.getOriginalPhotoId())
+                .originalPhotoUserId(e.getOriginalPhotoUserId())
+                .originalPhotoUserNickname(e.getOriginalPhotoUserNickname())
                 .build();
 
         return ResponseEntity.status(e.getHttpStatus()).body(copyrightErrorDto);
