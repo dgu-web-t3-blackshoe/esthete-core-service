@@ -86,8 +86,29 @@ public class ExhibitionServiceImpl implements ExhibitionService {
 
         log.info("exhibitionCount: {}", exhibitionCount);
 
-        if (exhibitionCount == 0) {
-            throw new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND);
+
+        if (exhibitionCount <= 3) {
+            if (exhibitionCount == 0) {
+                throw new ExhibitionException(ExhibitionErrorResult.EXHIBITION_NOT_FOUND);
+            }
+            Exhibition lastExhibition = exhibitionRepository.findTopByOrderByCreatedAtDesc().get();
+
+            Photo thumbnailPhoto
+                    = photoRepository.findByPhotoId(UUID.fromString(lastExhibition.getThumbnail()))
+                    .orElseThrow(() -> new PhotoException(PhotoErrorResult.PHOTO_NOT_FOUND));
+
+            final ExhibitionDto.ReadRandomExhibitionResponse exhibitionReadRandomExhibitionResponse
+                    = ExhibitionDto.ReadRandomExhibitionResponse.builder()
+                    .exhibitionId(lastExhibition.getExhibitionId().toString())
+                    .title(lastExhibition.getTitle())
+                    .description(lastExhibition.getDescription())
+                    .thumbnail(thumbnailPhoto.getPhotoUrl().getCloudfrontUrl())
+                    .userId(lastExhibition.getUser().getUserId().toString())
+                    .nickname(lastExhibition.getUser().getNickname())
+                    .profileImg(lastExhibition.getUser().getProfileImgUrl().getCloudfrontUrl())
+                    .build();
+
+            return exhibitionReadRandomExhibitionResponse;
         }
 
         long lastExhibitionId = exhibitionRepository.findTopByOrderByCreatedAtDesc().get().getId();
