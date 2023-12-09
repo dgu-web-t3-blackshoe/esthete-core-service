@@ -20,9 +20,9 @@ public class NewWorkController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<NewWorkDto.ReadNewWorkResponse>> readNewWork(@PathVariable UUID userId) {
-        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponsNewWorks = newWorkService.readNewWork(userId);
+        List<NewWorkDto.ReadNewWorkResponse> newWorkReadResponseNewWorks = newWorkService.readNewWork(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(newWorkReadResponsNewWorks);
+        return ResponseEntity.status(HttpStatus.OK).body(newWorkReadResponseNewWorks);
     }
 
 

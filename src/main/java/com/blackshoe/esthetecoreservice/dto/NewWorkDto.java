@@ -22,6 +22,7 @@ public class NewWorkDto {
         private String nickname;
         private String thumbnail;
         private String exhibitionId;
+        private String exhibitionTitle;
         private String hasNewExhibition;
         private String updatedAt;
     }
