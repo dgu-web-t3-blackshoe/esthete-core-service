@@ -88,6 +88,7 @@ public class NewWorkServiceImpl implements NewWorkService{
                         newWorkReadNewWorkResponse.setProfileImg(photographer.getProfileImgUrl().getCloudfrontUrl());
                         newWorkReadNewWorkResponse.setNickname(photographer.getNickname());
                         newWorkReadNewWorkResponse.setThumbnail(photo.getPhotoUrl().getCloudfrontUrl());
+                        newWorkReadNewWorkResponse.setExhibitionTitle(exhibition.getTitle());
                         newWorkReadResponseNewWorks.add(newWorkReadNewWorkResponse);
                     }
                 }
