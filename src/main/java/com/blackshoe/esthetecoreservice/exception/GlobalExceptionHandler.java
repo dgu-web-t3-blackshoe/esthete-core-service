@@ -133,6 +133,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(e.getHttpStatus()).body(copyrightErrorDto);
     }
 
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ErrorDto> handleExternalApiException(ExternalApiException e) {
+
+        log.error("ExternalApiException", e);
+
+        final ErrorDto errorDto = ErrorDto.builder()
+                .error(e.getExternalApiErrorResult().getMessage())
+                .build();
+
+        return ResponseEntity.status(e.getExternalApiErrorResult().getHttpStatus()).body(errorDto);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> handleRuntimeException(RuntimeException e) {
 
