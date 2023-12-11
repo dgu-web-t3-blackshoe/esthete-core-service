@@ -93,6 +93,8 @@ cloud:
       string: ${GCP_CREDENTIALS}
     vision:
       safe-search-option: ${GCP_VISION_SAFE_SEARCH_OPTION}
+    geo-coding:
+      api-key: ${GCP_GEOCODING_API_KEY}
 
   aws:
     credentials:
@@ -140,6 +142,7 @@ app:
 
 services:
   admin-service: ${ADMIN_SERVICE_URL}
+  geo-coding-service: https://maps.googleapis.com/maps/api/geocode
 
 itext:
   font-directory: ${ITEXT_FONT_DIRECTORY}
