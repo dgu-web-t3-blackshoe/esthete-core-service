@@ -17,7 +17,7 @@ public class ExternalApiController {
     private final GeoCodingService geoCodingService;
 
     @GetMapping("/reverse-geo-coding")
-    public ResponseEntity<String> reverseGeoCoding(@RequestParam Double latitude, @RequestParam Double longitude) {
+    public ResponseEntity<String> coordinateToAddress(@RequestParam Double latitude, @RequestParam Double longitude) {
 
         final String addrFromCoordinate = geoCodingService.getAddressFromCoordinate(latitude, longitude);
 
@@ -25,10 +25,18 @@ public class ExternalApiController {
     }
 
     @GetMapping("/geo-coding")
-    public ResponseEntity<String> geoCoding(@RequestParam String address) {
+    public ResponseEntity<String> AddressToCoordinate(@RequestParam String address) {
 
         final String coordinateFromAddress = geoCodingService.getCoordinateFromAddress(address);
 
         return ResponseEntity.status(HttpStatus.OK).body(coordinateFromAddress);
+    }
+
+    @GetMapping("/place-autocomplete")
+    public ResponseEntity<String> autocomplete(@RequestParam String input) {
+
+        final String autoCompleteResult = geoCodingService.getAutocompleteResult(input);
+
+        return ResponseEntity.status(HttpStatus.OK).body(autoCompleteResult);
     }
 }

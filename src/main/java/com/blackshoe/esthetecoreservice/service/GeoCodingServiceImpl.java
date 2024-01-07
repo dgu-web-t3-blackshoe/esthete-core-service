@@ -17,6 +17,9 @@ public class GeoCodingServiceImpl implements GeoCodingService {
     @Value("${services.geo-coding-service}")
     private String GEO_CODING_SERVICE_URL;
 
+    @Value("${services.place-autocomplete-service}")
+    private String PLACE_AUTOCOMPLETE_SERVICE_URL;
+
     @Value("${cloud.gcp.geo-coding.api-key}")
     private String GEO_CODING_SERVICE_API_KEY;
 
@@ -74,5 +77,34 @@ public class GeoCodingServiceImpl implements GeoCodingService {
                 .block();
 
         return coordinateFromAddress;
+    }
+
+    @Override
+    public String getAutocompleteResult(String input) {
+
+        WebClient placeAutocompleteWebClient = WebClient.builder()
+                .baseUrl(PLACE_AUTOCOMPLETE_SERVICE_URL)
+                .build();
+
+        String autocompleteResult = placeAutocompleteWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/json")
+                        .queryParam("input", input)
+                        .queryParam("language", "ko")
+                        .queryParam("key", GEO_CODING_SERVICE_API_KEY)
+                        .build())
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
+                    log.error("place-autocomplete-service 4xx error");
+                    throw new ExternalApiException(ExternalApiErrorResult.GEO_CODING_SERVICE_4XX_ERROR);
+                })
+                .onStatus(HttpStatus::is5xxServerError, clientResponse -> {
+                    log.error("place-autocomplete-service 5xx error");
+                    throw new ExternalApiException(ExternalApiErrorResult.GEO_CODING_SERVICE_5XX_ERROR);
+                })
+                .bodyToMono(String.class)
+                .block();
+
+        return autocompleteResult;
     }
 }
