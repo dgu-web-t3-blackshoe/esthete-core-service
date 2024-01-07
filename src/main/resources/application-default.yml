@@ -143,6 +143,7 @@ app:
 services:
   admin-service: ${ADMIN_SERVICE_URL}
   geo-coding-service: https://maps.googleapis.com/maps/api/geocode
+  place-autocomplete-service: https://maps.googleapis.com/maps/api/place/autocomplete
 
 itext:
   font-directory: ${ITEXT_FONT_DIRECTORY}
